@@ -1,4 +1,4 @@
-package org.pos.study.persistence.entities
+package org.pos.study.domain
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
@@ -12,21 +12,10 @@ data class Discipline(
 
     @NotNull
     @Size(min = 3, max = 20)
-    var firstName: String,
-
-    @NotNull
-    @Size(min = 3, max = 20)
-    var lastName: String,
-
-    @Column(unique = true)
-    @NotNull
-    var email: String,
+    var disciplineName: String,
 
     @NotNull
     var studyYear: Int,
-
-    @NotNull
-    var studentGroup: Int,
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -42,7 +31,7 @@ data class Discipline(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
-    var teacher: Teacher,
+    var teacher: Teacher?,
 
     @ManyToMany(mappedBy = "disciplines", fetch = FetchType.LAZY)
     var students: MutableList<Student> = mutableListOf()

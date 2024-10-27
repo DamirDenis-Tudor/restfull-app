@@ -1,4 +1,4 @@
-package org.pos.study.persistence.entities
+package org.pos.study.domain
 
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
