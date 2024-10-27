@@ -1,0 +1,12 @@
+services:
+  mysql:
+    image: 'mysql:latest'
+    environment:
+      - 'MYSQL_DATABASE=study-database'
+      - 'MYSQL_PASSWORD=password'
+      - 'MYSQL_ROOT_PASSWORD=root-password'
+      - 'MYSQL_USER=user'
+    ports:
+      - '3306:3306'
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
