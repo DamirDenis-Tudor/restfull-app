@@ -1,0 +1,62 @@
+-- Insert into Teacher
+INSERT INTO teacher (first_name, last_name, email, affiliation, grader_type, association_type)
+VALUES
+    ('John', 'Doe', 'john.doe@example.com', 'Computer Science Department', 'Profesor', 'Titular'),
+    ('Jane', 'Smith', 'jane.smith@example.com', 'Mathematics Department', 'Asistent', 'Asociat'),
+    ('Emily', 'Wilson', 'emily.wilson@example.com', 'Physics Department', 'Conferentiar', 'Titular'),
+    ('Michael', 'Taylor', 'michael.taylor@example.com', 'Chemistry Department', 'Profesor', 'Extern'),
+    ('Sarah', 'Moore', 'sarah.moore@example.com', 'Biology Department', 'Asistent', 'Asociat');
+
+-- Insert into Discipline
+INSERT INTO discipline (discipline_name, study_year, discipline_type, category_type, examination_type, teacher_id)
+VALUES
+    ('Data Structures', 1, 'Impusa', 'Domeniu', 'Examen', 1),
+    ('Algorithms', 1, 'Impusa', 'Specialitate', 'Cologviu', 1),
+    ('Linear Algebra', 2, 'Optionala', 'Domeniu', 'Examen', 2),
+    ('Machine Learning', 2, 'LiberAleasa', 'Specialitate', 'Examen', 2),
+    ('Quantum Mechanics', 2, 'Optionala', 'Specialitate', 'Examen', 3),
+    ('Organic Chemistry', 1, 'Impusa', 'Domeniu', 'Cologviu', 4),
+    ('Cell Biology', 2, 'LiberAleasa', 'Specialitate', 'Examen', 5),
+    ('Software Engineering', 1, 'Impusa', 'Adiacenta', 'Examen', 1),
+    ('Advanced Mathematics', 2, 'Optionala', 'Domeniu', 'Examen', 2);
+
+-- Insert into Student
+INSERT INTO student (first_name, last_name, cycle_type, email, study_year, student_group)
+VALUES
+    ('Alice', 'Johnson', 'Licenta', 'alice.johnson@example.com', 1, 101),
+    ('Bob', 'Brown', 'Licenta', 'bob.brown@example.com', 1, 102),
+    ('Charlie', 'Davis', 'Master', 'charlie.davis@example.com', 2, 201),
+    ('David', 'Garcia', 'Licenta', 'david.garcia@example.com', 1, 103),
+    ('Sophia', 'Martinez', 'Licenta', 'sophia.martinez@example.com', 1, 104),
+    ('Liam', 'Hernandez', 'Master', 'liam.hernandez@example.com', 2, 202),
+    ('Olivia', 'Lopez', 'Master', 'olivia.lopez@example.com', 2, 203),
+    ('Emma', 'Anderson', 'Licenta', 'emma.anderson@example.com', 1, 105),
+    ('James', 'Thomas', 'Licenta', 'james.thomas@example.com', 1, 106),
+    ('Isabella', 'Jackson', 'Master', 'isabella.jackson@example.com', 2, 204),
+    ('Noah', 'White', 'Master', 'noah.white@example.com', 2, 205),
+    ('Ava', 'Harris', 'Licenta', 'ava.harris@example.com', 1, 107),
+    ('Liam', 'Clark', 'Licenta', 'liam.clark@example.com', 1, 108),
+    ('Mia', 'Lewis', 'Master', 'mia.lewis@example.com', 2, 206),
+    ('Ethan', 'Robinson', 'Master', 'ethan.robinson@example.com', 2, 207);
+
+-- Insert into student_discipline (junction table)
+INSERT INTO student_discipline (student_id, discipline_id)
+VALUES
+    ((SELECT id FROM student WHERE email = 'alice.johnson@example.com'), 1), -- Alice enrolls in Data Structures
+    ((SELECT id FROM student WHERE email = 'alice.johnson@example.com'), 2), -- Alice enrolls in Algorithms
+    ((SELECT id FROM student WHERE email = 'bob.brown@example.com'), 1), -- Bob enrolls in Data Structures
+    ((SELECT id FROM student WHERE email = 'charlie.davis@example.com'), 3), -- Charlie enrolls in Linear Algebra
+    ((SELECT id FROM student WHERE email = 'charlie.davis@example.com'), 4), -- Charlie enrolls in Machine Learning
+    ((SELECT id FROM student WHERE email = 'david.garcia@example.com'), 6), -- David enrolls in Organic Chemistry
+    ((SELECT id FROM student WHERE email = 'sophia.martinez@example.com'), 4), -- Sophia enrolls in Machine Learning
+    ((SELECT id FROM student WHERE email = 'liam.hernandez@example.com'), 5), -- Liam enrolls in Quantum Mechanics
+    ((SELECT id FROM student WHERE email = 'olivia.lopez@example.com'), 5), -- Olivia enrolls in Quantum Mechanics
+    ((SELECT id FROM student WHERE email = 'emma.anderson@example.com'), 1), -- Emma enrolls in Data Structures
+    ((SELECT id FROM student WHERE email = 'emma.anderson@example.com'), 2), -- Emma enrolls in Algorithms
+    ((SELECT id FROM student WHERE email = 'james.thomas@example.com'), 3), -- James enrolls in Linear Algebra
+    ((SELECT id FROM student WHERE email = 'isabella.jackson@example.com'), 4), -- Isabella enrolls in Machine Learning
+    ((SELECT id FROM student WHERE email = 'noah.white@example.com'), 5), -- Noah enrolls in Quantum Mechanics
+    ((SELECT id FROM student WHERE email = 'ava.harris@example.com'), 6), -- Ava enrolls in Organic Chemistry
+    ((SELECT id FROM student WHERE email = 'liam.clark@example.com'), 8), -- Liam enrolls in Software Engineering
+    ((SELECT id FROM student WHERE email = 'mia.lewis@example.com'), 7), -- Mia enrolls in Cell Biology
+    ((SELECT id FROM student WHERE email = 'ethan.robinson@example.com'), 9); -- Ethan enrolls in Advanced Mathematics
