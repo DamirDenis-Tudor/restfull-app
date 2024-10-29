@@ -1,6 +1,7 @@
-package org.pos.study.controllers
+package org.pos.study.controllers.student
 
 import org.pos.study.controllers.assemblers.LectureModelAssembler
+import org.pos.study.controllers.assemblers.StudentModelAssembler
 import org.pos.study.domain.Lecture
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
@@ -8,19 +9,21 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/academia/students/{studentId}/lectures")
+@RequestMapping("/students/{studentId}/lectures")
 class StudentLectureController(
     private val lectureRepository: LectureRepository,
     private val studentRepository: StudentRepository,
-    private val lectureModelAssembler: LectureModelAssembler
+    private val lectureModelAssembler: LectureModelAssembler,
+    private val studentModelAssembler: StudentModelAssembler
 ) {
 
     @GetMapping
-    fun getLecturesByProfessor(
+    fun getLecturesByStudent(
         @PathVariable studentId: Long,
         @RequestParam(defaultValue = "0") page: Int,
         @RequestParam(defaultValue = "10") size: Int
@@ -36,7 +39,6 @@ class StudentLectureController(
         } ?: ResponseEntity.notFound().build()
     }
 
-
     @GetMapping("/{lectureId}")
     fun getLectureByStudent(
         @PathVariable studentId: Long,
@@ -49,4 +51,53 @@ class StudentLectureController(
             ?: ResponseEntity.notFound().build()
     }
 
+    @PostMapping("/{lectureId}")
+    fun enrollStudentInLecture(
+        @PathVariable studentId: Long,
+        @PathVariable lectureId: Long
+    ): ResponseEntity<EntityModel<Lecture>> {
+        val student = studentRepository.findById(studentId).orElse(null)
+            ?: return ResponseEntity.notFound().build()
+        val lecture = lectureRepository.findById(lectureId).orElse(null)
+            ?: return ResponseEntity.notFound().build()
+
+        return when {
+            student.lectures.contains(lecture) -> ResponseEntity.status(HttpStatus.CONFLICT).body(null)
+            else -> {
+                student.lectures.add(lecture)
+                lecture.students.add(student)
+                studentRepository.save(student)
+                lectureRepository.save(lecture)
+
+                ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
+            }
+        }
+    }
+
+    @DeleteMapping("/{lectureId}")
+    fun unrollStudentFromLecture(
+        @PathVariable studentId: Long,
+        @PathVariable lectureId: Long
+    ): ResponseEntity<EntityModel<*>> {
+        val student = studentRepository.findById(studentId).orElse(null)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(EntityModel.of(mapOf("message" to "Student with ID $studentId not found.")))
+
+        val lecture = lectureRepository.findById(lectureId).orElse(null)
+            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(EntityModel.of(mapOf("message" to "Lecture with ID $lectureId not found.")))
+
+        return if (!student.lectures.contains(lecture)) {
+            ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(EntityModel.of(mapOf("message" to "Student with ID $studentId is not enrolled in lecture with ID $lectureId.")))
+        } else {
+            student.lectures.remove(lecture)
+            lecture.students.remove(student)
+
+            studentRepository.save(student)
+            lectureRepository.save(lecture)
+
+            ResponseEntity.ok(studentModelAssembler.toModel(student))
+        }
+    }
 }

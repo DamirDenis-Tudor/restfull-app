@@ -1,14 +1,15 @@
 package org.pos.study.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
 @Entity
 data class Student(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    @JsonIgnore
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    var id: Long,
 
     @NotNull
     @Size(min = 3, max = 20)
@@ -20,7 +21,7 @@ data class Student(
 
     @Enumerated(EnumType.STRING)
     @NotNull
-    var cycleType: CycleType,
+    var cycleType: CycleType?,
 
     @Column(unique = true)
     @NotNull
@@ -32,13 +33,14 @@ data class Student(
     @NotNull
     var studentGroup: Int,
 
+    @JsonIgnore
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "student_discipline",
+        name = "student_lecture",
         joinColumns = [JoinColumn(name = "student_id")],
-        inverseJoinColumns = [JoinColumn(name = "discipline_id")]
+        inverseJoinColumns = [JoinColumn(name = "lecture_id")]
     )
-    var disciplines: MutableList<Discipline> = mutableListOf()
+    var lectures: MutableList<Lecture> = mutableListOf()
 
 ) {
     enum class CycleType { Licenta, Master }
