@@ -1,5 +1,5 @@
 -- Insert into Teacher
-INSERT INTO teacher (first_name, last_name, email, affiliation, grader_type, association_type)
+INSERT INTO professor (first_name, last_name, email, affiliation, grader_type, association_type)
 VALUES
     ('John', 'Doe', 'john.doe@example.com', 'Computer Science Department', 'Profesor', 'Titular'),
     ('Jane', 'Smith', 'jane.smith@example.com', 'Mathematics Department', 'Asistent', 'Asociat'),
@@ -8,7 +8,7 @@ VALUES
     ('Sarah', 'Moore', 'sarah.moore@example.com', 'Biology Department', 'Asistent', 'Asociat');
 
 -- Insert into Discipline
-INSERT INTO discipline (discipline_name, study_year, discipline_type, category_type, examination_type, teacher_id)
+INSERT INTO lecture (lecture_name, study_year, lecture_type, category_type, examination_type, professor_id)
 VALUES
     ('Data Structures', 1, 'Impusa', 'Domeniu', 'Examen', 1),
     ('Algorithms', 1, 'Impusa', 'Specialitate', 'Cologviu', 1),
@@ -40,7 +40,7 @@ VALUES
     ('Ethan', 'Robinson', 'Master', 'ethan.robinson@example.com', 2, 207);
 
 -- Insert into student_discipline (junction table)
-INSERT INTO student_discipline (student_id, discipline_id)
+INSERT INTO student_lecture (student_id, lecture_id)
 VALUES
     ((SELECT id FROM student WHERE email = 'alice.johnson@example.com'), 1), -- Alice enrolls in Data Structures
     ((SELECT id FROM student WHERE email = 'alice.johnson@example.com'), 2), -- Alice enrolls in Algorithms

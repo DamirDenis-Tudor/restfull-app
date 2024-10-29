@@ -1,26 +1,26 @@
 package org.pos.study.domain
 
-import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
 
 @Entity
-data class Discipline(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+data class Lecture(
+    @JsonIgnore
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Int = 0,
 
     @NotNull
     @Size(min = 3, max = 20)
-    var disciplineName: String,
+    var lectureName: String,
 
     @NotNull
     var studyYear: Int,
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    var disciplineType: DisciplineType,
+    var lectureType: LectureType,
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -30,17 +30,17 @@ data class Discipline(
     @Enumerated(EnumType.STRING)
     var examinationType: ExaminationType,
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "teacher_id")
-    @JsonBackReference
-    var teacher: Teacher?,
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "professor_id")
+    @NotNull
+    @JsonIgnore
+    var professor: Professor,
 
-    @ManyToMany(mappedBy = "disciplines", fetch = FetchType.LAZY)
-    @JsonBackReference
-    var students: MutableList<Student> = mutableListOf()
-
+    @ManyToMany(mappedBy = "lectures", fetch = FetchType.LAZY)
+    @JsonIgnore
+    var students: MutableList<Student> = mutableListOf(),
 ) {
-    enum class DisciplineType { Impusa, Optionala, LiberAleasa }
+    enum class LectureType { Impusa, Optionala, LiberAleasa }
 
     enum class CategoryType { Domeniu, Specialitate, Adiacenta }
 
