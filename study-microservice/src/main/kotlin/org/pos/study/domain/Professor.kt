@@ -6,10 +6,10 @@ import jakarta.persistence.*
 import jakarta.validation.constraints.Size
 
 @Entity
-data class Teacher(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "teacher_id")
+data class Professor(
+    @JsonIgnore
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "professor_id")
     var id: Int,
 
     @Size(min = 3, max = 20)
@@ -28,9 +28,9 @@ data class Teacher(
     @Enumerated(EnumType.STRING)
     var associationType: AssociationType,
 
-    @JsonIgnoreProperties
-    @OneToMany(mappedBy = "teacher", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    var disciplines: MutableList<Discipline> = mutableListOf()
+    @JsonIgnore
+    @OneToMany(mappedBy = "professor", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    var lectures: MutableList<Lecture> = mutableListOf()
 ) {
     enum class GraderType { Asistent, Conferentiar, Profesor, TitularLaborator }
 
