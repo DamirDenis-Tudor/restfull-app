@@ -30,10 +30,10 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
             LinkUtils.addPaginationLinks(this, baseUri, page)
 
             this.add(
-                Link.of("${baseUri}/search").withRel("search-professors").withType("GET"),
-                Link.of(baseUri).withRel("create-professor").withType("POST"),
-                Link.of("${baseUri}/{id}").withRel("update-professor").withType("PATCH"),
-                Link.of("${baseUri}/{id}").withRel("delete-professor").withType("DELETE")
+                Link.of("/api/academia/professors/search").withRel("search-professors").withType("GET"),
+                Link.of("/api/academia/professors").withRel("create-professor").withType("POST"),
+                Link.of("/api/academia/professors/{id}").withRel("update-professor").withType("PATCH"),
+                Link.of("/api/academia/professors/{id}").withRel("delete-professor").withType("DELETE")
             )
         }
     }

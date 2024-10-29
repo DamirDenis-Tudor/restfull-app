@@ -48,16 +48,16 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
             LinkUtils.addPaginationLinks(this, baseUri, page)
 
             this.add(
-                Link.of("${baseUri}/search")
+                Link.of("/api/academia/lectures/search")
                     .withRel("search")
                     .withType("GET"),
-                Link.of(baseUri)
+                Link.of("/api/academia/lectures")
                     .withRel("create-lecture")
                     .withType("POST"),
-                Link.of("${baseUri}lectures/{id}")
+                Link.of("/api/academia/lectures/{id}")
                     .withRel("delete-lecture")
                     .withType("DELETE"),
-                Link.of("${baseUri}/{id}")
+                Link.of("/api/academia/lectures/{id}")
                     .withRel("update-lecture")
                     .withType("PATCH")
             )

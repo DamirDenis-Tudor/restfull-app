@@ -33,10 +33,10 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
             LinkUtils.addPaginationLinks(this, baseUri, page)
 
             this.add(
-                Link.of("${baseUri}search").withRel("search").withType("GET"),
-                Link.of(baseUri).withRel("create-student").withType("POST"),
-                Link.of("${baseUri}/{id}").withRel("delete-student").withType("DELETE"),
-                Link.of("${baseUri}/{id}").withRel("update-student").withType("PATCH")
+                Link.of("/api/academia/students/search").withRel("search").withType("GET"),
+                Link.of("/api/academia/students").withRel("create-student").withType("POST"),
+                Link.of("/api/academia/students/{id}").withRel("delete-student").withType("DELETE"),
+                Link.of("/api/academia/students/{id}").withRel("update-student").withType("PATCH")
             )
         }
     }
