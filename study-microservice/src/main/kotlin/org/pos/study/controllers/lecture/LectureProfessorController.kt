@@ -9,7 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/lectures/{lectureId}/professor")
+@RequestMapping("/lectures/{lectureId}/professors")
 class LectureProfessorController(
     private val lectureRepository: LectureRepository,
     private val professorRepository: ProfessorRepository,
