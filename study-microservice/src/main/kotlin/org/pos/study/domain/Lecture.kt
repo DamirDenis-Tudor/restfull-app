@@ -1,5 +1,6 @@
 package org.pos.study.domain
 
+import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Size
@@ -31,9 +32,11 @@ data class Discipline(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "teacher_id")
+    @JsonBackReference
     var teacher: Teacher?,
 
     @ManyToMany(mappedBy = "disciplines", fetch = FetchType.LAZY)
+    @JsonBackReference
     var students: MutableList<Student> = mutableListOf()
 
 ) {

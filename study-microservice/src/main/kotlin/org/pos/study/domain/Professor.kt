@@ -1,5 +1,7 @@
 package org.pos.study.domain
 
+import com.fasterxml.jackson.annotation.JsonIgnore
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import jakarta.persistence.*
 import jakarta.validation.constraints.Size
 
@@ -26,6 +28,7 @@ data class Teacher(
     @Enumerated(EnumType.STRING)
     var associationType: AssociationType,
 
+    @JsonIgnoreProperties
     @OneToMany(mappedBy = "teacher", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     var disciplines: MutableList<Discipline> = mutableListOf()
 ) {
