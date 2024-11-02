@@ -1,15 +1,15 @@
-package org.pos.study.controllers.student
+package org.pos.study.student
 
-import jakarta.transaction.Transactional
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito.*
+import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 import org.pos.study.controllers.assemblers.StudentModelAssembler
+import org.pos.study.controllers.student.StudentController
 import org.pos.study.domain.Student
 import org.pos.study.dto.student.StudentUpdate
 import org.pos.study.repositories.StudentRepository
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.PageImpl

@@ -1,8 +1,7 @@
 package org.pos.study.controllers.assemblers
 
-import org.pos.study.domain.Professor
 import org.pos.study.domain.Student
-import org.pos.study.utils.LinkUtils
+import org.pos.study.controllers.assemblers.utils.LinkUtils
 import org.springframework.data.domain.Page
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel

@@ -22,16 +22,15 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    // implementation("org.springframework.boot:spring-boot-starter-data-rest")
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
 
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    //implementation("org.springframework.data:spring-data-rest-hal-explorer")
-    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
+
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 

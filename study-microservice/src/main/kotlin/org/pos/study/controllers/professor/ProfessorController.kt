@@ -1,5 +1,6 @@
 package org.pos.study.controllers.professor
 
+import jakarta.validation.Valid
 import org.pos.study.controllers.assemblers.ProfessorModelAssembler
 import org.pos.study.domain.Professor
 import org.pos.study.dto.professor.ProfessorUpdate
@@ -22,7 +23,7 @@ class ProfessorController(
 
     @GetMapping
     fun getAllProfessors(
-        @PageableDefault(size = 10, page = 0) pageable: Pageable
+        @Valid @PageableDefault(size = 1, page = 0) pageable: Pageable
     ): ResponseEntity<CollectionModel<EntityModel<Professor>>> {
         val professorsPage: Page<Professor> = professorRepository.findAll(pageable)
         val professorModels = professorModelAssembler.toCollectionModel(professorsPage)

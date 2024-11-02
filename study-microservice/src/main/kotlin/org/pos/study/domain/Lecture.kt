@@ -3,16 +3,14 @@ package org.pos.study.domain
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
 
 @Entity
 data class Lecture(
     @JsonIgnore
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    var id: Int = 0,
+    @Id
+    var id: String,
 
-    @NotNull
-    @Size(min = 3, max = 20)
+    @Column(unique = true, length = 20, nullable = false)
     var lectureName: String,
 
     @NotNull

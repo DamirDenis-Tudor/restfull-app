@@ -1,4 +1,4 @@
-package org.pos.study.utils
+package org.pos.study.controllers.assemblers.utils
 
 import org.springframework.data.domain.Page
 import org.springframework.hateoas.Link

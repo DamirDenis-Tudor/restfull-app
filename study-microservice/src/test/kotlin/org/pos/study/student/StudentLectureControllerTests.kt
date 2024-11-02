@@ -11,12 +11,16 @@ import org.pos.study.domain.Professor
 import org.pos.study.domain.Student
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
+import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
 import org.springframework.http.HttpStatus
+import org.springframework.test.context.TestPropertySource
 import java.util.*
 
+@SpringBootTest
+@TestPropertySource("classpath:application-test.properties")
 class StudentLectureControllerTests {
 
     private val lectureRepository: LectureRepository = mock()
