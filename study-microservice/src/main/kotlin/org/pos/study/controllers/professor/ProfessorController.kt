@@ -1,18 +1,23 @@
 package org.pos.study.controllers.professor
 
 import jakarta.validation.Valid
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Max
 import org.pos.study.controllers.assemblers.ProfessorModelAssembler
 import org.pos.study.domain.Professor
+import org.pos.study.dto.constraints.PageConstraints
+import org.pos.study.dto.constraints.ProfessorConstraints
+import org.pos.study.dto.professor.ProfessorCreate
 import org.pos.study.dto.professor.ProfessorUpdate
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
+import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/professors")
@@ -23,40 +28,76 @@ class ProfessorController(
 
     @GetMapping
     fun getAllProfessors(
-        @Valid @PageableDefault(size = 1, page = 0) pageable: Pageable
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Professor>>> {
-        val professorsPage: Page<Professor> = professorRepository.findAll(pageable)
-        val professorModels = professorModelAssembler.toCollectionModel(professorsPage)
-        return ResponseEntity.ok(professorModels)
+        val professorsPage: Page<Professor> = professorRepository.findAll(PageRequest.of(page, size))
+
+        if (professorsPage.hasContent())
+            return ResponseEntity.ok(professorModelAssembler.toCollectionModel(professorsPage))
+
+        throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "No professor collection with size $size and page $page found."
+        )
     }
 
     @GetMapping("/{id}")
-    fun getProfessor(@PathVariable id: Long): ResponseEntity<EntityModel<*>> {
+    fun getProfessor(
+
+        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable id: Long
+
+    ): ResponseEntity<EntityModel<*>> {
         val professor = professorRepository.findById(id)
-        return if (professor.isPresent) {
-            ResponseEntity.ok(professorModelAssembler.toModel(professor.get()))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Professor with ID $id not found.")))
-        }
+
+        if (professor.isPresent)
+            return ResponseEntity.ok(professorModelAssembler.toModel(professor.get()))
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "No professor with id $id found.")
     }
 
     @PostMapping
-    fun createProfessor(@RequestBody professor: Professor): ResponseEntity<EntityModel<Professor>> {
-        val savedProfessor = professorRepository.save(professor)
+    fun createProfessor(
+
+        @Valid @RequestBody professorCreate: ProfessorCreate
+
+    ): ResponseEntity<EntityModel<Professor>> {
+        val professor = Professor(
+            firstName = professorCreate.firstName,
+            lastName = professorCreate.lastName,
+            email = professorCreate.email,
+            affiliation = professorCreate.affiliation,
+            associationType = professorCreate.associationType,
+            graderType = professorCreate.graderType,
+        )
+
         return ResponseEntity.status(HttpStatus.CREATED)
-            .body(professorModelAssembler.toModel(savedProfessor))
+            .body(professorModelAssembler.toModel(professorRepository.save(professor)))
     }
 
     @PatchMapping("/{id}")
     fun patchProfessor(
-        @PathVariable id: Long,
-        @RequestBody professorUpdates: ProfessorUpdate
+
+        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
+        id: Long,
+
+        @Valid @RequestBody
+        professorUpdates: ProfessorUpdate
+
     ): ResponseEntity<EntityModel<*>> {
         val existingProfessor = professorRepository.findById(id)
 
-        return if (existingProfessor.isPresent) {
+        if (existingProfessor.isPresent) {
             val currentProfessor = existingProfessor.get()
+
             val updatedProfessor = currentProfessor.copy(
                 firstName = professorUpdates.firstName ?: currentProfessor.firstName,
                 lastName = professorUpdates.lastName ?: currentProfessor.lastName,
@@ -66,22 +107,22 @@ class ProfessorController(
                 associationType = professorUpdates.associationType ?: currentProfessor.associationType
             )
 
-            ResponseEntity.ok(professorModelAssembler.toModel(professorRepository.save(updatedProfessor)))
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Professor with ID $id not found.")))
+            return ResponseEntity.ok(professorModelAssembler.toModel(professorRepository.save(updatedProfessor)))
         }
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with id $id does not exist.")
     }
 
-
     @DeleteMapping("/{id}")
-    fun deleteProfessor(@PathVariable id: Long): ResponseEntity<Map<String, String>> {
-        return if (professorRepository.existsById(id)) {
-            professorRepository.deleteById(id)
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(mapOf("message" to "Professor with ID $id not found."))
-        }
+    fun deleteProfessor(
+
+        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
+        id: Long
+
+    ): ResponseEntity<Map<String, String>> {
+        if (professorRepository.existsById(id))
+            return professorRepository.deleteById(id).let { ResponseEntity.noContent().build() }
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with id $id does not exist.")
     }
 }

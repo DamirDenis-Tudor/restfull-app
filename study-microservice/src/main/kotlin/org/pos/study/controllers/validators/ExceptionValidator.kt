@@ -1,4 +1,4 @@
-package org.pos.study.controllers.handlers
+package org.pos.study.controllers.validators
 
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.hateoas.EntityModel
@@ -13,7 +13,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
-class ExceptionHandler {
+class ExceptionValidator {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleValidationExceptions(ex: MethodArgumentTypeMismatchException): ResponseEntity<*> {
@@ -36,14 +36,14 @@ class ExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<*> {
         val errors = ex.bindingResult.fieldErrors.associate { it.field to (it.defaultMessage ?: "Invalid value") }
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
             .body(EntityModel.of(mapOf("errors" to errors, "message" to "Validation failed")))
     }
 
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolation(ex: DataIntegrityViolationException): ResponseEntity<*> {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(EntityModel.of(mapOf("message" to "Data integrity violation.")))
+            .body(EntityModel.of(mapOf("message" to "Data integrity violation.", "errors" to ex.cause?.message)))
     }
 
     @ExceptionHandler(ResponseStatusException::class)

@@ -6,6 +6,9 @@ import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.controllers.assemblers.StudentModelAssembler
 import org.pos.study.domain.Student
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.PageConstraints
+import org.pos.study.dto.constraints.StudentConstraints
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
 import org.springframework.data.domain.PageRequest
@@ -27,9 +30,20 @@ class LectureStudentController(
 
     @GetMapping
     fun getStudentsByLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
-        @Min(0) @RequestParam(defaultValue = "0") page: Int,
-        @Min(1) @Max(30) @RequestParam(defaultValue = "10") size: Int
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Student>>> {
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with id $lectureId not found")
@@ -44,17 +58,27 @@ class LectureStudentController(
 
     @PostMapping("/{studentId}")
     fun enrollStudentInLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
-        @Min(0) @PathVariable studentId: Long
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @PathVariable
+        studentId: Long
+
     ): ResponseEntity<EntityModel<*>> {
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with id $lectureId not found")
 
         val student = studentRepository.findById(studentId).orElse(null)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $lectureId not found")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $studentId not found")
 
         if (student in lecture.students)
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Student with id ${student.id} already enrolled on lecture with id $lectureId")
+            throw ResponseStatusException(
+                HttpStatus.CONFLICT,
+                "Student with id ${student.id} already enrolled in lecture with id $lectureId"
+            )
 
         lectureRepository.save(lecture.apply { lecture.students.add(student) })
 
@@ -63,19 +87,29 @@ class LectureStudentController(
 
     @DeleteMapping("/{studentId}")
     fun removeStudentFromLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
-        @Min(0) @PathVariable studentId: Long
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @PathVariable
+        studentId: Long
+
     ): ResponseEntity<Void> {
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with id $lectureId not found")
 
         val student = studentRepository.findById(studentId).orElse(null)
-            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $lectureId not found")
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $studentId not found")
 
         if (student !in lecture.students)
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id ${student.id} not enrolled on lecture with id $lectureId.")
+            throw ResponseStatusException(
+                HttpStatus.NOT_FOUND,
+                "Student with id ${student.id} not enrolled in lecture with id $lectureId."
+            )
 
-        lectureRepository.save(lecture.apply { lecture.students.add(student) })
+        lectureRepository.save(lecture.apply { lecture.students.remove(student) }) // Fix: Use remove instead of add
 
         return ResponseEntity.noContent().build()
     }

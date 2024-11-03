@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size
 @Entity
 data class Lecture(
 
-    @JsonIgnore
     @Id
     var id: String,
 

@@ -6,8 +6,10 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.domain.Lecture
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.PageConstraints
 import org.pos.study.dto.lecture.LectureCreate
-import org.pos.study.dto.lecture.LectureOptional
+import org.pos.study.dto.lecture.LectureUpdate
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.data.domain.PageRequest
@@ -28,18 +30,29 @@ class LectureController(
 ) {
     @GetMapping
     fun getLectures(
-        @Min(0) @RequestParam(defaultValue = "0") page: Int,
-        @Min(1) @Max(30) @RequestParam(defaultValue = "10") size: Int
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}") page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}") size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
         val lecturePage = lectureRepository.findAll(PageRequest.of(page, size))
         if (lecturePage.hasContent())
             return ResponseEntity.ok(lectureModelAssembler.toCollectionModel(lecturePage))
 
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture at page: $page with size : $size not found.")
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lectures at page $page with size $size not found.")
     }
 
     @GetMapping("/{lectureId}")
-    fun getLecture(@Size(min = 1, max = 3) @PathVariable lectureId: String): ResponseEntity<EntityModel<Lecture>> {
+    fun getLecture(
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable lectureId: String
+
+    ): ResponseEntity<EntityModel<Lecture>> {
         val lecture = lectureRepository.findById(lectureId)
 
         if (lecture.isPresent)
@@ -49,12 +62,19 @@ class LectureController(
     }
 
     @PutMapping
-    fun createLecture(@Valid @RequestBody lecture: LectureCreate): ResponseEntity<EntityModel<*>> {
+    fun createLecture(
+
+        @Valid @RequestBody lecture: LectureCreate
+
+    ): ResponseEntity<EntityModel<*>> {
         val professor = lecture.professorId.let { professorRepository.findById(it).getOrNull() }
             ?: throw ResponseStatusException(
                 HttpStatus.NOT_FOUND,
                 "Professor with ID ${lecture.professorId} not found."
             )
+
+        if (lectureRepository.findById(lecture.id).isPresent)
+            throw ResponseStatusException(HttpStatus.CONFLICT, "Lecture with ID ${lecture.id} already exists.")
 
         val newLecture = Lecture(
             id = lecture.id,
@@ -70,11 +90,15 @@ class LectureController(
             .body(lectureModelAssembler.toModel(lectureRepository.save(newLecture)))
     }
 
-
     @PatchMapping("/{lectureId}")
     fun patchLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
-        @Valid @RequestBody lectureUpdates: LectureOptional
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
+        @Valid @RequestBody
+        lectureUpdates: LectureUpdate
+
     ): ResponseEntity<EntityModel<Lecture>> {
         val existingLecture = lectureRepository.findById(lectureId).orElseThrow {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
@@ -99,7 +123,13 @@ class LectureController(
     }
 
     @DeleteMapping("/{lectureId}")
-    fun deleteLecture(@Size(min = 1, max = 3) @PathVariable lectureId: String): ResponseEntity<Any> {
+    fun deleteLecture(
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String
+
+    ): ResponseEntity<Any> {
         if (!lectureRepository.existsById(lectureId))
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
 

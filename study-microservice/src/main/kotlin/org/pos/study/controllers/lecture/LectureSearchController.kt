@@ -1,20 +1,23 @@
 package org.pos.study.controllers.lecture
 
-import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.domain.Lecture
-import org.pos.study.dto.lecture.LectureOptional
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.PageConstraints
 import org.pos.study.repositories.LectureRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/lectures/search")
@@ -25,20 +28,49 @@ class LectureSearchController(
 
     @GetMapping
     fun searchLectures(
-        @Valid @RequestParam lectureOptional: LectureOptional,
-        @Min(0) @RequestParam(defaultValue = "0") page: Int,
-        @Min(1) @Max(30) @RequestParam(defaultValue = "10") size: Int
+        @RequestParam(required = false)
+        @Size(min = LectureConstraints.LectureName.MIN_SIZE, max = LectureConstraints.LectureName.MAX_SIZE)
+        lectureName: String? = null,
+
+        @RequestParam(required = false)
+        @Min(value = LectureConstraints.StudyYear.MIN_VALUE)
+        @Max(value = LectureConstraints.StudyYear.MAX_VALUE)
+        studyYear: Int? = null,
+
+        @RequestParam(required = false)
+        lectureType: Lecture.LectureType? = null,
+
+        @RequestParam(required = false)
+        categoryType: Lecture.CategoryType? = null,
+
+        @RequestParam(required = false)
+        examinationType: Lecture.ExaminationType? = null,
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int = PageConstraints.Page.DEFAULT_VALUE.toInt(),
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
 
         val lecturesPage = lectureRepository.findAllByCriteria(
-            lectureOptional.lectureName,
-            lectureOptional.studyYear,
-            lectureOptional.lectureType,
-            lectureOptional.categoryType,
-            lectureOptional.examinationType,
+            lectureName,
+            studyYear,
+            lectureType,
+            categoryType,
+            examinationType,
             PageRequest.of(page, size)
         )
 
-        return ResponseEntity.ok(lectureModelAssembler.toCollectionModel(lecturesPage))
+        if (lecturesPage.hasContent())
+            return ResponseEntity.ok(lectureModelAssembler.toCollectionModel(lecturesPage))
+
+        throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "No lecture collection based on the parameters $lectureName, $studyYear, $lectureType, $categoryType, $examinationType found."
+        )
     }
 }

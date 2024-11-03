@@ -42,7 +42,7 @@ class StudentLectureController(
     @GetMapping("/{lectureId}")
     fun getLectureByStudent(
         @PathVariable studentId: Long,
-        @PathVariable lectureId: Long
+        @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<Lecture>> {
         return lectureRepository
             .findById(lectureId).orElse(null)
@@ -54,7 +54,7 @@ class StudentLectureController(
     @PostMapping("/{lectureId}")
     fun enrollStudentInLecture(
         @PathVariable studentId: Long,
-        @PathVariable lectureId: Long
+        @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<Lecture>> {
         val student = studentRepository.findById(studentId).orElse(null)
             ?: return ResponseEntity.notFound().build()
@@ -77,7 +77,7 @@ class StudentLectureController(
     @DeleteMapping("/{lectureId}")
     fun unrollStudentFromLecture(
         @PathVariable studentId: Long,
-        @PathVariable lectureId: Long
+        @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<*>> {
         val student = studentRepository.findById(studentId).orElse(null)
             ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)

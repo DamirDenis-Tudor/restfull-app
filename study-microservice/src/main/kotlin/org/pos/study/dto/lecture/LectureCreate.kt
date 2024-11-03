@@ -3,13 +3,25 @@ package org.pos.study.dto.lecture
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.ProfessorConstraints
 import org.pos.study.domain.Lecture
 
 data class LectureCreate(
-    @field:Size(min = 1, max = 3) var id: String,
-    @field:Min(value = 1) var professorId: Long,
-    @field:Size(min = 3, max = 10) var lectureName: String,
-    @field:Min(value = 1) @field:Max(value = 4) var studyYear: Int,
+    @field:Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+    var id: String,
+
+    @field:Min(value = ProfessorConstraints.Id.MIN_SIZE)
+    var professorId: Long,
+
+    @field:Size(
+        min = LectureConstraints.LectureName.MIN_SIZE,
+        max = LectureConstraints.LectureName.MAX_SIZE
+    ) var lectureName: String,
+
+    @field:Min(value = LectureConstraints.StudyYear.MIN_VALUE)
+    @field:Max(value = LectureConstraints.StudyYear.MAX_VALUE)
+    var studyYear: Int,
 
     var lectureType: Lecture.LectureType,
     var categoryType: Lecture.CategoryType,

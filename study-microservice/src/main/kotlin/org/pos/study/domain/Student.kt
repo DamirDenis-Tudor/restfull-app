@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size
 
 @Entity
 data class Student(
-    @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long,
 

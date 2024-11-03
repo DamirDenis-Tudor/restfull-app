@@ -7,15 +7,12 @@ import jakarta.validation.constraints.Size
 
 @Entity
 data class Professor(
-    @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "professor_id")
-    var id: Int,
+    var id: Int = 0,
 
-    @Size(min = 3, max = 20)
     var firstName: String,
 
-    @Size(min = 3, max = 20)
     var lastName: String,
 
     var email: String,

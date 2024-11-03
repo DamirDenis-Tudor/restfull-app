@@ -5,6 +5,8 @@ import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.controllers.assemblers.ProfessorModelAssembler
 import org.pos.study.domain.Professor
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.ProfessorConstraints
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.hateoas.EntityModel
@@ -24,7 +26,11 @@ class LectureProfessorController(
 
     @GetMapping
     fun getProfessorByLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
     ): ResponseEntity<EntityModel<Professor>> {
         val lecture = lectureRepository.findById(lectureId)
 
@@ -36,8 +42,15 @@ class LectureProfessorController(
 
     @PatchMapping("/{professorId}")
     fun updateProfessorForLecture(
-        @Size(min = 1, max = 3) @PathVariable lectureId: String,
-        @Min(0) @PathVariable professorId: Long
+
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @PathVariable
+        lectureId: String,
+
+        @Min(ProfessorConstraints.Id.MIN_SIZE)
+        @PathVariable
+        professorId: Long
+
     ): ResponseEntity<EntityModel<*>> {
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
@@ -49,5 +62,4 @@ class LectureProfessorController(
 
         return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
     }
-
 }

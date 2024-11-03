@@ -1,14 +1,23 @@
 package org.pos.study.controllers.professor
 
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.ProfessorModelAssembler
 import org.pos.study.domain.Professor
+import org.pos.study.dto.constraints.PageConstraints
+import org.pos.study.dto.constraints.ProfessorConstraints
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/professors/search")
@@ -19,16 +28,39 @@ class ProfessorSearchController(
 
     @GetMapping
     fun searchProfessors(
-        @RequestParam(required = false) firstName: String? = null,
-        @RequestParam(required = false) lastName: String? = null,
-        @RequestParam(required = false) email: String? = null,
-        @RequestParam(required = false) affiliation: String? = null,
-        @RequestParam(required = false) graderType: Professor.GraderType? = null,
-        @RequestParam(required = false) associationType: Professor.AssociationType? = null,
-        @RequestParam(defaultValue = "0") page: Int = 0,
-        @RequestParam(defaultValue = "10") size: Int = 10
+
+        @Size(min = ProfessorConstraints.FirstName.MIN_SIZE, max = ProfessorConstraints.FirstName.MAX_SIZE)
+        @RequestParam(required = false)
+        firstName: String? = null,
+
+        @Size(min = ProfessorConstraints.LastName.MIN_SIZE, max = ProfessorConstraints.LastName.MAX_SIZE)
+        @RequestParam(required = false)
+        lastName: String? = null,
+
+        @Size(min = ProfessorConstraints.Email.MIN_SIZE, max = ProfessorConstraints.Email.MAX_SIZE)
+        @RequestParam(required = false)
+        email: String? = null,
+
+        @Size(min = ProfessorConstraints.Affiliation.MIN_SIZE, max = ProfessorConstraints.Affiliation.MAX_SIZE)
+        @RequestParam(required = false)
+        affiliation: String? = null,
+
+        @RequestParam(required = false)
+        graderType: Professor.GraderType? = null,
+
+        @RequestParam(required = false)
+        associationType: Professor.AssociationType? = null,
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Professor>>> {
-        val pageable: Pageable = PageRequest.of(page, size)
 
         val professorsPage = professorRepository.findAllByCriteria(
             firstName,
@@ -37,9 +69,16 @@ class ProfessorSearchController(
             affiliation,
             graderType,
             associationType,
-            pageable
+            PageRequest.of(page, size)
         )
 
-        return ResponseEntity.ok(professorModelAssembler.toCollectionModel(professorsPage))
+        if (professorsPage.hasContent()) {
+            return ResponseEntity.ok(professorModelAssembler.toCollectionModel(professorsPage))
+        }
+
+        throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "No professor collection based on the parameters firstName=$firstName, lastName=$lastName, email=$email, affiliation=$affiliation, graderType=$graderType, associationType=$associationType, page=$page, size=$size found."
+        )
     }
 }
