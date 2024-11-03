@@ -47,6 +47,7 @@ class LectureSearchController(
         examinationType: Lecture.ExaminationType? = null,
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int = PageConstraints.Page.DEFAULT_VALUE.toInt(),
 

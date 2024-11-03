@@ -46,6 +46,7 @@ class StudentSearchController(
         @RequestParam(required = false) studentGroup: Int? = null,
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 

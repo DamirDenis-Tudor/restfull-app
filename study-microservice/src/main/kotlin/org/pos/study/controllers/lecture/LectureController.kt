@@ -34,6 +34,7 @@ class LectureController(
     fun getLectures(
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}") page: Int,
 
         @Min(PageConstraints.Size.MIN_VALUE)
@@ -51,8 +52,8 @@ class LectureController(
     @GetMapping("/{lectureId}")
     fun getLecture(
 
-        @Size(min = LectureConstraints.Id.MIN_SIZE.toInt(),
-            max = LectureConstraints.Id.MAX_SIZE.toInt()
+        @Size(min = LectureConstraints.Id.MIN_SIZE,
+            max = LectureConstraints.Id.MAX_SIZE
         )
         @PathVariable lectureId: String
 
@@ -129,8 +130,8 @@ class LectureController(
     @DeleteMapping("/{lectureId}")
     fun deleteLecture(
 
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         lectureId: String
 
     ): ResponseEntity<Any> {

@@ -36,6 +36,7 @@ class LectureStudentController(
         lectureId: String,
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 
@@ -64,6 +65,7 @@ class LectureStudentController(
         lectureId: String,
 
         @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable
         studentId: Long
 
@@ -96,6 +98,7 @@ class LectureStudentController(
         lectureId: String,
 
         @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable
         studentId: Long
 

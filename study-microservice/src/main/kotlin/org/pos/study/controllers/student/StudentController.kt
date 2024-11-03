@@ -31,6 +31,7 @@ class StudentController(
     fun getAllStudents(
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 
@@ -55,7 +56,9 @@ class StudentController(
     @GetMapping("/{id}")
     fun getStudent(
 
-        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long
 
     ): ResponseEntity<EntityModel<Student>> {
         val student = studentRepository.findById(id)
@@ -88,7 +91,9 @@ class StudentController(
     @PatchMapping("/{id}")
     fun updateStudent(
 
-        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long,
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long,
         @Valid @RequestBody studentUpdates: StudentUpdate
 
     ): ResponseEntity<EntityModel<*>> {
@@ -110,7 +115,9 @@ class StudentController(
     @DeleteMapping("/{id}")
     fun deleteStudent(
 
-        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long
 
     ): ResponseEntity<EntityModel<*>> {
         if (studentRepository.existsById(id))

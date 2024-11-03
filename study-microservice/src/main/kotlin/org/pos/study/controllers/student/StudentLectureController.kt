@@ -32,12 +32,12 @@ class StudentLectureController(
 
     @GetMapping
     fun getLecturesByStudent(
-
-        @PathVariable
         @Min(StudentConstraints.Id.MIN_SIZE)
-        studentId: Long,
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable studentId: Long,
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 
@@ -72,7 +72,9 @@ class StudentLectureController(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         lectureId: String,
 
-        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
+        @PathVariable
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
         studentId: Long
 
     ): ResponseEntity<EntityModel<Lecture>> {
@@ -91,8 +93,9 @@ class StudentLectureController(
     @PostMapping("/{lectureId}")
     fun enrollStudentInLecture(
 
-        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
-        studentId: Long,
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable studentId: Long,
 
         @PathVariable
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
@@ -122,12 +125,12 @@ class StudentLectureController(
     @DeleteMapping("/{lectureId}")
     fun unrollStudentFromLecture(
 
-        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
-        studentId: Long,
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        @Max(StudentConstraints.Id.MAX_SIZE)
+        @PathVariable studentId: Long,
 
-        @PathVariable
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String
+        @PathVariable lectureId: String
 
     ): ResponseEntity<EntityModel<*>> {
         val student = studentRepository.findById(studentId).orElse(null)

@@ -3,6 +3,7 @@ package org.pos.study.dto.constraints
 sealed class PageConstraints {
     object Page {
         const val MIN_VALUE = 0L
+        const val MAX_VALUE = Long.MAX_VALUE
         const val DEFAULT_VALUE = 0L
     }
 

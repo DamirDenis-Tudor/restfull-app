@@ -30,10 +30,11 @@ class ProfessorLectureController(
     fun getLecturesByProfessor(
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
-        @PathVariable
-        id: Long,
+        @Max(ProfessorConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long,
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 

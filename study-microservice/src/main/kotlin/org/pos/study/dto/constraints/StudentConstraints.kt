@@ -3,6 +3,7 @@ package org.pos.study.dto.constraints
 sealed class StudentConstraints {
     data object Id {
         const val MIN_SIZE = 0L
+        const val MAX_SIZE = Long.MAX_VALUE
     }
 
     data object FirstName {

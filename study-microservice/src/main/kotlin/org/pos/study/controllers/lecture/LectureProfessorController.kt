@@ -1,5 +1,6 @@
 package org.pos.study.controllers.lecture
 
+import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
@@ -49,6 +50,7 @@ class LectureProfessorController(
         lectureId: String,
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
+        @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable
         professorId: Long
 

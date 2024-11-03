@@ -36,7 +36,7 @@ class ExceptionValidator {
 
     @ExceptionHandler(HandlerMethodValidationException::class)
     fun handleValidationExceptions(ex: HandlerMethodValidationException): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
             .body(EntityModel.of(mapOf("message" to ex.reason)))
     }
 

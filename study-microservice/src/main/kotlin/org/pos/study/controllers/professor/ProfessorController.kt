@@ -32,6 +32,7 @@ class ProfessorController(
     fun getAllProfessors(
 
         @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
         page: Int,
 
@@ -55,7 +56,9 @@ class ProfessorController(
     @GetMapping("/{id}")
     fun getProfessor(
 
-        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable id: Long
+        @Min(ProfessorConstraints.Id.MIN_SIZE)
+        @Max(ProfessorConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long
 
     ): ResponseEntity<EntityModel<*>> {
         val professor = professorRepository.findById(id)
@@ -89,8 +92,9 @@ class ProfessorController(
     @PatchMapping("/{id}")
     fun patchProfessor(
 
-        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
-        id: Long,
+        @Min(ProfessorConstraints.Id.MIN_SIZE)
+        @Max(ProfessorConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long,
 
         @Valid @RequestBody
         professorUpdates: ProfessorUpdate
@@ -119,8 +123,9 @@ class ProfessorController(
     @DeleteMapping("/{id}")
     fun deleteProfessor(
 
-        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
-        id: Long
+        @Min(ProfessorConstraints.Id.MIN_SIZE)
+        @Max(ProfessorConstraints.Id.MAX_SIZE)
+        @PathVariable id: Long
 
     ): ResponseEntity<Map<String, String>> {
         if (professorRepository.existsById(id)) {
