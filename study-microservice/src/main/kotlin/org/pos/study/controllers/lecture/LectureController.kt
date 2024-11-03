@@ -3,10 +3,11 @@ package org.pos.study.controllers.lecture
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.domain.Lecture
 import org.pos.study.dto.lecture.LectureCreate
-import org.pos.study.dto.lecture.LectureUpdate
+import org.pos.study.dto.lecture.LectureOptional
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.data.domain.PageRequest
@@ -38,7 +39,7 @@ class LectureController(
     }
 
     @GetMapping("/{lectureId}")
-    fun getLecture(@PathVariable lectureId: Long): ResponseEntity<EntityModel<Lecture>> {
+    fun getLecture(@Size(min = 1, max = 3) @PathVariable lectureId: String): ResponseEntity<EntityModel<Lecture>> {
         val lecture = lectureRepository.findById(lectureId)
 
         if (lecture.isPresent)
@@ -72,8 +73,8 @@ class LectureController(
 
     @PatchMapping("/{lectureId}")
     fun patchLecture(
-        @Min(0) @PathVariable lectureId: Long,
-        @Valid @RequestBody lectureUpdates: LectureUpdate
+        @Size(min = 1, max = 3) @PathVariable lectureId: String,
+        @Valid @RequestBody lectureUpdates: LectureOptional
     ): ResponseEntity<EntityModel<Lecture>> {
         val existingLecture = lectureRepository.findById(lectureId).orElseThrow {
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
@@ -98,7 +99,7 @@ class LectureController(
     }
 
     @DeleteMapping("/{lectureId}")
-    fun deleteLecture(@PathVariable lectureId: Long): ResponseEntity<Any> {
+    fun deleteLecture(@Size(min = 1, max = 3) @PathVariable lectureId: String): ResponseEntity<Any> {
         if (!lectureRepository.existsById(lectureId))
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
 

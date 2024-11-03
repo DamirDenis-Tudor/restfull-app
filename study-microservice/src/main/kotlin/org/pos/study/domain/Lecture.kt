@@ -3,9 +3,11 @@ package org.pos.study.domain
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
 import jakarta.validation.constraints.NotNull
+import jakarta.validation.constraints.Size
 
 @Entity
 data class Lecture(
+
     @JsonIgnore
     @Id
     var id: String,
