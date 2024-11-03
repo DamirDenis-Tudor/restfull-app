@@ -1,8 +1,15 @@
 package org.pos.study.controllers.student
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.controllers.assemblers.StudentModelAssembler
 import org.pos.study.domain.Lecture
+import org.pos.study.dto.constraints.LectureConstraints
+import org.pos.study.dto.constraints.PageConstraints
+import org.pos.study.dto.constraints.StudentConstraints
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
 import org.springframework.data.domain.PageRequest
@@ -12,6 +19,7 @@ import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/students/{studentId}/lectures")
@@ -24,80 +32,123 @@ class StudentLectureController(
 
     @GetMapping
     fun getLecturesByStudent(
-        @PathVariable studentId: Long,
-        @RequestParam(defaultValue = "0") page: Int,
-        @RequestParam(defaultValue = "10") size: Int
+
+        @PathVariable
+        @Min(StudentConstraints.Id.MIN_SIZE)
+        studentId: Long,
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
         val student = studentRepository.findById(studentId).orElse(null)
 
         return student?.let {
-            val pageable: Pageable = PageRequest.of(page, size)
-            val lecturePage = lectureRepository.findByStudentsContaining(it, pageable)
-            ResponseEntity.ok(
-                lectureModelAssembler.toCollectionModel(page = lecturePage, studentId = studentId)
-            )
-        } ?: ResponseEntity.notFound().build()
+            val lectures = lectureRepository.findByStudentsContaining(it, PageRequest.of(page, size))
+
+            if (lectures.hasContent())
+                return@let ResponseEntity.ok(
+                    lectureModelAssembler.toCollectionModel(
+                        page = lectures,
+                        studentId = studentId
+                    )
+                )
+
+            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with ID $studentId has no lectures.")
+
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with ID $studentId not found.")
     }
 
     @GetMapping("/{lectureId}")
     fun getLectureByStudent(
-        @PathVariable studentId: Long,
-        @PathVariable lectureId: String
+
+        @PathVariable
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        lectureId: String,
+
+        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
+        studentId: Long
+
     ): ResponseEntity<EntityModel<Lecture>> {
-        return lectureRepository
-            .findById(lectureId).orElse(null)
-            ?.takeIf { it.students.any { student -> student.id == studentId } }
-            ?.let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
-            ?: ResponseEntity.notFound().build()
+        val student = studentRepository.findById(studentId).orElse(null)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with ID $studentId not found.")
+
+        val lecture = lectureRepository.findById(lectureId).orElse(null)
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
+
+        if (lecture.students.any { it.id == student.id })
+            return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId is not associated with student ID $studentId.")
     }
 
     @PostMapping("/{lectureId}")
     fun enrollStudentInLecture(
-        @PathVariable studentId: Long,
-        @PathVariable lectureId: String
+
+        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
+        studentId: Long,
+
+        @PathVariable
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        lectureId: String
+
     ): ResponseEntity<EntityModel<Lecture>> {
         val student = studentRepository.findById(studentId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with ID $studentId not found.")
+
         val lecture = lectureRepository.findById(lectureId).orElse(null)
-            ?: return ResponseEntity.notFound().build()
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
 
-        return when {
-            student.lectures.contains(lecture) -> ResponseEntity.status(HttpStatus.CONFLICT).body(null)
-            else -> {
-                student.lectures.add(lecture)
-                lecture.students.add(student)
-                studentRepository.save(student)
-                lectureRepository.save(lecture)
+        if (!student.lectures.contains(lecture)) {
+            student.lectures.add(lecture)
+            lecture.students.add(student)
+            studentRepository.save(student)
+            lectureRepository.save(lecture)
 
-                ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
-            }
+            return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
         }
+        throw ResponseStatusException(
+            HttpStatus.CONFLICT,
+            "Student with ID $studentId is already enrolled in lecture with ID $lectureId."
+        )
     }
 
     @DeleteMapping("/{lectureId}")
     fun unrollStudentFromLecture(
-        @PathVariable studentId: Long,
-        @PathVariable lectureId: String
+
+        @PathVariable @Min(StudentConstraints.Id.MIN_SIZE)
+        studentId: Long,
+
+        @PathVariable
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        lectureId: String
+
     ): ResponseEntity<EntityModel<*>> {
         val student = studentRepository.findById(studentId).orElse(null)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Student with ID $studentId not found.")))
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with ID $studentId not found.")
 
         val lecture = lectureRepository.findById(lectureId).orElse(null)
-            ?: return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Lecture with ID $lectureId not found.")))
+            ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
 
-        return if (!student.lectures.contains(lecture)) {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Student with ID $studentId is not enrolled in lecture with ID $lectureId.")))
-        } else {
+        if (student.lectures.contains(lecture)) {
             student.lectures.remove(lecture)
             lecture.students.remove(student)
 
             studentRepository.save(student)
             lectureRepository.save(lecture)
 
-            ResponseEntity.ok(studentModelAssembler.toModel(student))
+            return ResponseEntity.ok(studentModelAssembler.toModel(student))
         }
+
+        throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "Student with ID $studentId is not enrolled in lecture with ID $lectureId."
+        )
     }
 }

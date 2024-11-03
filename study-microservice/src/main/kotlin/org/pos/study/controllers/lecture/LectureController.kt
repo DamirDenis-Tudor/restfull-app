@@ -12,6 +12,7 @@ import org.pos.study.dto.lecture.LectureCreate
 import org.pos.study.dto.lecture.LectureUpdate
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.ProfessorRepository
+import org.pos.study.repositories.StudentRepository
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -26,7 +27,8 @@ import kotlin.jvm.optionals.getOrNull
 class LectureController(
     private val lectureRepository: LectureRepository,
     private val lectureModelAssembler: LectureModelAssembler,
-    private val professorRepository: ProfessorRepository
+    private val professorRepository: ProfessorRepository,
+    private val studentRepository: StudentRepository
 ) {
     @GetMapping
     fun getLectures(
@@ -49,7 +51,9 @@ class LectureController(
     @GetMapping("/{lectureId}")
     fun getLecture(
 
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Size(min = LectureConstraints.Id.MIN_SIZE.toInt(),
+            max = LectureConstraints.Id.MAX_SIZE.toInt()
+        )
         @PathVariable lectureId: String
 
     ): ResponseEntity<EntityModel<Lecture>> {
@@ -130,9 +134,15 @@ class LectureController(
         lectureId: String
 
     ): ResponseEntity<Any> {
-        if (!lectureRepository.existsById(lectureId))
+        val lecture = lectureRepository.findById(lectureId)
+
+        if (!lecture.isPresent)
             throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
 
+        for (student in lecture.get().students) {
+            student.lectures.remove(lecture.get())
+            studentRepository.save(student)
+        }
         lectureRepository.deleteById(lectureId)
 
         return ResponseEntity.noContent().build()

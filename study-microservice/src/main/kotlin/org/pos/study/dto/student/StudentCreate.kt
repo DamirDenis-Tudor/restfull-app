@@ -30,5 +30,5 @@ data class StudentCreate(
     @field:Max(StudentConstraints.StudentGroup.MAX_VALUE)
     val studentGroup: Int,
 
-    val cycleType: Student.CycleType,
+    val cycleType: Student.CycleType?,
 )

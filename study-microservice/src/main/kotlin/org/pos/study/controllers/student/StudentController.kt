@@ -1,18 +1,24 @@
 package org.pos.study.controllers.student
 
+import jakarta.validation.Valid
+import jakarta.validation.constraints.Max
+import jakarta.validation.constraints.Min
 import org.pos.study.controllers.assemblers.StudentModelAssembler
 import org.pos.study.domain.Student
+import org.pos.study.dto.constraints.PageConstraints
+import org.pos.study.dto.constraints.StudentConstraints
+import org.pos.study.dto.student.StudentCreate
 import org.pos.study.dto.student.StudentUpdate
 import org.pos.study.repositories.StudentRepository
-import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.data.domain.Page
-import org.springframework.data.domain.Pageable
-import org.springframework.data.web.PageableDefault
+import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.server.ResponseStatusException
+import kotlin.jvm.optionals.getOrNull
 
 @RestController
 @RequestMapping("/students")
@@ -23,89 +29,94 @@ class StudentController(
 
     @GetMapping
     fun getAllStudents(
-        @PageableDefault(size = 10, page = 0) pageable: Pageable
+
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int,
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int
+
     ): ResponseEntity<CollectionModel<EntityModel<Student>>> {
-        val studentsPage: Page<Student> = studentRepository.findAll(pageable)
-        val studentModels = studentModelAssembler.toCollectionModel(studentsPage)
-        return ResponseEntity.ok(studentModels)
+        val studentsPage: Page<Student> = studentRepository.findAll(PageRequest.of(page, size))
+
+        if (studentsPage.hasContent())
+            return ResponseEntity.ok(studentModelAssembler.toCollectionModel(studentsPage))
+
+        throw ResponseStatusException(
+            HttpStatus.NOT_FOUND,
+            "No student collection with size $size and page $page found."
+        )
     }
 
 
     @GetMapping("/{id}")
-    fun getStudent(@PathVariable id: Long): ResponseEntity<EntityModel<Student>> {
-        return studentRepository.findById(id)
-            .map { studentModelAssembler.toModel(it) }
-            .map { ResponseEntity.ok(it) }
-            .orElseGet { ResponseEntity.notFound().build() }
+    fun getStudent(
+
+        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long
+
+    ): ResponseEntity<EntityModel<Student>> {
+        val student = studentRepository.findById(id)
+
+        if (student.isPresent)
+            return ResponseEntity.ok(studentModelAssembler.toModel(student.get()))
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $id not found")
     }
 
     @PostMapping
-    fun createStudent(@RequestBody student: Student): ResponseEntity<EntityModel<*>> {
-        return runCatching {
-            studentRepository.save(student)
-        }.fold(
-            onSuccess = { savedStudent ->
-                ResponseEntity.status(HttpStatus.CREATED).body(studentModelAssembler.toModel(savedStudent))
-            },
-            onFailure = { exception ->
-                when (exception) {
-                    is DataIntegrityViolationException -> ResponseEntity.status(HttpStatus.CONFLICT)
-                        .body(EntityModel.of(mapOf("message" to exception.message)))
+    fun createStudent(
 
-                    else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(EntityModel.of(mapOf("message" to exception.message)))
-                }
+        @Valid @RequestBody studentCreate: StudentCreate
 
-            }
+    ): ResponseEntity<EntityModel<*>> {
+        val student = Student(
+            firstName = studentCreate.firstName,
+            lastName = studentCreate.lastName,
+            email = studentCreate.email,
+            cycleType = studentCreate.cycleType,
+            studyYear = studentCreate.studyYear,
+            studentGroup = studentCreate.studentGroup,
         )
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(studentModelAssembler.toModel(studentRepository.save(student)))
     }
 
     @PatchMapping("/{id}")
     fun updateStudent(
-        @PathVariable id: Long,
-        @RequestBody studentUpdates: StudentUpdate
+
+        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long,
+        @Valid @RequestBody studentUpdates: StudentUpdate
+
     ): ResponseEntity<EntityModel<*>> {
-        val existingStudent = studentRepository.findById(id).orElse(null)
+        val existingStudent = studentRepository.findById(id).getOrNull()
 
-        return existingStudent?.let {
-
-            studentUpdates.firstName?.let { existingStudent.firstName = it }
-            studentUpdates.lastName?.let { existingStudent.lastName = it }
-            studentUpdates.cycleType?.let { existingStudent.cycleType = it }
-            studentUpdates.email?.let { existingStudent.email = it }
-            studentUpdates.studyYear?.takeIf { it != 0 }?.let { existingStudent.studyYear = it }
-            studentUpdates.studentGroup?.takeIf { it != 0 }?.let { existingStudent.studentGroup = it }
-
-            runCatching { studentRepository.save(existingStudent) }
-                .fold(
-                    onSuccess = { updatedStudent ->
-                        ResponseEntity.ok(studentModelAssembler.toModel(updatedStudent))
-                    },
-                    onFailure = { exception ->
-                        when (exception) {
-                            is DataIntegrityViolationException -> ResponseEntity.status(HttpStatus.CONFLICT)
-                                .body(EntityModel.of(mapOf("message" to exception.message)))
-
-                            else -> ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                                .body(EntityModel.of(mapOf("message" to exception.message)))
-                        }
-                    }
-                )
-        } ?: ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Student with ID $id not found.")))
+        return existingStudent?.apply {
+            studentUpdates.firstName?.let { this@apply.firstName = it }
+            studentUpdates.lastName?.let { this@apply.lastName = it }
+            studentUpdates.cycleType?.let { this@apply.cycleType = it }
+            studentUpdates.email?.let { this@apply.email = it }
+            studentUpdates.studyYear?.takeIf { it != 0 }?.let { this@apply.studyYear = it }
+            studentUpdates.studentGroup?.takeIf { it != 0 }?.let { this@apply.studentGroup = it }
+        }?.let {
+            ResponseEntity.ok(studentModelAssembler.toModel(studentRepository.save(it)))
+        } ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $id not found")
     }
 
 
-
     @DeleteMapping("/{id}")
-    fun deleteStudent(@PathVariable id: Long): ResponseEntity<EntityModel<*>> {
-        return if (studentRepository.existsById(id)) {
-            studentRepository.deleteById(id)
-            ResponseEntity.noContent().build()
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND)
-                .body(EntityModel.of(mapOf("message" to "Student with ID $id not found.")))
-        }
+    fun deleteStudent(
+
+        @Min(StudentConstraints.Id.MIN_SIZE) @PathVariable id: Long
+
+    ): ResponseEntity<EntityModel<*>> {
+        if (studentRepository.existsById(id))
+            return studentRepository.deleteById(id).let { ResponseEntity.noContent().build() }
+
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $id not found")
     }
 
 }

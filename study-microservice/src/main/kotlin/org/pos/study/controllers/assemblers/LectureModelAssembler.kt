@@ -28,7 +28,15 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
 
                 Link.of("/api/academia/lectures/${entity.id}/students")
                     .withRel("lecture-student")
-                    .withType("GET")
+                    .withType("GET"),
+
+                Link.of("/api/academia/lectures/${entity.id}/students/{studentId}")
+                    .withRel("enroll-student")
+                    .withType("POST"),
+
+                Link.of("/api/academia/lectures/${entity.id}/students/{studentId}")
+                    .withRel("unroll-student")
+                    .withType("DELETE")
             )
         }
 

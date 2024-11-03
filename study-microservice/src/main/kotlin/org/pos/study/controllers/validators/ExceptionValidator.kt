@@ -5,6 +5,7 @@ import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
@@ -14,6 +15,12 @@ import org.springframework.web.server.ResponseStatusException
 
 @RestControllerAdvice
 class ExceptionValidator {
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
+    fun handleValidationExceptions(ex: HttpRequestMethodNotSupportedException): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException::class)
     fun handleValidationExceptions(ex: MethodArgumentTypeMismatchException): ResponseEntity<*> {

@@ -18,7 +18,15 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
             Link.of("/api/academia/students/${entity.id}")
                 .withSelfRel(),
             Link.of("/api/academia/students/${entity.id}/lectures")
-                .withRel("student-lecture")
+                .withRel("student-lecture"),
+
+            Link.of("/api/academia/students/${entity.id}/lectures/{lectureId}")
+                .withRel("enroll-student")
+                .withType("POST"),
+
+            Link.of("/api/academia/students/${entity.id}/lectures/{lectureId}")
+                .withRel("unroll-student")
+                .withType("DELETE")
         )
 
     fun toCollectionModel(page: Page<Student>, lectureId: Long? = null): CollectionModel<EntityModel<Student>> {

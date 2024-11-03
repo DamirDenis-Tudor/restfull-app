@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.server.ResponseStatusException
 
 @RestController
-@RequestMapping("/professors/{professorId}/lectures")
+@RequestMapping("/professors/{id}/lectures")
 class ProfessorLectureController(
     private val lectureRepository: LectureRepository,
     private val professorRepository: ProfessorRepository,
@@ -31,7 +31,7 @@ class ProfessorLectureController(
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
         @PathVariable
-        professorId: Long,
+        id: Long,
 
         @Min(PageConstraints.Page.MIN_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
@@ -43,25 +43,25 @@ class ProfessorLectureController(
         size: Int
 
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        val professor = professorRepository.findById(professorId)
+        val professor = professorRepository.findById(id)
 
         if (professor.isPresent) {
             return ResponseEntity.ok(
                 lectureModelAssembler.toCollectionModel(
                     page = lectureRepository.findByProfessor(professor.get(), PageRequest.of(page, size)),
-                    professorId = professorId
+                    professorId = id
                 )
             )
         }
 
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $professorId not found.")
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $id not found.")
     }
 
     @GetMapping("/{lectureId}")
     fun getLectureByProfessor(
 
         @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
-        professorId: Long,
+        id: Long,
 
         @Size(
             min = LectureConstraints.Id.MIN_SIZE,
@@ -70,21 +70,21 @@ class ProfessorLectureController(
         lectureId: String
 
     ): ResponseEntity<EntityModel<Lecture>> {
-        val professor = professorRepository.findById(professorId)
+        val professor = professorRepository.findById(id)
 
         if (professor.isPresent) {
             return lectureRepository.findById(lectureId)
-                .filter { it.professor.id.toLong() == professorId }
+                .filter { it.professor?.id?.toLong() == id }
                 .map { lectureModelAssembler.toModel(it) }
                 .map { ResponseEntity.ok(it) }
                 .orElseThrow {
                     throw ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        "Professor with ID $professorId has no lecture with ID $lectureId."
+                        "Professor with ID $id has no lecture with ID $lectureId."
                     )
                 }
         }
 
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $professorId not found.")
+        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $id not found.")
     }
 }

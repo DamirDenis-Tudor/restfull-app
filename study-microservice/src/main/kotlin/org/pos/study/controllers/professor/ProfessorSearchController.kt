@@ -29,19 +29,19 @@ class ProfessorSearchController(
     @GetMapping
     fun searchProfessors(
 
-        @Size(min = ProfessorConstraints.FirstName.MIN_SIZE, max = ProfessorConstraints.FirstName.MAX_SIZE)
+        @Size(min = ProfessorConstraints.FirstName.MIN_SIZE_SEARCH, max = ProfessorConstraints.FirstName.MAX_SIZE)
         @RequestParam(required = false)
         firstName: String? = null,
 
-        @Size(min = ProfessorConstraints.LastName.MIN_SIZE, max = ProfessorConstraints.LastName.MAX_SIZE)
+        @Size(min = ProfessorConstraints.LastName.MIN_SIZE_SEARCH, max = ProfessorConstraints.LastName.MAX_SIZE)
         @RequestParam(required = false)
         lastName: String? = null,
 
-        @Size(min = ProfessorConstraints.Email.MIN_SIZE, max = ProfessorConstraints.Email.MAX_SIZE)
+        @Size(min = ProfessorConstraints.Email.MIN_SIZE_SEARCH, max = ProfessorConstraints.Email.MAX_SIZE)
         @RequestParam(required = false)
         email: String? = null,
 
-        @Size(min = ProfessorConstraints.Affiliation.MIN_SIZE, max = ProfessorConstraints.Affiliation.MAX_SIZE)
+        @Size(min = ProfessorConstraints.Affiliation.MIN_SIZE_SEARCH, max = ProfessorConstraints.Affiliation.MAX_SIZE)
         @RequestParam(required = false)
         affiliation: String? = null,
 

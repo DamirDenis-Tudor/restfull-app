@@ -35,7 +35,8 @@ class LectureProfessorController(
         val lecture = lectureRepository.findById(lectureId)
 
         if (lecture.isPresent)
-            return ResponseEntity.ok(professorModelAssembler.toModel(lecture.get().professor))
+            lecture.get().professor?.let{ return ResponseEntity.ok(professorModelAssembler.toModel(it)) }
+                ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId has no professor.")
 
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
     }

@@ -1,11 +1,13 @@
 package org.pos.study.repositories
 
+import jakarta.transaction.Transactional
 import org.pos.study.domain.Lecture
 import org.pos.study.domain.Professor
 import org.pos.study.domain.Student
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
@@ -30,4 +32,9 @@ interface LectureRepository : JpaRepository<Lecture, String> {
         @Param("examinationType") examinationType: Lecture.ExaminationType?,
         pageable: Pageable
     ): Page<Lecture>
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE Lecture l SET l.professor = NULL WHERE l.professor.id = :professorId")
+    fun setProfessorToNull(@Param("professorId") professorId: Long)
 }

@@ -9,6 +9,7 @@ import org.pos.study.dto.constraints.PageConstraints
 import org.pos.study.dto.constraints.ProfessorConstraints
 import org.pos.study.dto.professor.ProfessorCreate
 import org.pos.study.dto.professor.ProfessorUpdate
+import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.ProfessorRepository
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
@@ -22,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException
 @RestController
 @RequestMapping("/professors")
 class ProfessorController(
+    private val lectureRepository: LectureRepository,
     private val professorRepository: ProfessorRepository,
     private val professorModelAssembler: ProfessorModelAssembler
 ) {
@@ -70,6 +72,7 @@ class ProfessorController(
         @Valid @RequestBody professorCreate: ProfessorCreate
 
     ): ResponseEntity<EntityModel<Professor>> {
+
         val professor = Professor(
             firstName = professorCreate.firstName,
             lastName = professorCreate.lastName,
@@ -120,8 +123,11 @@ class ProfessorController(
         id: Long
 
     ): ResponseEntity<Map<String, String>> {
-        if (professorRepository.existsById(id))
-            return professorRepository.deleteById(id).let { ResponseEntity.noContent().build() }
+        if (professorRepository.existsById(id)) {
+            lectureRepository.setProfessorToNull(id)
+            professorRepository.deleteById(id)
+            return ResponseEntity.noContent().build()
+        }
 
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with id $id does not exist.")
     }

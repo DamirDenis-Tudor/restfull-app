@@ -80,7 +80,10 @@ class LectureStudentController(
                 "Student with id ${student.id} already enrolled in lecture with id $lectureId"
             )
 
-        lectureRepository.save(lecture.apply { lecture.students.add(student) })
+        student.lectures.add(lecture)
+        lecture.students.add(student)
+        studentRepository.save(student)
+        lectureRepository.save(lecture)
 
         return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
     }
@@ -109,7 +112,11 @@ class LectureStudentController(
                 "Student with id ${student.id} not enrolled in lecture with id $lectureId."
             )
 
-        lectureRepository.save(lecture.apply { lecture.students.remove(student) }) // Fix: Use remove instead of add
+        student.lectures.remove(lecture)
+        lecture.students.remove(student)
+
+        studentRepository.save(student)
+        lectureRepository.save(lecture)
 
         return ResponseEntity.noContent().build()
     }

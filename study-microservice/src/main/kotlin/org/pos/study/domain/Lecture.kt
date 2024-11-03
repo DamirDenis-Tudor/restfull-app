@@ -2,38 +2,34 @@ package org.pos.study.domain
 
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
-import jakarta.validation.constraints.NotNull
-import jakarta.validation.constraints.Size
 
 @Entity
 data class Lecture(
-
     @Id
     var id: String,
 
     @Column(unique = true, length = 20, nullable = false)
     var lectureName: String,
 
-    @NotNull
+    @Column( nullable = false)
     var studyYear: Int,
 
-    @NotNull
+    @Column( nullable = false)
     @Enumerated(EnumType.STRING)
     var lectureType: LectureType,
 
-    @NotNull
+    @Column( nullable = false)
     @Enumerated(EnumType.STRING)
     var categoryType: CategoryType,
 
-    @NotNull
+    @Column( nullable = false)
     @Enumerated(EnumType.STRING)
     var examinationType: ExaminationType,
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "professor_id")
-    @NotNull
+    @ManyToOne(fetch = FetchType.EAGER, optional = true)
+    @JoinColumn(name = "professor_id", nullable = true)
     @JsonIgnore
-    var professor: Professor,
+    var professor: Professor? = null,
 
     @ManyToMany(mappedBy = "lectures", fetch = FetchType.LAZY)
     @JsonIgnore
