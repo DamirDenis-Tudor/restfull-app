@@ -62,6 +62,6 @@ class ExceptionValidator {
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<*> {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(EntityModel.of(mapOf("message" to "An unexpected error occurred.")))
+            .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 }

@@ -1,7 +1,9 @@
 package org.pos.study.controllers.lecture
 
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
+import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.controllers.assemblers.StudentModelAssembler
@@ -57,70 +59,79 @@ class LectureStudentController(
         throw ResponseStatusException(HttpStatus.NOT_FOUND, "Students for lecture $lectureId not found")
     }
 
-    @PostMapping("/{studentId}")
+    @PatchMapping("/enroll")
     fun enrollStudentInLecture(
 
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        @PathVariable
-        lectureId: String,
+        @PathVariable lectureId: String,
 
-        @Min(StudentConstraints.Id.MIN_SIZE)
-        @Max(StudentConstraints.Id.MAX_SIZE)
-        @PathVariable
-        studentId: Long
+        @RequestBody @NotEmpty @Valid
+        studentIds: List<@Min(StudentConstraints.Id.MIN_SIZE) @Max(StudentConstraints.Id.MAX_SIZE) Long>
 
     ): ResponseEntity<EntityModel<*>> {
+
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with id $lectureId not found")
 
-        val student = studentRepository.findById(studentId).orElse(null)
+        val students = studentIds.map {
+            studentId -> studentRepository.findById(studentId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $studentId not found")
+        }
 
-        if (student in lecture.students)
-            throw ResponseStatusException(
-                HttpStatus.CONFLICT,
-                "Student with id ${student.id} already enrolled in lecture with id $lectureId"
-            )
+        students.forEach { student ->
+            if (student in lecture.students)
+                throw ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Student with id ${student.id} already enrolled in lecture with id $lectureId"
+                )
+        }
 
-        student.lectures.add(lecture)
-        lecture.students.add(student)
-        studentRepository.save(student)
-        lectureRepository.save(lecture)
+        students.forEach { student ->
+            student.lectures.add(lecture)
+            lecture.students.add(student)
+
+            studentRepository.save(student)
+            lectureRepository.save(lecture)
+        }
 
         return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
     }
 
-    @DeleteMapping("/{studentId}")
-    fun removeStudentFromLecture(
+    @PatchMapping("/unenroll")
+    fun unenrollStudentInLecture(
 
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        @PathVariable
-        lectureId: String,
+        @PathVariable lectureId: String,
 
-        @Min(StudentConstraints.Id.MIN_SIZE)
-        @Max(StudentConstraints.Id.MAX_SIZE)
-        @PathVariable
-        studentId: Long
+        @RequestBody @NotEmpty @Valid
+        studentIds: List<@Min(StudentConstraints.Id.MIN_SIZE) @Max(StudentConstraints.Id.MAX_SIZE) Long>
 
-    ): ResponseEntity<Void> {
+    ): ResponseEntity<EntityModel<*>> {
+
         val lecture = lectureRepository.findById(lectureId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with id $lectureId not found")
 
-        val student = studentRepository.findById(studentId).orElse(null)
+        val students = studentIds.map {
+                studentId -> studentRepository.findById(studentId).orElse(null)
             ?: throw ResponseStatusException(HttpStatus.NOT_FOUND, "Student with id $studentId not found")
+        }
 
-        if (student !in lecture.students)
-            throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Student with id ${student.id} not enrolled in lecture with id $lectureId."
-            )
+        students.forEach { student ->
+            if (student !in lecture.students)
+                throw ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Student with id ${student.id} is not enrolled in lecture with id $lectureId"
+                )
+        }
 
-        student.lectures.remove(lecture)
-        lecture.students.remove(student)
+        students.forEach { student ->
+            student.lectures.remove(lecture)
+            lecture.students.remove(student)
 
-        studentRepository.save(student)
-        lectureRepository.save(lecture)
+            studentRepository.save(student)
+            lectureRepository.save(lecture)
+        }
 
-        return ResponseEntity.noContent().build()
+        return ResponseEntity.ok(lectureModelAssembler.toModel(lecture))
     }
 }

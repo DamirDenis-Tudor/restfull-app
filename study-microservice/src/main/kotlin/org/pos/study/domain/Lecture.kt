@@ -40,4 +40,6 @@ data class Lecture(
     enum class CategoryType { Domeniu, Specialitate, Adiacenta }
 
     enum class ExaminationType { Examen, Cologviu }
+
+    override fun toString(): String = this.let{ it.students = mutableListOf(); it.professor = null }.toString()
 }

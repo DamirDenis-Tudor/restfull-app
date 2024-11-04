@@ -1,6 +1,5 @@
 package org.pos.study.controllers.student
 
-import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
@@ -13,7 +12,6 @@ import org.pos.study.dto.constraints.StudentConstraints
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus

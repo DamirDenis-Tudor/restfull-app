@@ -36,4 +36,6 @@ data class Student(
 
 ) {
     enum class CycleType { Licenta, Master }
+
+    override fun toString(): String = this.let{ it.lectures = mutableListOf() }.toString()
 }

@@ -1,7 +1,7 @@
 package org.pos.study.controllers.assemblers
 
-import org.pos.study.domain.Lecture
 import org.pos.study.controllers.assemblers.utils.LinkUtils
+import org.pos.study.domain.Lecture
 import org.springframework.data.domain.Page
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -14,6 +14,7 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
     override fun toModel(entity: Lecture): EntityModel<Lecture> =
         EntityModel.of(entity).apply {
             this.add(
+                //Link.of(linkTo(methodOn(LectureController::class.java).findAll()).)
                 Link.of("/api/academia/lectures")
                     .withRel("parent")
                     .withType("GET"),

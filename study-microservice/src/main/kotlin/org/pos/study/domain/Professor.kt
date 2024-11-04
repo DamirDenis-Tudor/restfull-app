@@ -38,4 +38,7 @@ data class Professor(
     enum class GraderType { Asistent, Conferentiar, Profesor, TitularLaborator }
 
     enum class AssociationType { Titular, Asociat, Extern }
+
+    override fun toString(): String = this.let{ it.lectures = mutableListOf() }.toString()
+
 }
