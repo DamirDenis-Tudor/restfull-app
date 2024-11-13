@@ -34,12 +34,12 @@ class ProfessorController(
         @Min(PageConstraints.Page.MIN_VALUE)
         @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
-        page: Int,
+        page: Int = PageConstraints.Page.DEFAULT_VALUE.toInt(),
 
         @Min(PageConstraints.Size.MIN_VALUE)
         @Max(PageConstraints.Size.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
-        size: Int
+        size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
 
     ): ResponseEntity<CollectionModel<EntityModel<Professor>>> {
         val professorsPage: Page<Professor> = professorRepository.findAll(PageRequest.of(page, size))

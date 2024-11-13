@@ -36,6 +36,8 @@ class ExceptionValidator {
 
     @ExceptionHandler(HandlerMethodValidationException::class)
     fun handleValidationExceptions(ex: HandlerMethodValidationException): ResponseEntity<*> {
+        // TODO: FOR PAGINATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
         return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
             .body(EntityModel.of(mapOf("message" to ex.reason)))
     }

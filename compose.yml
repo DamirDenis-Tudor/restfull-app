@@ -1,0 +1,21 @@
+services:
+  mysql:
+    build:
+      context: study-database
+    ports:
+      - '3306:3306'
+    volumes:
+      - mysql_data:/data/db
+
+  mongo:
+    build:
+      context: lectures-database
+    container_name: mongo-db
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
+  mysql_data:

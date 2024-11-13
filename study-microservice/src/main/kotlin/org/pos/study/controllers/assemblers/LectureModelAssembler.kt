@@ -1,12 +1,14 @@
 package org.pos.study.controllers.assemblers
 
-import org.pos.study.controllers.assemblers.utils.LinkUtils
 import org.pos.study.domain.Lecture
+import org.pos.study.controllers.assemblers.utils.LinkUtils
+import org.pos.study.controllers.lecture.LectureController
 import org.springframework.data.domain.Page
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.hateoas.Link
 import org.springframework.hateoas.server.RepresentationModelAssembler
+import org.springframework.hateoas.server.mvc.linkTo
 import org.springframework.stereotype.Component
 
 @Component
@@ -14,7 +16,6 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
     override fun toModel(entity: Lecture): EntityModel<Lecture> =
         EntityModel.of(entity).apply {
             this.add(
-                //Link.of(linkTo(methodOn(LectureController::class.java).findAll()).)
                 Link.of("/api/academia/lectures")
                     .withRel("parent")
                     .withType("GET"),
@@ -31,13 +32,13 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                     .withRel("lecture-student")
                     .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}/students/{studentId}")
-                    .withRel("enroll-student")
-                    .withType("POST"),
+                Link.of("/api/academia/lectures/${entity.id}/students/enroll")
+                    .withRel("enroll-students")
+                    .withType("PATCH"),
 
-                Link.of("/api/academia/lectures/${entity.id}/students/{studentId}")
-                    .withRel("unroll-student")
-                    .withType("DELETE")
+                Link.of("/api/academia/lectures/${entity.id}/students/unenroll")
+                    .withRel("unroll-students")
+                    .withType("PATCH")
             )
         }
 

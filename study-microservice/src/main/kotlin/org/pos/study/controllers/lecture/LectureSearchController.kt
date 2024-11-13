@@ -55,6 +55,7 @@ class LectureSearchController(
         @Max(PageConstraints.Size.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
+
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
 
         val lecturesPage = lectureRepository.findAllByCriteria(

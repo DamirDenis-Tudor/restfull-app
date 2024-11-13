@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
 import jakarta.validation.constraints.Size
+
 import org.pos.study.controllers.assemblers.LectureModelAssembler
 import org.pos.study.controllers.assemblers.StudentModelAssembler
 import org.pos.study.domain.Student
@@ -13,6 +14,7 @@ import org.pos.study.dto.constraints.PageConstraints
 import org.pos.study.dto.constraints.StudentConstraints
 import org.pos.study.repositories.LectureRepository
 import org.pos.study.repositories.StudentRepository
+
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -40,12 +42,12 @@ class LectureStudentController(
         @Min(PageConstraints.Page.MIN_VALUE)
         @Max(PageConstraints.Page.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
-        page: Int,
+        page: Int = PageConstraints.Page.DEFAULT_VALUE.toInt(),
 
         @Min(PageConstraints.Size.MIN_VALUE)
         @Max(PageConstraints.Size.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
-        size: Int
+        size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
 
     ): ResponseEntity<CollectionModel<EntityModel<Student>>> {
         val lecture = lectureRepository.findById(lectureId).orElse(null)
@@ -60,7 +62,7 @@ class LectureStudentController(
     }
 
     @PatchMapping("/enroll")
-    fun enrollStudentInLecture(
+    fun enrollStudentsInLecture(
 
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
@@ -98,7 +100,7 @@ class LectureStudentController(
     }
 
     @PatchMapping("/unenroll")
-    fun unenrollStudentInLecture(
+    fun unenrollStudentsInLecture(
 
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
