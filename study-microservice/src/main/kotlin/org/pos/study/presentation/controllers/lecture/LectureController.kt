@@ -4,32 +4,29 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import org.pos.study.presentation.assemblers.LectureModelAssembler
-import org.pos.study.persistence.entities.Lecture
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.lecture.LectureCreate
 import org.pos.study.business.dto.lecture.LectureUpdate
-import org.pos.study.persistence.repositories.LectureRepository
-import org.pos.study.persistence.repositories.ProfessorRepository
-import org.pos.study.persistence.repositories.StudentRepository
-import org.springframework.data.domain.PageRequest
+import org.pos.study.business.interfaces.lecture.ILectureService
+import org.pos.study.persistence.entities.Lecture
+import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
+import org.springframework.http.*
+import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
-import kotlin.jvm.optionals.getOrNull
+import org.springframework.web.client.RestTemplate
 
 @RestController
 @RequestMapping("/lectures")
 class LectureController(
-    private val lectureRepository: LectureRepository,
     private val lectureModelAssembler: LectureModelAssembler,
-    private val professorRepository: ProfessorRepository,
-    private val studentRepository: StudentRepository
+    private val lectureService: ILectureService,
 ) {
+
+    private val restTemplate = RestTemplate()
+
     @GetMapping
     fun getLectures(
 
@@ -43,111 +40,67 @@ class LectureController(
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
 
-    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        val lecturePage = lectureRepository.findAll(PageRequest.of(page, size))
-        if (lecturePage.hasContent())
-            return ResponseEntity.ok(lectureModelAssembler.toCollectionModel(lecturePage))
+    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> =
+        lectureService.getLectures(page, size).getOrThrow()
+            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(it)) }
 
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lectures at page $page with size $size not found.")
-    }
 
     @GetMapping("/{lectureId}")
     fun getLecture(
 
-        @Size(min = LectureConstraints.Id.MIN_SIZE,
-            max = LectureConstraints.Id.MAX_SIZE
-        )
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
 
-    ): ResponseEntity<EntityModel<Lecture>> {
-        val lecture = lectureRepository.findById(lectureId)
+    ): ResponseEntity<EntityModel<Lecture>> =
+        lectureService.getLectureById(lectureId).getOrThrow()
+            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
-        if (lecture.isPresent)
-            return ResponseEntity.ok(lectureModelAssembler.toModel(lecture.get()))
-
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
-    }
 
     @PutMapping
     fun createLecture(
 
         @Valid @RequestBody lecture: LectureCreate
 
-    ): ResponseEntity<EntityModel<*>> {
-        val professor = lecture.professorId.let { professorRepository.findById(it).getOrNull() }
-            ?: throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Professor with ID ${lecture.professorId} not found."
-            )
-
-        if (lectureRepository.findById(lecture.id).isPresent)
-            throw ResponseStatusException(HttpStatus.CONFLICT, "Lecture with ID ${lecture.id} already exists.")
-
-        val newLecture = Lecture(
-            id = lecture.id,
-            lectureName = lecture.lectureName,
-            studyYear = lecture.studyYear,
-            lectureType = lecture.lectureType,
-            categoryType = lecture.categoryType,
-            examinationType = lecture.examinationType,
-            professor = professor,
-        )
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(lectureModelAssembler.toModel(lectureRepository.save(newLecture)))
-    }
+    ): ResponseEntity<EntityModel<*>> =
+        lectureService.createLecture(lecture).getOrThrow()
+            .let { ResponseEntity.status(HttpStatus.CREATED).body(lectureModelAssembler.toModel(it)) }
 
     @PatchMapping("/{lectureId}")
     fun patchLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        @PathVariable
-        lectureId: String,
+        @PathVariable lectureId: String,
 
-        @Valid @RequestBody
-        lectureUpdates: LectureUpdate
+        @Valid @RequestBody lectureUpdates: LectureUpdate
 
-    ): ResponseEntity<EntityModel<Lecture>> {
-        val existingLecture = lectureRepository.findById(lectureId).orElseThrow {
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
-        }
+    ): ResponseEntity<EntityModel<Lecture>> =
+        lectureService.updateLecture(lectureId, lectureUpdates).getOrThrow()
+            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
-        val professor = lectureUpdates.professorId?.let {
-            professorRepository.findById(it).getOrNull() ?: throw ResponseStatusException(
-                HttpStatus.NOT_FOUND,
-                "Professor with ID ${lectureUpdates.professorId} not found."
-            )
-        }
-        val updatedLecture = existingLecture.copy(
-            lectureName = lectureUpdates.lectureName?.takeIf { it.isNotBlank() } ?: existingLecture.lectureName,
-            studyYear = lectureUpdates.studyYear?.takeIf { it != 0 } ?: existingLecture.studyYear,
-            lectureType = lectureUpdates.lectureType ?: existingLecture.lectureType,
-            categoryType = lectureUpdates.categoryType ?: existingLecture.categoryType,
-            examinationType = lectureUpdates.examinationType ?: existingLecture.examinationType,
-            professor = professor ?: existingLecture.professor,
-        )
-
-        return ResponseEntity.ok(lectureModelAssembler.toModel(lectureRepository.save(updatedLecture)))
-    }
 
     @DeleteMapping("/{lectureId}")
+    @Transactional
     fun deleteLecture(
 
         @PathVariable
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String
+        lectureId: String,
 
-    ): ResponseEntity<Any> {
-        val lecture = lectureRepository.findById(lectureId)
+        @RequestHeader(HttpHeaders.AUTHORIZATION)
+        authorizationHeader: String?
 
-        if (!lecture.isPresent)
-            throw ResponseStatusException(HttpStatus.NOT_FOUND, "Lecture with ID $lectureId not found.")
+    ): ResponseEntity<Void> {
+        lectureService.deleteLecture(lectureId).getOrThrow()
 
-        for (student in lecture.get().students) {
-            student.lectures.remove(lecture.get())
-            studentRepository.save(student)
-        }
-        lectureRepository.deleteById(lectureId)
+        restTemplate.exchange(
+            "http://localhost:8000/lectures/$lectureId",
+            HttpMethod.DELETE,
+            HttpEntity<String>(HttpHeaders().apply {
+                this.set(HttpHeaders.AUTHORIZATION, authorizationHeader!!)
+            }),
+            String::class.java
+        )
 
         return ResponseEntity.noContent().build()
     }
+
 }

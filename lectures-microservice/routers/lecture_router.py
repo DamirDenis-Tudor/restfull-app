@@ -1,7 +1,8 @@
+import base64
 from datetime import datetime
 from typing import List
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Request, Depends
 from pydantic import BaseModel, Field
 
 from database import db_wrapper
@@ -19,6 +20,16 @@ def generate_hateoas_links(lecture_id: str):
         "update_assessments": {"href": f"/lectures/{lecture_id}/assessments"},
         "create_course": {"href": f"/lectures/{lecture_id}"}
     }
+
+def extract_authorization_header(request: Request):
+    authorization_header = request.headers.get("authorization")
+    if not authorization_header:
+        raise HTTPException(status_code=400, detail="Authorization header is missing")
+
+    print(authorization_header.split(" ")[1])
+    print(base64.b64decode(authorization_header.split(" ")[1]).decode('utf-8'))
+
+    return authorization_header
 
 @router.put("/lectures/{lecture_id}")
 async def create_course(lecture_id: str):
@@ -41,6 +52,8 @@ async def create_course(lecture_id: str):
 
 @router.post("/lectures/{lecture_id}/assessments")
 async def replace_assessment_tests(lecture_id: str, new_tests: List[AssessmentTest]):
+    # TODO: verify user identity
+
     lecture = db_wrapper.get_database().lectures.find_one({"_id": lecture_id})
 
     if not lecture:
@@ -65,7 +78,12 @@ async def replace_assessment_tests(lecture_id: str, new_tests: List[AssessmentTe
     }
 
 @router.delete("/lectures/{lecture_id}")
-async def delete_course(lecture_id: str):
+async def delete_course(lecture_id: str, authorization: str = Depends(extract_authorization_header)):
+    # TODO: verify user identity (authentication)
+
+    # Print the Authorization header (you may use this for token validation logic)
+    print(f"Authorization header: {authorization}")
+
     course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id})
 
     if not course:

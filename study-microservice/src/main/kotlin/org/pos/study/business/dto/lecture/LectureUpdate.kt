@@ -8,11 +8,6 @@ import org.pos.study.business.dto.constraints.LectureConstraints
 
 data class LectureUpdate(
     @field:Size(
-        min = LectureConstraints.Id.MIN_SIZE,
-        max = LectureConstraints.Id.MAX_SIZE
-    ) var id: String?,
-
-    @field:Size(
         min = LectureConstraints.LectureName.MIN_SIZE,
         max = LectureConstraints.LectureName.MAX_SIZE
     ) var lectureName: String?,

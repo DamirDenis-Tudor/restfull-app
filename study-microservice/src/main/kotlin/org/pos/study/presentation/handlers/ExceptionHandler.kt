@@ -1,5 +1,7 @@
 package org.pos.study.presentation.handlers
 
+import org.pos.study.business.exceptions.EntityConflict
+import org.pos.study.business.exceptions.EntityNotFound
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
@@ -9,6 +11,8 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.HttpClientErrorException
+import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.method.annotation.HandlerMethodValidationException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.ResponseStatusException
@@ -53,6 +57,24 @@ class ExceptionHandler {
     fun handleDataIntegrityViolation(ex: DataIntegrityViolationException): ResponseEntity<*> {
         return ResponseEntity.status(HttpStatus.CONFLICT)
             .body(EntityModel.of(mapOf("message" to "Data integrity violation.", "errors" to ex.cause?.message)))
+    }
+
+    @ExceptionHandler(ResourceAccessException::class)
+    fun handleDataIntegrityViolation(ex: ResourceAccessException): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
+
+    @ExceptionHandler(EntityConflict::class)
+    fun handleDataIntegrityViolation(ex: EntityConflict): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
+
+    @ExceptionHandler(EntityNotFound::class)
+    fun handleDataIntegrityViolation(ex: EntityNotFound): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 
     @ExceptionHandler(ResponseStatusException::class)

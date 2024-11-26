@@ -3,26 +3,21 @@ package org.pos.study.presentation.controllers.professor
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import org.pos.study.presentation.assemblers.LectureModelAssembler
-import org.pos.study.persistence.entities.Lecture
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
-import org.pos.study.persistence.repositories.LectureRepository
-import org.pos.study.persistence.repositories.ProfessorRepository
-import org.springframework.data.domain.PageRequest
+import org.pos.study.business.interfaces.professor.IProfessorLectureService
+import org.pos.study.persistence.entities.Lecture
+import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.server.ResponseStatusException
 
 @RestController
 @RequestMapping("/professors/{id}/lectures")
 class ProfessorLectureController(
-    private val lectureRepository: LectureRepository,
-    private val professorRepository: ProfessorRepository,
+    private val professorLectureService: IProfessorLectureService,
     private val lectureModelAssembler: LectureModelAssembler
 ) {
 
@@ -43,20 +38,9 @@ class ProfessorLectureController(
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
 
-    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        val professor = professorRepository.findById(id)
-
-        if (professor.isPresent) {
-            return ResponseEntity.ok(
-                lectureModelAssembler.toCollectionModel(
-                    page = lectureRepository.findByProfessor(professor.get(), PageRequest.of(page, size)),
-                    professorId = id
-                )
-            )
-        }
-
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $id not found.")
-    }
+    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> =
+        professorLectureService.getLecturesByProfessor(id, page, size).getOrThrow()
+            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(page = it, professorId = id)) }
 
     @GetMapping("/{lectureId}")
     fun getLectureByProfessor(
@@ -70,22 +54,20 @@ class ProfessorLectureController(
         ) @PathVariable
         lectureId: String
 
-    ): ResponseEntity<EntityModel<Lecture>> {
-        val professor = professorRepository.findById(id)
+    ): ResponseEntity<EntityModel<Lecture>> =
+        professorLectureService.getLectureByProfessor(id, lectureId).getOrThrow()
+            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
-        if (professor.isPresent) {
-            return lectureRepository.findById(lectureId)
-                .filter { it.professor?.id?.toLong() == id }
-                .map { lectureModelAssembler.toModel(it) }
-                .map { ResponseEntity.ok(it) }
-                .orElseThrow {
-                    throw ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Professor with ID $id has no lecture with ID $lectureId."
-                    )
-                }
-        }
+    @GetMapping("/{lectureId}/ownership")
+    fun isProfessorOwnerOfLecture(
+        @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable id: Long,
 
-        throw ResponseStatusException(HttpStatus.NOT_FOUND, "Professor with ID $id not found.")
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE) @PathVariable
+        lectureId: String
+
+    ): ResponseEntity<Boolean> {
+        val isOwner = professorLectureService.isProfessorOwnerOfLecture(id, lectureId).getOrThrow()
+        return ResponseEntity.ok(isOwner)
     }
+
 }
