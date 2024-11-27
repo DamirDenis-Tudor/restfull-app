@@ -1,31 +1,34 @@
 package org.pos
 
-import api.academia.Auth
-import api.academia.AuthServiceGrpcKt
-import io.grpc.Server
 import io.grpc.ServerBuilder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.runBlocking
+import org.ktorm.database.Database
+import org.pos.services.AuthService
+import org.pos.services.BlackListService
+import org.pos.services.TokenService
 
-class AuthServiceGrpc : AuthServiceGrpcKt.AuthServiceCoroutineImplBase() {
-    override suspend fun authenticate(request: Auth.AuthRequest): Auth.AuthResponse {
-        val dummyToken = "dummyToken123"
 
-        val response = Auth.AuthResponse.newBuilder()
-            .setToken(dummyToken)
-            .build()
+fun main() = runBlocking {
+    val database = Database.connect(
+        url = "jdbc:mysql://localhost:3306/study-database",
+        driver = "com.mysql.cj.jdbc.Driver",
+        user = "user",
+        password = "password"
+    )
 
-        return response
-    }
-}
+    val blackListService = BlackListService(database)
+    val tokenService = TokenService(blackListService)
+    val authService = AuthService(tokenService)
 
-fun main(): Unit = runBlocking {
-    ServerBuilder
+    val server = ServerBuilder
         .forPort(50051)
-        .addService(AuthServiceGrpc())
+        .addService(authService)
         .executor(Dispatchers.IO.asExecutor())
         .build()
-        .apply(Server::start)
-        .apply(Server::awaitTermination)
+
+    server.start()
+
+    server.awaitTermination()
 }
