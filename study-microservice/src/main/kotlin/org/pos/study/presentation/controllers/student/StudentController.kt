@@ -1,5 +1,6 @@
 package org.pos.study.presentation.controllers.student
 
+import api.academia.Auth
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -9,6 +10,7 @@ import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -23,7 +25,9 @@ class StudentController(
     private val studentModelAssembler: StudentModelAssembler
 ) {
 
+
     @GetMapping
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     fun getAllStudents(
         @Min(PageConstraints.Page.MIN_VALUE)
         @Max(PageConstraints.Page.MAX_VALUE)
@@ -38,6 +42,7 @@ class StudentController(
          studentService.getAllStudents(page, size).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toCollectionModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN, Auth.Role.STUDENT])
     @GetMapping("/{id}")
     fun getStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -47,6 +52,7 @@ class StudentController(
          studentService.getStudentById(id).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PostMapping
     fun createStudent(
         @Valid @RequestBody studentCreate: StudentCreate
@@ -54,6 +60,7 @@ class StudentController(
          studentService.createStudent(studentCreate).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(studentModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PatchMapping("/{id}")
     fun updateStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -64,6 +71,7 @@ class StudentController(
          studentService.updateStudent(id, studentUpdate).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @DeleteMapping("/{id}")
     fun deleteStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)

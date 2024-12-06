@@ -12,7 +12,7 @@ import org.pos.services.TokenService
 
 fun main() = runBlocking {
     val database = Database.connect(
-        url = "jdbc:mysql://localhost:3306/study-database",
+        url = "jdbc:mysql://localhost:3307/auth-database",
         driver = "com.mysql.cj.jdbc.Driver",
         user = "user",
         password = "password"

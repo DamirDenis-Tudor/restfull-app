@@ -1,5 +1,6 @@
 package org.pos.study.presentation.controllers.professor
 
+import api.academia.Auth
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -9,6 +10,7 @@ import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -23,6 +25,7 @@ class ProfessorController(
     private val professorModelAssembler: ProfessorModelAssembler
 ) {
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @GetMapping
     fun getAllProfessors(
         @Min(PageConstraints.Page.MIN_VALUE)
@@ -39,6 +42,7 @@ class ProfessorController(
         professorService.getAllProfessors(page, size).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toCollectionModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN, Auth.Role.PROFESSOR])
     @GetMapping("/{id}")
     fun getProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE)
@@ -49,6 +53,7 @@ class ProfessorController(
         professorService.getProfessorById(id).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PostMapping
     fun createProfessor(
         @Valid @RequestBody professorCreate: ProfessorCreate
@@ -56,6 +61,7 @@ class ProfessorController(
         professorService.createProfessor(professorCreate).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(professorModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PatchMapping("/{id}")
     fun patchProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE)
@@ -68,6 +74,7 @@ class ProfessorController(
         professorService.updateProfessor(id, professorUpdates).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @DeleteMapping("/{id}")
     fun deleteProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE)

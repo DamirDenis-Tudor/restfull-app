@@ -22,6 +22,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-kotlin
     implementation("com.google.protobuf:protobuf-kotlin:4.28.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+
     // https://mvnrepository.com/artifact/org.ktorm/ktorm-core
     implementation("org.ktorm:ktorm-core:4.1.1")
     // https://mvnrepository.com/artifact/org.ktorm/ktorm-support-mysql

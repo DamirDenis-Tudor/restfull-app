@@ -8,8 +8,8 @@ import org.ktorm.schema.int
 import org.ktorm.schema.varchar
 
 object Users : Table<User>("users") {
-    val id = varchar("id").primaryKey().bindTo { it.id }
-    val username = varchar("username").bindTo { it.username }
+    val id = int("id").primaryKey().bindTo { it.id }
+    val email = varchar("email").bindTo { it.email }
     val password = varchar("password").bindTo { it.password }
     val role = int("role").bindTo { it.role }
 }
@@ -17,8 +17,8 @@ object Users : Table<User>("users") {
 interface User : Entity<User> {
     companion object : Entity.Factory<User>()
 
-    val id: String
-    val username: String
+    val id: Int
+    val email: String
     val password: String
     val role: Int
 }

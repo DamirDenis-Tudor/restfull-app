@@ -1,0 +1,5 @@
+CREATE DATABASE IF NOT EXISTS `auth-database`;
+
+GRANT ALL PRIVILEGES ON `auth-database`.* TO 'user'@'%' WITH GRANT OPTION;
+
+FLUSH PRIVILEGES;

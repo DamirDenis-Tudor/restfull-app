@@ -1,5 +1,6 @@
 package org.pos.study.presentation.controllers.lecture
 
+import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
@@ -7,6 +8,7 @@ import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.EntityModel
@@ -20,7 +22,7 @@ class LectureProfessorController(
     private val professorModelAssembler: ProfessorModelAssembler,
     private val lectureModelAssembler: LectureModelAssembler
 ) {
-
+    @RequiresRoles(roles = [Auth.Role.UNKNOWN])
     @GetMapping
     fun getProfessorByLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
@@ -29,6 +31,7 @@ class LectureProfessorController(
         lectureProfessorService.getProfessorByLecture(lectureId).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.UNKNOWN])
     @PatchMapping("/{professorId}")
     fun updateProfessorForLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)

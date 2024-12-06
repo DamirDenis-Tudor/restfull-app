@@ -25,7 +25,7 @@ class BlackListService(private val db: Database) {
 
     fun validateUserCredentials(username: String, password: String): Result<User> = runCatching {
 
-        val user = db.users().find { it.username eq username }
+        val user = db.users().find { it.email eq username }
             ?: throw UserNotFoundException("User with username $username not found")
 
         if (user.password != password) {
@@ -42,7 +42,6 @@ class BlackListService(private val db: Database) {
         db.useTransaction {
             db.blacklistTokens().add(
                 BlacklistToken {
-                    id = UUID.randomUUID().toString()
                     token = hashToken(tkn)
                     timestamp = LocalDateTime.now()
                 }

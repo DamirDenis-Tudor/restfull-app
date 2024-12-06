@@ -1,21 +1,29 @@
 services:
-  mysql:
+  auth-db:
+    build:
+      context: auth-database
+    ports:
+      - '3307:3306'
+    volumes:
+      - mysql_data_auth:/data/db
+
+  study-db:
     build:
       context: study-database
     ports:
       - '3306:3306'
     volumes:
-      - mysql_data:/data/db
+      - mysql_data_study:/data/db
 
-  mongo:
+  lectures-db:
     build:
       context: lectures-database
-    container_name: mongo-db
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data:/data/db
+      - mongo_data_lectures:/data/db
 
 volumes:
-  mongo_data:
-  mysql_data:
+  mongo_data_lectures:
+  mysql_data_auth:
+  mysql_data_study:

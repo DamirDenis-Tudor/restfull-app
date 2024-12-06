@@ -1,15 +1,20 @@
 package org.pos.study.presentation.controllers.lecture
 
+import api.academia.Auth
+import api.academia.AuthServiceGrpcKt
+import io.grpc.ManagedChannelBuilder
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
+import kotlinx.coroutines.runBlocking
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.lecture.LectureCreate
 import org.pos.study.business.dto.lecture.LectureUpdate
 import org.pos.study.business.interfaces.lecture.ILectureService
 import org.pos.study.persistence.entities.Lecture
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -24,9 +29,9 @@ class LectureController(
     private val lectureModelAssembler: LectureModelAssembler,
     private val lectureService: ILectureService,
 ) {
-
     private val restTemplate = RestTemplate()
 
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
     fun getLectures(
 
@@ -40,11 +45,12 @@ class LectureController(
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
 
-    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> =
+    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> = runBlocking {
         lectureService.getLectures(page, size).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(it)) }
+    }
 
-
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping("/{lectureId}")
     fun getLecture(
 
@@ -56,6 +62,7 @@ class LectureController(
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
 
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PutMapping
     fun createLecture(
 
@@ -65,6 +72,7 @@ class LectureController(
         lectureService.createLecture(lecture).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(lectureModelAssembler.toModel(it)) }
 
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PatchMapping("/{lectureId}")
     fun patchLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
@@ -77,6 +85,7 @@ class LectureController(
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
 
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @DeleteMapping("/{lectureId}")
     @Transactional
     fun deleteLecture(

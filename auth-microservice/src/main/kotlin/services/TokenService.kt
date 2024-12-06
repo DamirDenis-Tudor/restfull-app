@@ -18,7 +18,7 @@ class TokenService(private val persistence: BlackListService) {
         val algorithm = Algorithm.HMAC256(jwtSecret)
         return JWT.create()
             .withIssuer("http://localhost:50051")
-            .withSubject(user.id)
+            .withSubject(user.email)
             .withClaim("role", user.role)
             .withExpiresAt(Date(System.currentTimeMillis() + 3600000))
             .withJWTId(UUID.randomUUID().toString())

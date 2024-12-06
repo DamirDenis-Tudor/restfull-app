@@ -1,5 +1,6 @@
 package org.pos.study.presentation.controllers.student
 
+import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
@@ -8,6 +9,7 @@ import org.pos.study.persistence.entities.Student
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints
 import org.pos.study.persistence.repositories.StudentRepository
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
@@ -25,6 +27,7 @@ class StudentSearchController(
     private val studentModelAssembler: StudentModelAssembler
 ) {
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @GetMapping
     fun searchStudents(
 
