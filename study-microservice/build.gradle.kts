@@ -56,6 +56,7 @@ dependencies {
     // https://mvnrepository.com/artifact/com.google.protobuf/protobuf-kotlin
     implementation("com.google.protobuf:protobuf-kotlin:4.28.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
+    implementation(kotlin("test"))
 }
 
 kotlin {

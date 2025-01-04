@@ -5,6 +5,8 @@ import api.academia.AuthServiceGrpcKt
 import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
 import org.aspectj.lang.JoinPoint
+import org.aspectj.lang.ProceedingJoinPoint
+import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.springframework.http.HttpHeaders
@@ -19,8 +21,8 @@ class RequiresRolesAspect(
     private val request: HttpServletRequest
 ) {
 
-    @Before("@annotation(requiresRoles)")
-    fun checkRole(joinPoint: JoinPoint, requiresRoles: RequiresRoles) = runBlocking {
+    @Around("@annotation(requiresRoles)")
+    fun checkRole(joinPoint: ProceedingJoinPoint, requiresRoles: RequiresRoles): Any? = runBlocking {
         val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing.")
 
@@ -44,5 +46,7 @@ class RequiresRolesAspect(
         if (!requiresRoles.roles.contains(validateResponse.success.role)) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied for your role.")
         }
+
+        joinPoint.`this`
     }
 }

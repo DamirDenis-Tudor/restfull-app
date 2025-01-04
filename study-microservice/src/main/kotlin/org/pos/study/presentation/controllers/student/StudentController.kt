@@ -11,6 +11,7 @@ import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.aspects.Test
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -47,7 +48,8 @@ class StudentController(
     fun getStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)
         @Max(StudentConstraints.Id.MAX_SIZE)
-        @PathVariable id: Long
+        @PathVariable id: Long,
+        @Test roleEmail: String
     ): ResponseEntity<EntityModel<Student>> =
          studentService.getStudentById(id).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }

@@ -22,3 +22,8 @@ Solutiile **_remarcabile_** pot atrage bonusuri pentru nota de examen/media core
 	- sintaxa de baza: <https://www.markdownguide.org/basic-syntax/>
 	- _cheat-sheet_: <https://www.markdownguide.org/cheat-sheet/>
 2. **Github** - comenzi uzuale: <https://education.github.com/git-cheat-sheet-education.pdf>
+
+
+Notes:
+- se poate interface authentificarea din microserviciul de profesor-student
+- 
