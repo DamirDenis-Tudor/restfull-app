@@ -1,1 +1,1 @@
-__all__ = ["lecture_router"]
+__all__ = ["lecture_router", "files_router"]
