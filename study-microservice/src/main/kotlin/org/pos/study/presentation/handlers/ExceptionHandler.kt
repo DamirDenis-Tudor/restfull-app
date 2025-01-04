@@ -65,18 +65,6 @@ class ExceptionHandler {
             .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 
-    @ExceptionHandler(EntityConflict::class)
-    fun handleDataIntegrityViolation(ex: EntityConflict): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(EntityModel.of(mapOf("message" to ex.message)))
-    }
-
-    @ExceptionHandler(EntityNotFound::class)
-    fun handleDataIntegrityViolation(ex: EntityNotFound): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(EntityModel.of(mapOf("message" to ex.message)))
-    }
-
     @ExceptionHandler(ResponseStatusException::class)
     fun handleLectureNotFound(ex: ResponseStatusException): ResponseEntity<*> {
         return ResponseEntity.status(ex.statusCode)

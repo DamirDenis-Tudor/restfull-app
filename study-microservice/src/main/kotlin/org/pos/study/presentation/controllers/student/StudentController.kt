@@ -10,8 +10,8 @@ import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
+import org.pos.study.presentation.aspects.InjectEmail
 import org.pos.study.presentation.aspects.RequiresRoles
-import org.pos.study.presentation.aspects.Test
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -25,8 +25,6 @@ class StudentController(
     private val studentService: IStudentService,
     private val studentModelAssembler: StudentModelAssembler
 ) {
-
-
     @GetMapping
     @RequiresRoles(roles = [Auth.Role.ADMIN])
     fun getAllStudents(
@@ -49,10 +47,27 @@ class StudentController(
         @Min(StudentConstraints.Id.MIN_SIZE)
         @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
-        @Test roleEmail: String
-    ): ResponseEntity<EntityModel<Student>> =
-         studentService.getStudentById(id).getOrThrow()
+
+        @InjectEmail(forRole = Auth.Role.STUDENT)
+        email: String
+    ): ResponseEntity<EntityModel<Student>> {
+        email.takeIf{it.isNotBlank()}?.let {
+            studentService.verifyStudent(id, email).getOrThrow()
+        }
+
+        return studentService.getStudentById(id).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
+    }
+
+    @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @GetMapping("/me")
+    fun getCurrentStudent(
+        @InjectEmail(forRole = Auth.Role.STUDENT)
+        email: String
+    ): ResponseEntity<EntityModel<Student>> {
+        return studentService.getStudentByEmail(email).getOrThrow()
+            .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
+    }
 
     @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PostMapping

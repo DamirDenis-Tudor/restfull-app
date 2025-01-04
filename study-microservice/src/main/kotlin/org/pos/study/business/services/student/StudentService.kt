@@ -5,10 +5,12 @@ import org.pos.study.persistence.repositories.StudentRepository
 import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.business.interfaces.student.IStudentService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class StudentService(
@@ -27,6 +29,12 @@ class StudentService(
     override fun getStudentById(id: Long): Result<Student> = runCatching {
         studentRepository.findById(id).orElseThrow {
             EntityNotFound("Student with ID $id not found")
+        }
+    }
+
+    override fun getStudentByEmail(email: String): Result<Student> = runCatching {
+        studentRepository.findStudentByEmail(email).getOrElse {
+            throw EntityNotFound("Student with email $email not found")
         }
     }
 
@@ -68,5 +76,16 @@ class StudentService(
         studentRepository.delete(existingStudent)
 
         return@runCatching
+    }
+
+    override fun verifyStudent(
+        id: Long,
+        email: String
+    ): Result<Unit> = runCatching {
+        studentRepository.findById(id).getOrElse {
+            throw EntityNotFound("Student with ID $id not found.")
+        }.takeIf {
+            it.email == email
+        } ?: throw EntityUnverifiable("No student with id $id has email $email.")
     }
 }

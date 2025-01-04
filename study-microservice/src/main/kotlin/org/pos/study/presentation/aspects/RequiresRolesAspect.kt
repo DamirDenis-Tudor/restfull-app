@@ -4,11 +4,11 @@ import api.academia.Auth
 import api.academia.AuthServiceGrpcKt
 import jakarta.servlet.http.HttpServletRequest
 import kotlinx.coroutines.runBlocking
-import org.aspectj.lang.JoinPoint
 import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
-import org.aspectj.lang.annotation.Before
+import org.aspectj.lang.reflect.MethodSignature
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -20,6 +20,7 @@ class RequiresRolesAspect(
     private val authGrpcStub: AuthServiceGrpcKt.AuthServiceCoroutineStub,
     private val request: HttpServletRequest
 ) {
+    private val logger = LoggerFactory.getLogger(RequiresRolesAspect::class.java)
 
     @Around("@annotation(requiresRoles)")
     fun checkRole(joinPoint: ProceedingJoinPoint, requiresRoles: RequiresRoles): Any? = runBlocking {
@@ -30,23 +31,32 @@ class RequiresRolesAspect(
             throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid token format.")
         }
 
-        val token = authHeader.split(" ")[1]
-
         val validateRequest = Auth.TokenRequest.newBuilder()
-            .setToken(token)
+            .setToken(authHeader.split(" ")[1])
             .build()
 
-        val validateResponse = authGrpcStub.validateToken(validateRequest)
+        val validateResponse = runCatching { authGrpcStub.validateToken(validateRequest) }.getOrElse {
+            throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Authentication Service is not available.")
+        }
+
+        logger.info("Authorization header contains the following: role=${validateResponse.success.role}, email=${validateResponse.success.id}")
 
         if (validateResponse.hasError()) {
             throw ResponseStatusException(HttpStatus.UNAUTHORIZED, validateResponse.error.message)
         }
-        println(joinPoint.args.forEach { println(it) })
 
         if (!requiresRoles.roles.contains(validateResponse.success.role)) {
             throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied for your role.")
         }
 
-        joinPoint.`this`
+        (joinPoint.signature as MethodSignature).method.parameters.withIndex().forEach { (index, parameter) ->
+            parameter.getAnnotation(InjectEmail::class.java)?.let { injectValue ->
+                joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) {
+                    validateResponse.success.id
+                } else ""
+            }
+        }
+
+        joinPoint.proceed(joinPoint.args)
     }
 }

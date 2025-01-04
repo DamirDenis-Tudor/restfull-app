@@ -50,7 +50,7 @@ class LectureController(
             .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(it)) }
     }
 
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR, Auth.Role.STUDENT])
     @GetMapping("/{lectureId}")
     fun getLecture(
 

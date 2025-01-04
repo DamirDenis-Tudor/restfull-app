@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface StudentRepository : JpaRepository<Student, Long> {
+    fun findStudentByEmail(email: String): Result<Student>
     fun findByLecturesContaining(student: Lecture, pageable: Pageable): Page<Student>
 
     @Query("""

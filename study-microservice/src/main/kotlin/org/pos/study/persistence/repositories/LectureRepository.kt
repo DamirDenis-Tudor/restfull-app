@@ -12,6 +12,7 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface LectureRepository : JpaRepository<Lecture, String> {
+
     fun findByProfessor(professor: Professor, pageable: Pageable): Page<Lecture>
 
     fun findByStudentsContaining(student: Student, pageable: Pageable): Page<Lecture>
