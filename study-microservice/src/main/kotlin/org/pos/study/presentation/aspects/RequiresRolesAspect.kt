@@ -36,7 +36,7 @@ class RequiresRolesAspect(
             .build()
 
         val validateResponse = runCatching { authGrpcStub.validateToken(validateRequest) }.getOrElse {
-            throw ResponseStatusException(HttpStatus.SERVICE_UNAVAILABLE, "Authentication Service is not available.")
+            throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "Authentication Service is not available.")
         }
 
         logger.info("Authorization header contains the following: role=${validateResponse.success.role}, email=${validateResponse.success.id}")

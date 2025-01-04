@@ -45,9 +45,10 @@ async def create_course(lecture_id: str):
     db_wrapper.get_database().lectures.insert_one(discipline_data)
 
     return {
+
         "message": "Course created successfully",
         "course": discipline_data,
-        "links": generate_hateoas_links(lecture_id)
+        "_links": generate_hateoas_links(lecture_id)
     }
 
 @router.post("/lectures/{lecture_id}/assessments")

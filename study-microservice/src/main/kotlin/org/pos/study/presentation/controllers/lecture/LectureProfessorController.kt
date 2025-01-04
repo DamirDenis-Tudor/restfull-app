@@ -14,6 +14,10 @@ import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/professors")
@@ -24,6 +28,42 @@ class LectureProfessorController(
 ) {
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
+    @Operation(
+        summary = "Get professor by lecture",
+        description = "Fetches the professor for the given lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Professor retrieved successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Page range is out of bounds",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun getProfessorByLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
@@ -33,6 +73,51 @@ class LectureProfessorController(
 
     @RequiresRoles(roles = [Auth.Role.UNKNOWN])
     @PatchMapping("/{professorId}")
+    @Operation(
+        summary = "Update professor for lecture",
+        description = "Updates the professor assigned to a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Professor updated successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or professor not found",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Page range is out of bounds",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun updateProfessorForLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,

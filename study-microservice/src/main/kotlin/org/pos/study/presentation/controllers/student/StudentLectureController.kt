@@ -19,7 +19,10 @@ import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import javax.annotation.security.RolesAllowed
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/students/{studentId}/lectures")
@@ -31,6 +34,42 @@ class StudentLectureController(
 ) {
 
     @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @Operation(
+        summary = "Get all lectures for a student",
+        description = "Retrieves a paginated list of lectures for the specified student.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of lectures",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter range is not in expected value range.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @GetMapping
     fun getLecturesByStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -49,9 +88,8 @@ class StudentLectureController(
 
         @InjectEmail(forRole = Auth.Role.STUDENT)
         email: String
-
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        email.takeIf{it.isNotBlank()}?.let {
+        email.takeIf { it.isNotBlank() }?.let {
             studentService.verifyStudent(studentId, it).getOrThrow()
         }
 
@@ -60,6 +98,37 @@ class StudentLectureController(
     }
 
     @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @Operation(
+        summary = "Get a specific lecture for a student",
+        description = "Retrieves a specific lecture for a student by their lecture ID.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Lecture details",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @GetMapping("/{lectureId}")
     fun getLectureByStudent(
         @PathVariable
@@ -73,9 +142,8 @@ class StudentLectureController(
 
         @InjectEmail(forRole = Auth.Role.STUDENT)
         email: String
-
     ): ResponseEntity<EntityModel<Lecture>> {
-        email.takeIf{it.isNotBlank()}?.let {
+        email.takeIf { it.isNotBlank() }?.let {
             studentService.verifyStudent(studentId, it).getOrThrow()
         }
 
@@ -84,6 +152,42 @@ class StudentLectureController(
     }
 
     @RequiresRoles(roles = [Auth.Role.ADMIN])
+    @Operation(
+        summary = "Enroll a student in a lecture",
+        description = "Enrolls a student in a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Enrollment success",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or Student not found.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "If student is already enrolled.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @PostMapping("/{lectureId}")
     fun enrollStudentInLecture(
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -93,12 +197,43 @@ class StudentLectureController(
         @PathVariable
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         lectureId: String
-
-    ): ResponseEntity<EntityModel<Lecture>> =
-        studentLectureService.enrollStudentInLecture(studentId, lectureId).getOrThrow()
+    ): ResponseEntity<EntityModel<Lecture>> {
+        return studentLectureService.enrollStudentInLecture(studentId, lectureId).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+    }
 
     @RequiresRoles(roles = [Auth.Role.ADMIN])
+    @Operation(
+        summary = "Unroll a student from a lecture",
+        description = "Unenrolls a student from a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Unenrollment success",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or Student not found.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @DeleteMapping("/{lectureId}")
     fun unrollStudentFromLecture(
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -107,12 +242,42 @@ class StudentLectureController(
 
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
-
-    ): ResponseEntity<EntityModel<*>> =
-        studentLectureService.unrollStudentFromLecture(studentId, lectureId).getOrThrow()
+    ): ResponseEntity<EntityModel<*>> {
+        return studentLectureService.unrollStudentFromLecture(studentId, lectureId).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
+    }
 
     @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @Operation(
+        summary = "Check if a student is enrolled in a lecture",
+        description = "Checks if a student is enrolled in a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "True if the student is enrolled, otherwise false",
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or Student not found.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @GetMapping("/{lectureId}/enrollment")
     fun isStudentEnrolledInLecture(
         @PathVariable
@@ -127,7 +292,7 @@ class StudentLectureController(
         @InjectEmail(forRole = Auth.Role.STUDENT)
         email: String
     ): ResponseEntity<Boolean> {
-        email.takeIf{it.isNotBlank()}?.let {
+        email.takeIf { it.isNotBlank() }?.let {
             studentService.verifyStudent(studentId, it).getOrThrow()
         }
 
@@ -137,5 +302,4 @@ class StudentLectureController(
                 .getOrThrow()
         )
     }
-
 }

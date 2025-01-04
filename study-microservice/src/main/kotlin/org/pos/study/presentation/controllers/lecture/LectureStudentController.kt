@@ -20,6 +20,10 @@ import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/students")
@@ -32,6 +36,51 @@ class LectureStudentController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
+    @Operation(
+        summary = "Get students by lecture",
+        description = "Fetch all students enrolled in a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of students retrieved successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Page range is out of bounds",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "No students found for the given lecture",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun getStudentsByLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
@@ -60,6 +109,52 @@ class LectureStudentController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PatchMapping("/enroll")
+    @Operation(
+        summary = "Enroll students in lecture",
+        description = "Enroll students in the specified lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Students enrolled successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "No students found for the given lecture, or not lecture found",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "409",
+                description = "One student might be already enrolled.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Page range is out of bounds",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun enrollStudentsInLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
@@ -81,6 +176,46 @@ class LectureStudentController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PatchMapping("/unenroll")
+    @Operation(
+        summary = "Unenroll students from lecture",
+        description = "Unenroll students from the specified lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Students unenrolled successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Page range is out of bounds",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun unenrollStudentsInLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,

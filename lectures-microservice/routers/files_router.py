@@ -9,6 +9,7 @@ from database import db_wrapper
 
 router = APIRouter(prefix="/lectures/{lecture_id}", tags=["Files Controller"])
 
+
 def generate_file_hateoas_links(lecture_id: str, cat: str, file_name: str = None):
     base_link = f"/lectures/{lecture_id}/files"
     links = {
@@ -17,6 +18,7 @@ def generate_file_hateoas_links(lecture_id: str, cat: str, file_name: str = None
         "get_file": {"href": f"{base_link}/{file_name}?category={cat}"} if file_name else None,
     }
     return {k: v for k, v in links.items() if v}
+
 
 @router.get("/files/{file_name}")
 async def get_file(lecture_id: str, category: str, file_name: str):
@@ -35,6 +37,7 @@ async def get_file(lecture_id: str, category: str, file_name: str):
         raise HTTPException(status_code=404, detail="File not found on disk")
 
     return FileResponse(file_path, media_type="application/octet-stream", filename=file_name)
+
 
 @router.post("/files")
 async def upload_file(lecture_id: str, category: str, file: UploadFile = File(...)):
@@ -67,8 +70,9 @@ async def upload_file(lecture_id: str, category: str, file: UploadFile = File(..
     return JSONResponse(content={
         "message": "File uploaded or updated successfully",
         "file_metadata": file_metadata,
-        "links": generate_file_hateoas_links(lecture_id, category, file.filename)
+        "_links": generate_file_hateoas_links(lecture_id, category, file.filename)
     })
+
 
 @router.delete("/files/{file_name}")
 async def delete_file(lecture_id: str, category: str, file_name: str):
@@ -91,5 +95,5 @@ async def delete_file(lecture_id: str, category: str, file_name: str):
 
     return JSONResponse(content={
         "message": f"File '{file_name}' deleted successfully",
-        "links": generate_file_hateoas_links(lecture_id, category)
+        "_links": generate_file_hateoas_links(lecture_id, category)
     })

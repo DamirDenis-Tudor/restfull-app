@@ -44,8 +44,6 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-aop
     implementation("org.springframework.boot:spring-boot-starter-aop:3.4.0")
 
-
-
     // grpc
     api("io.grpc:grpc-kotlin-stub:1.4.1")
     // https://mvnrepository.com/artifact/io.grpc/grpc-kotlin-stub
@@ -97,6 +95,15 @@ protobuf {
             it.builtins {
                 create("kotlin")
             }
+        }
+    }
+}
+
+tasks.register("fetchOpenApiSpec") {
+    doLast {
+        exec {
+            commandLine("rm",  file("src/main/resources/open-api.yaml").absolutePath)
+            commandLine("curl", "-o", file("src/main/resources/open-api.yaml").absolutePath, "http://localhost:8080/api/academia/api-docs.yaml")
         }
     }
 }

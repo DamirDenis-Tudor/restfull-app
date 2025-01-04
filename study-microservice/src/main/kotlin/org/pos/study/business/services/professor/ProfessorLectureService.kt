@@ -17,7 +17,7 @@ class ProfessorLectureService(
 
     override fun getLecturesByProfessor(id: Long, page: Int, size: Int): Result<Page<Lecture>> = runCatching {
         val professor = professorRepository.findById(id).orElseThrow {
-            throw IllegalArgumentException("Professor with ID $id not found.")
+            throw EntityNotFound("Professor with ID $id not found.")
         }
 
         lectureRepository.findByProfessor(professor, PageRequest.of(page, size))

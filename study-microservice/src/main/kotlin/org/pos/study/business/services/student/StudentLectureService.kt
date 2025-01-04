@@ -2,6 +2,7 @@ package org.pos.study.business.services.student
 
 import org.pos.study.business.exceptions.EntityConflict
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.pos.study.business.interfaces.student.IStudentLectureService
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.persistence.entities.Student
@@ -22,7 +23,9 @@ class StudentLectureService(
             throw EntityNotFound("Student with ID $studentId not found.")
         }
 
-        lectureRepository.findByStudentsContaining(student, PageRequest.of(page, size))
+        lectureRepository.findByStudentsContaining(student, PageRequest.of(page, size)).also {
+            if(!it.hasContent()) throw EntityNotFound("No lectures found at page $page with size $size for student $studentId.")
+        }
     }
 
     override fun getLectureByStudent(studentId: Long, lectureId: String): Result<Lecture> = runCatching {

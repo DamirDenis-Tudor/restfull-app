@@ -1,0 +1,2046 @@
+openapi: 3.0.1
+info:
+  title: Study Microservice API
+  description: "This is the API for the Study Microservice, providing information\
+    \ about the service."
+  version: 1.0.0
+servers:
+- url: http://localhost:8080/api/academia
+  description: Generated server url
+paths:
+  /lectures:
+    get:
+      tags:
+      - lecture-controller
+      summary: Get list of lectures
+      description: Returns a paginated list of lectures.
+      operationId: getLectures
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: List of lectures
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Parameter range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Authorization service is unavailable
+          content:
+            application/json: {}
+    put:
+      tags:
+      - lecture-controller
+      summary: Create a new lecture
+      description: Creates a new lecture based on the provided information.
+      operationId: createLecture
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LectureCreate"
+        required: true
+      responses:
+        "201":
+          description: Lecture created successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "409":
+          description: Conflict
+          content:
+            application/json: {}
+        "416":
+          description: Parameter range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Authorization service is unavailable
+          content:
+            application/json: {}
+  /students:
+    get:
+      tags:
+      - student-controller
+      summary: Get all students
+      description: Retrieves a paginated list of all students.
+      operationId: getAllStudents
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: List of students
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected type.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type..
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    post:
+      tags:
+      - student-controller
+      summary: Create a new student
+      description: Creates a new student record.
+      operationId: createStudent
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentCreate"
+        required: true
+      responses:
+        "201":
+          description: Student created
+          content:
+            application/hal+json: {}
+        "400":
+          description: Invalid student data
+          content:
+            application/json: {}
+        "401":
+          description: "Unauthorized, token invalid or missing"
+          content:
+            application/json: {}
+        "403":
+          description: "Forbidden, user does not have necessary permissions"
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /students/{studentId}/lectures/{lectureId}:
+    get:
+      tags:
+      - student-lecture-controller
+      summary: Get a specific lecture for a student
+      description: Retrieves a specific lecture for a student by their lecture ID.
+      operationId: getLectureByStudent
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: studentId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Lecture details
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    post:
+      tags:
+      - student-lecture-controller
+      summary: Enroll a student in a lecture
+      description: Enrolls a student in a specific lecture.
+      operationId: enrollStudentInLecture
+      parameters:
+      - name: studentId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      responses:
+        "200":
+          description: Enrollment success
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Lecture or Student not found.
+          content:
+            application/json: {}
+        "409":
+          description: If student is already enrolled.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    delete:
+      tags:
+      - student-lecture-controller
+      summary: Unroll a student from a lecture
+      description: Unenrolls a student from a specific lecture.
+      operationId: unrollStudentFromLecture
+      parameters:
+      - name: studentId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      responses:
+        "200":
+          description: Unenrollment success
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Lecture or Student not found.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /professors:
+    get:
+      tags:
+      - professor-controller
+      summary: Get all professors
+      description: Retrieves a paginated list of all professors.
+      operationId: getAllProfessors
+      parameters:
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: List of professors
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    post:
+      tags:
+      - professor-controller
+      summary: Create a new professor
+      description: Creates a new professor in the system.
+      operationId: createProfessor
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfessorCreate"
+        required: true
+      responses:
+        "201":
+          description: Professor created successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "409":
+          description: Conflict
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range.
+          content:
+            application/json: {}
+        "422":
+          description: "Bad request: Invalid data provided"
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /students/{id}:
+    get:
+      tags:
+      - student-controller
+      summary: Get a student by ID
+      description: "Retrieves a student by ID, requires the student email to be injected\
+        \ from the JWT token constraints if the user is a student."
+      operationId: getStudent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Student found
+          content:
+            application/hal+json: {}
+        "401":
+          description: "Unauthorized, token invalid or missing"
+          content:
+            application/json: {}
+        "403":
+          description: "Forbidden, user does not have the necessary permissions"
+          content:
+            application/json: {}
+        "404":
+          description: Student not found
+          content:
+            application/json: {}
+        "422":
+          description: Invalid ID parameter provided
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    delete:
+      tags:
+      - student-controller
+      summary: Delete a student
+      description: Deletes a student record by ID.
+      operationId: deleteStudent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Student deleted
+          content:
+            application/json: {}
+        "401":
+          description: "Unauthorized, token invalid or missing"
+          content:
+            application/json: {}
+        "403":
+          description: "Forbidden, user does not have necessary permissions"
+          content:
+            application/json: {}
+        "404":
+          description: Student not found
+          content:
+            application/json: {}
+        "416":
+          description: Invalid parameters ranges
+          content:
+            application/json: {}
+        "422":
+          description: Invalid parameter data
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    patch:
+      tags:
+      - student-controller
+      summary: Update an existing student
+      description: Updates a student's record by ID.
+      operationId: updateStudent
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StudentUpdate"
+        required: true
+      responses:
+        "200":
+          description: Student updated
+          content:
+            application/hal+json: {}
+        "400":
+          description: "Bad request, invalid data format"
+          content:
+            application/json: {}
+        "416":
+          description: Invalid parameters ranges
+          content:
+            application/json: {}
+        "422":
+          description: Invalid student data
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: Student not found
+          content:
+            application/json: {}
+        "409":
+          description: Conflict
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /professors/{id}:
+    get:
+      tags:
+      - professor-controller
+      summary: Get a specific professor by ID
+      description: Fetches details of a specific professor identified by ID.
+      operationId: getProfessor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Professor details retrieved successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    delete:
+      tags:
+      - professor-controller
+      summary: Delete a professor
+      description: Deletes a professor from the system based on their ID.
+      operationId: deleteProfessor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      responses:
+        "204":
+          description: Professor deleted successfully
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+    patch:
+      tags:
+      - professor-controller
+      summary: Update a professor's information
+      description: Updates an existing professor's details.
+      operationId: patchProfessor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfessorUpdate"
+        required: true
+      responses:
+        "200":
+          description: Professor updated successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "409":
+          description: Conflict
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /lectures/{lectureId}:
+    get:
+      tags:
+      - lecture-controller
+      summary: Get a specific lecture
+      description: Returns the details of a specific lecture.
+      operationId: getLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      responses:
+        "200":
+          description: Lecture details
+          content:
+            application/hal+json: {}
+        "404":
+          description: Lecture not found
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "416":
+          description: Parameter range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Authorization service is unavailable
+          content:
+            application/json: {}
+    delete:
+      tags:
+      - lecture-controller
+      summary: Delete a specific lecture
+      description: Deletes a specific lecture.
+      operationId: deleteLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: Authorization
+        in: header
+        required: true
+        schema:
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "204":
+          description: Lecture deleted successfully
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: Lecture not found
+          content:
+            application/json: {}
+        "416":
+          description: Parameter range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Authorization service or Disciplines service is unavailable
+          content:
+            application/json: {}
+    patch:
+      tags:
+      - lecture-controller
+      summary: Update lecture details
+      description: Updates the details of a specific lecture.
+      operationId: patchLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LectureUpdate"
+        required: true
+      responses:
+        "200":
+          description: Lecture updated successfully
+          content:
+            application/hal+json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "400":
+          description: Invalid input data
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "409":
+          description: Conflict
+          content:
+            application/json: {}
+        "416":
+          description: Parameter range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Authorization service is unavailable
+          content:
+            application/json: {}
+  /lectures/{lectureId}/students/unenroll:
+    patch:
+      tags:
+      - lecture-student-controller
+      summary: Unenroll students from lecture
+      description: Unenroll students from the specified lecture.
+      operationId: unenrollStudentsInLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+        required: true
+      responses:
+        "200":
+          description: Students unenrolled successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Page range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+  /lectures/{lectureId}/students/enroll:
+    patch:
+      tags:
+      - lecture-student-controller
+      summary: Enroll students in lecture
+      description: Enroll students in the specified lecture.
+      operationId: enrollStudentsInLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: integer
+                format: int64
+        required: true
+      responses:
+        "200":
+          description: Students enrolled successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: "No students found for the given lecture, or not lecture found"
+          content:
+            application/json: {}
+        "409":
+          description: One student might be already enrolled.
+          content:
+            application/json: {}
+        "416":
+          description: Page range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+  /lectures/{lectureId}/professors/{professorId}:
+    patch:
+      tags:
+      - lecture-professor-controller
+      summary: Update professor for lecture
+      description: Updates the professor assigned to a specific lecture.
+      operationId: updateProfessorForLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: professorId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      responses:
+        "200":
+          description: Professor updated successfully
+          content:
+            application/hal+json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "416":
+          description: Page range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+  /students/{studentId}/lectures:
+    get:
+      tags:
+      - student-lecture-controller
+      summary: Get all lectures for a student
+      description: Retrieves a paginated list of lectures for the specified student.
+      operationId: getLecturesByStudent
+      parameters:
+      - name: studentId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: List of lectures
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected type.
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter range is not in expected value range.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /students/{studentId}/lectures/{lectureId}/enrollment:
+    get:
+      tags:
+      - student-lecture-controller
+      summary: Check if a student is enrolled in a lecture
+      description: Checks if a student is enrolled in a specific lecture.
+      operationId: isStudentEnrolledInLecture
+      parameters:
+      - name: studentId
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "True if the student is enrolled, otherwise false"
+          content:
+            '*/*':
+              schema:
+                type: boolean
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Lecture or Student not found.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /students/search:
+    get:
+      tags:
+      - student-search-controller
+      summary: Search for students based on various criteria
+      description: "Searches for students using first name, last name, email, cycle\
+        \ type, study year, or student group. Supports pagination."
+      operationId: searchStudents
+      parameters:
+      - name: firstName
+        in: query
+        description: First name of the student to search for
+        required: false
+        schema:
+          maxLength: 15
+          minLength: 3
+          type: string
+        example: John
+      - name: lastName
+        in: query
+        description: Last name of the student to search for
+        required: false
+        schema:
+          maxLength: 15
+          minLength: 3
+          type: string
+        example: Doe
+      - name: email
+        in: query
+        description: Email address of the student to search for
+        required: false
+        schema:
+          maxLength: 15
+          minLength: 3
+          type: string
+        example: john.doe@example.com
+      - name: cycleType
+        in: query
+        description: Cycle type of the student to search for
+        required: false
+        schema:
+          type: string
+          enum:
+          - Licenta
+          - Master
+      - name: studyYear
+        in: query
+        description: Study year of the student
+        required: false
+        schema:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+        example: 2
+      - name: studentGroup
+        in: query
+        description: Student group
+        required: false
+        schema:
+          maximum: 5000
+          minimum: 1
+          type: integer
+          format: int32
+        example: 1
+      - name: page
+        in: query
+        description: Page number
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+        example: 0
+      - name: size
+        in: query
+        description: Number of students per page
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+        example: 10
+      responses:
+        "200":
+          description: A paginated list of students matching the search criteria
+          content:
+            application/hal+json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: "Forbidden: Current user does not have required roles"
+          content:
+            application/json: {}
+        "416":
+          description: Parameters out of acceptable range
+          content:
+            application/json: {}
+        "422":
+          description: Parameters out of acceptable types
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /students/me:
+    get:
+      tags:
+      - student-controller
+      summary: Get the current authenticated student
+      description: Retrieves the student associated with the authenticated user's
+        email.
+      operationId: getCurrentStudent
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Current student found
+          content:
+            application/hal+json: {}
+        "401":
+          description: "Unauthorized, token invalid or missing"
+          content:
+            application/json: {}
+        "403":
+          description: "Forbidden, user does not have necessary permissions"
+          content:
+            application/json: {}
+        "404":
+          description: Student not found
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /professors/{id}/lectures:
+    get:
+      tags:
+      - professor-lecture-controller
+      summary: Get lectures by professor
+      description: Retrieves a paginated list of lectures for a specific professor.
+      operationId: getLecturesByProfessor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int64
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: List of lectures for the professor
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available
+          content:
+            application/json: {}
+  /professors/{id}/lectures/{lectureId}:
+    get:
+      tags:
+      - professor-lecture-controller
+      summary: Get specific lecture by professor
+      description: Fetches a specific lecture assigned to the professor.
+      operationId: getLectureByProfessor
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int64
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Lecture details
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available
+          content:
+            application/json: {}
+  /professors/{id}/lectures/{lectureId}/ownership:
+    get:
+      tags:
+      - professor-lecture-controller
+      summary: Check if professor owns the lecture
+      description: Verifies if the professor is the owner of the specific lecture.
+      operationId: isProfessorOwnerOfLecture
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int64
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "True if the professor owns the lecture, false otherwise"
+          content:
+            text/plain: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available
+          content:
+            application/json: {}
+  /professors/search:
+    get:
+      tags:
+      - professor-search-controller
+      summary: Search for professors
+      description: Searches for professors based on various search criteria.
+      operationId: searchProfessors
+      parameters:
+      - name: firstName
+        in: query
+        required: false
+        schema:
+          maxLength: 15
+          minLength: 1
+          type: string
+      - name: lastName
+        in: query
+        required: false
+        schema:
+          maxLength: 15
+          minLength: 1
+          type: string
+      - name: email
+        in: query
+        required: false
+        schema:
+          maxLength: 10
+          minLength: 1
+          type: string
+      - name: affiliation
+        in: query
+        required: false
+        schema:
+          maxLength: 10
+          minLength: 1
+          type: string
+      - name: graderType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - Asistent
+          - Conferentiar
+          - Profesor
+          - TitularLaborator
+      - name: associationType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - Titular
+          - Asociat
+          - Extern
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: List of professors matching the search criteria
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range
+          content:
+            application/json: {}
+        "422":
+          description: Returned when page range is not in expected value range
+          content:
+            application/json: {}
+        "404":
+          description: No professors found for the given search criteria
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available
+          content:
+            application/json: {}
+  /professors/me:
+    get:
+      tags:
+      - professor-controller
+      summary: Get the current logged-in professor
+      description: "Fetches the details of the professor who is currently logged in,\
+        \ based on their email."
+      operationId: getCurrentProfessor
+      parameters:
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Current professor details retrieved successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
+  /lectures/{lectureId}/students:
+    get:
+      tags:
+      - lecture-student-controller
+      summary: Get students by lecture
+      description: Fetch all students enrolled in a specific lecture.
+      operationId: getStudentsByLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      - name: email
+        in: query
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: List of students retrieved successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: No students found for the given lecture
+          content:
+            application/json: {}
+        "416":
+          description: Page range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+  /lectures/{lectureId}/professors:
+    get:
+      tags:
+      - lecture-professor-controller
+      summary: Get professor by lecture
+      description: Fetches the professor for the given lecture.
+      operationId: getProfessorByLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maxLength: 3
+          minLength: 1
+          type: string
+      responses:
+        "200":
+          description: Professor retrieved successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "416":
+          description: Page range is out of bounds
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+  /lectures/search:
+    get:
+      tags:
+      - lecture-search-controller
+      summary: Search for lectures
+      description: "Search for lectures based on various parameters such as name,\
+        \ year, type, etc."
+      operationId: searchLectures
+      parameters:
+      - name: lectureName
+        in: query
+        required: false
+        schema:
+          maxLength: 10
+          minLength: 3
+          type: string
+      - name: studyYear
+        in: query
+        required: false
+        schema:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+      - name: lectureType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - Impusa
+          - Optionala
+          - LiberAleasa
+      - name: categoryType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - Domeniu
+          - Specialitate
+          - Adiacenta
+      - name: examinationType
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - Examen
+          - Cologviu
+      - name: page
+        in: query
+        required: false
+        schema:
+          maximum: 9223372036854775807
+          minimum: 0
+          type: integer
+          format: int32
+          default: 0
+      - name: size
+        in: query
+        required: false
+        schema:
+          maximum: 30
+          minimum: 1
+          type: integer
+          format: int32
+          default: 5
+      responses:
+        "200":
+          description: List of lectures retrieved successfully
+          content:
+            application/hal+json: {}
+        "401":
+          description: Unauthorized
+          content:
+            application/json: {}
+        "403":
+          description: Forbidden
+          content:
+            application/json: {}
+        "404":
+          description: No lectures found
+          content:
+            application/json: {}
+        "422":
+          description: Unprocessable entity (invalid parameters)
+          content:
+            application/json: {}
+        "503":
+          description: Service Unavailable
+          content:
+            application/json: {}
+components:
+  schemas:
+    LectureCreate:
+      required:
+      - categoryType
+      - examinationType
+      - id
+      - lectureName
+      - lectureType
+      - professorId
+      - studyYear
+      type: object
+      properties:
+        id:
+          maxLength: 3
+          minLength: 1
+          type: string
+        professorId:
+          minimum: 0
+          type: integer
+          format: int64
+        lectureName:
+          maxLength: 10
+          minLength: 3
+          type: string
+        studyYear:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+        lectureType:
+          type: string
+          enum:
+          - Impusa
+          - Optionala
+          - LiberAleasa
+        categoryType:
+          type: string
+          enum:
+          - Domeniu
+          - Specialitate
+          - Adiacenta
+        examinationType:
+          type: string
+          enum:
+          - Examen
+          - Cologviu
+    StudentCreate:
+      required:
+      - email
+      - firstName
+      - lastName
+      - studentGroup
+      - studyYear
+      type: object
+      properties:
+        firstName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        lastName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        email:
+          maxLength: 15
+          minLength: 3
+          type: string
+        studyYear:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+        studentGroup:
+          maximum: 5000
+          minimum: 1
+          type: integer
+          format: int32
+        cycleType:
+          type: string
+          enum:
+          - Licenta
+          - Master
+    ProfessorCreate:
+      required:
+      - affiliation
+      - associationType
+      - email
+      - firstName
+      - graderType
+      - lastName
+      type: object
+      properties:
+        firstName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        lastName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        email:
+          maxLength: 10
+          minLength: 3
+          type: string
+        affiliation:
+          maxLength: 10
+          minLength: 3
+          type: string
+        graderType:
+          type: string
+          enum:
+          - Asistent
+          - Conferentiar
+          - Profesor
+          - TitularLaborator
+        associationType:
+          type: string
+          enum:
+          - Titular
+          - Asociat
+          - Extern
+    StudentUpdate:
+      type: object
+      properties:
+        firstName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        lastName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        email:
+          maxLength: 15
+          minLength: 3
+          type: string
+        studyYear:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+        studentGroup:
+          maximum: 5000
+          minimum: 1
+          type: integer
+          format: int32
+        cycleType:
+          type: string
+          enum:
+          - Licenta
+          - Master
+    ProfessorUpdate:
+      type: object
+      properties:
+        firstName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        lastName:
+          maxLength: 15
+          minLength: 3
+          type: string
+        email:
+          maxLength: 10
+          minLength: 3
+          type: string
+        affiliation:
+          maxLength: 10
+          minLength: 3
+          type: string
+        graderType:
+          type: string
+          enum:
+          - Asistent
+          - Conferentiar
+          - Profesor
+          - TitularLaborator
+        associationType:
+          type: string
+          enum:
+          - Titular
+          - Asociat
+          - Extern
+    LectureUpdate:
+      type: object
+      properties:
+        lectureName:
+          maxLength: 10
+          minLength: 3
+          type: string
+        studyYear:
+          maximum: 4
+          minimum: 1
+          type: integer
+          format: int32
+        professorId:
+          type: integer
+          format: int64
+        lectureType:
+          type: string
+          enum:
+          - Impusa
+          - Optionala
+          - LiberAleasa
+        categoryType:
+          type: string
+          enum:
+          - Domeniu
+          - Specialitate
+          - Adiacenta
+        examinationType:
+          type: string
+          enum:
+          - Examen
+          - Cologviu

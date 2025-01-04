@@ -20,6 +20,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/professors/search")
@@ -30,6 +34,47 @@ class ProfessorSearchController(
 
     @RequiresRoles(roles = [Auth.Role.ADMIN])
     @GetMapping
+    @Operation(
+        summary = "Search for professors",
+        description = "Searches for professors based on various search criteria.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of professors matching the search criteria",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when page range is not in expected value range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "No professors found for the given search criteria",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun searchProfessors(
 
         @Size(min = ProfessorConstraints.FirstName.MIN_SIZE_SEARCH, max = ProfessorConstraints.FirstName.MAX_SIZE)

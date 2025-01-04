@@ -1,6 +1,10 @@
 package org.pos.study.presentation.controllers.lecture
 
 import api.academia.Auth
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
@@ -28,6 +32,46 @@ class LectureSearchController(
     private val lectureModelAssembler: LectureModelAssembler
 ) {
 
+    @Operation(
+        summary = "Search for lectures",
+        description = "Search for lectures based on various parameters such as name, year, type, etc.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of lectures retrieved successfully",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Unauthorized",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Forbidden",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Unprocessable entity (invalid parameters)",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Service Unavailable",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "No lectures found",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
     fun searchLectures(

@@ -2,6 +2,7 @@ package org.pos.study.presentation.handlers
 
 import org.pos.study.business.exceptions.EntityConflict
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.pos.study.business.exceptions.EntityUnverifiable
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
@@ -11,6 +12,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 
 @RestControllerAdvice
 class EntityExceptionHandler {
+
+    @ExceptionHandler(EntityRangeUnsatisfiable::class)
+    fun handleDataIntegrityViolation(ex: EntityRangeUnsatisfiable): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
 
     @ExceptionHandler(EntityUnverifiable::class)
     fun handleDataIntegrityViolation(ex: EntityUnverifiable): ResponseEntity<*> {

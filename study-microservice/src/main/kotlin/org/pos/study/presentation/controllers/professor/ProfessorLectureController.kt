@@ -17,6 +17,10 @@ import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/professors/{id}/lectures")
@@ -28,6 +32,46 @@ class ProfessorLectureController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
+    @Operation(
+        summary = "Get lectures by professor",
+        description = "Retrieves a paginated list of lectures for a specific professor.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of lectures for the professor",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter is not expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun getLecturesByProfessor(
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
@@ -48,7 +92,7 @@ class ProfessorLectureController(
         email: String
 
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        email.takeIf(String::isNotBlank)?.let{
+        email.takeIf(String::isNotBlank)?.let {
             professorService.verifyProfessor(id, email).getOrThrow()
         }
 
@@ -58,6 +102,46 @@ class ProfessorLectureController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping("/{lectureId}")
+    @Operation(
+        summary = "Get specific lecture by professor",
+        description = "Fetches a specific lecture assigned to the professor.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "Lecture details",
+                content = [Content(mediaType = "application/hal+json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter is not expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun getLectureByProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
         id: Long,
@@ -72,7 +156,7 @@ class ProfessorLectureController(
         email: String
 
     ): ResponseEntity<EntityModel<Lecture>> {
-        email.takeIf(String::isNotBlank)?.let{
+        email.takeIf(String::isNotBlank)?.let {
             professorService.verifyProfessor(id, email).getOrThrow()
         }
 
@@ -82,6 +166,46 @@ class ProfessorLectureController(
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping("/{lectureId}/ownership")
+    @Operation(
+        summary = "Check if professor owns the lecture",
+        description = "Verifies if the professor is the owner of the specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "True if the professor owns the lecture, false otherwise",
+                content = [Content(mediaType = "text/plain")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter is not expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
     fun isProfessorOwnerOfLecture(
         @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable id: Long,
 
@@ -92,7 +216,7 @@ class ProfessorLectureController(
         email: String
 
     ): ResponseEntity<Boolean> {
-        email.takeIf(String::isNotBlank)?.let{
+        email.takeIf(String::isNotBlank)?.let {
             professorService.verifyProfessor(id, email).getOrThrow()
         }
 

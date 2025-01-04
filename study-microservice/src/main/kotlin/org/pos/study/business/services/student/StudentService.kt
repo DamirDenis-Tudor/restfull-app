@@ -5,6 +5,7 @@ import org.pos.study.persistence.repositories.StudentRepository
 import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.business.interfaces.student.IStudentService
 import org.springframework.data.domain.Page
@@ -21,7 +22,7 @@ class StudentService(
         val studentPage = studentRepository.findAll(PageRequest.of(page, size))
 
         if (!studentPage.hasContent())
-            throw EntityNotFound("No students found")
+            throw EntityNotFound("No students found at page $page with size $size.")
 
         studentPage
     }

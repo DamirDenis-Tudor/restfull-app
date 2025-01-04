@@ -7,6 +7,7 @@ import org.pos.study.persistence.entities.Student
 import org.pos.study.persistence.repositories.LectureRepository
 import org.pos.study.persistence.repositories.StudentRepository
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
 import kotlin.runCatching
@@ -22,7 +23,7 @@ class LectureStudentService(
             throw EntityNotFound("Lecture with ID $lectureId not found.")
         }
         val studentPage = studentRepository.findByLecturesContaining(lecture, PageRequest.of(page, size))
-        studentPage.content
+        studentPage.takeIf { it.hasContent() }?.content ?: throw EntityRangeUnsatisfiable("No students found for lectureId $lectureId.")
     }
 
     override fun enrollStudentsInLecture(lectureId: String, studentIds: List<Long>): Result<Lecture> = runCatching {
