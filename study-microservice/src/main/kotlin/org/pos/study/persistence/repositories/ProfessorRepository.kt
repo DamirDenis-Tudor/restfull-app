@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
 
 interface ProfessorRepository : JpaRepository<Professor, Long>{
+    fun findProfessorByEmail(email: String): Result<Professor>
+
     @Query("""
         SELECT p FROM Professor p WHERE
         (:firstName IS NULL OR LOWER(p.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))) AND

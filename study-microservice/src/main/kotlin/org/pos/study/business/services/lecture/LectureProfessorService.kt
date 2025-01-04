@@ -2,12 +2,14 @@ package org.pos.study.business.services.lecture
 
 import org.pos.study.business.exceptions.EntityConflict
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.persistence.entities.Professor
 import org.pos.study.persistence.repositories.LectureRepository
 import org.pos.study.persistence.repositories.ProfessorRepository
 import org.springframework.stereotype.Service
+import kotlin.jvm.optionals.getOrElse
 
 @Service
 class LectureProfessorService(
@@ -36,5 +38,16 @@ class LectureProfessorService(
 
         lecture.professor = professor
         lectureRepository.save(lecture)
+    }
+
+    override fun isProfessorOwnerOfLecture(email: String, lectureId: String): Result<Unit> = runCatching {
+        val professor = professorRepository.findProfessorByEmail(email)
+            .getOrElse { throw EntityNotFound("Professor with email $email not found.") }
+
+        lectureRepository.findById(lectureId)
+            .orElseThrow { EntityNotFound("Lecture with ID $lectureId not found.") }
+            .takeIf {
+                it.professor?.id == professor.id
+            } ?: throw EntityUnverifiable("Professor with email $email is not owner of lecture with id $lectureId.")
     }
 }

@@ -52,7 +52,7 @@ class StudentController(
         email: String
     ): ResponseEntity<EntityModel<Student>> {
         email.takeIf{it.isNotBlank()}?.let {
-            studentService.verifyStudent(id, email).getOrThrow()
+            studentService.verifyStudent(id, it).getOrThrow()
         }
 
         return studentService.getStudentById(id).getOrThrow()

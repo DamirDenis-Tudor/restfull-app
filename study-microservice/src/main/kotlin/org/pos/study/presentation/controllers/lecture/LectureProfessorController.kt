@@ -22,7 +22,7 @@ class LectureProfessorController(
     private val professorModelAssembler: ProfessorModelAssembler,
     private val lectureModelAssembler: LectureModelAssembler
 ) {
-    @RequiresRoles(roles = [Auth.Role.UNKNOWN])
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
     fun getProfessorByLecture(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)

@@ -6,10 +6,13 @@ import org.pos.study.persistence.repositories.ProfessorRepository
 import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.business.exceptions.EntityNotFound
+import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import kotlin.getOrElse
+import kotlin.jvm.optionals.getOrElse
 import kotlin.runCatching
 
 @Service
@@ -30,6 +33,12 @@ class ProfessorService(
     override fun getProfessorById(id: Long): Result<Professor> = runCatching {
         professorRepository.findById(id).orElseThrow {
             throw EntityNotFound("Professor with ID $id not found.")
+        }
+    }
+
+    override fun getProfessorByEmail(email: String): Result<Professor> = runCatching {
+         professorRepository.findProfessorByEmail(email).getOrElse {
+            throw EntityNotFound("Professor with email $email not found")
         }
     }
 
@@ -68,5 +77,16 @@ class ProfessorService(
 
         lectureRepository.setProfessorToNull(id)
         professorRepository.deleteById(id)
+    }
+
+    override fun verifyProfessor(
+        id: Long,
+        email: String
+    ): Result<Unit> = runCatching {
+        professorRepository.findById(id).getOrElse {
+            throw EntityNotFound("Student with ID $id not found.")
+        }.takeIf {
+            it.email == email
+        } ?: throw EntityUnverifiable("No student with id $id has email $email.")
     }
 }

@@ -1,4 +1,4 @@
-package org.pos.study.business.services
+package org.pos.study.business.services.student
 
 import org.pos.study.business.exceptions.EntityConflict
 import org.pos.study.business.exceptions.EntityNotFound

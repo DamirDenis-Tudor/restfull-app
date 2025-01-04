@@ -12,8 +12,10 @@ import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.lecture.LectureCreate
 import org.pos.study.business.dto.lecture.LectureUpdate
+import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureService
 import org.pos.study.persistence.entities.Lecture
+import org.pos.study.presentation.aspects.InjectEmail
 import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -28,6 +30,7 @@ import org.springframework.web.client.RestTemplate
 class LectureController(
     private val lectureModelAssembler: LectureModelAssembler,
     private val lectureService: ILectureService,
+    private val lectureProfessorService: ILectureProfessorService,
 ) {
     private val restTemplate = RestTemplate()
 
@@ -50,7 +53,7 @@ class LectureController(
             .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(it)) }
     }
 
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR, Auth.Role.STUDENT])
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping("/{lectureId}")
     fun getLecture(
 
@@ -65,12 +68,11 @@ class LectureController(
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PutMapping
     fun createLecture(
-
-        @Valid @RequestBody lecture: LectureCreate
-
-    ): ResponseEntity<EntityModel<*>> =
-        lectureService.createLecture(lecture).getOrThrow()
+        @Valid @RequestBody lecture: LectureCreate,
+    ): ResponseEntity<EntityModel<*>> {
+        return lectureService.createLecture(lecture).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(lectureModelAssembler.toModel(it)) }
+    }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @PatchMapping("/{lectureId}")
@@ -78,12 +80,19 @@ class LectureController(
         @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
-        @Valid @RequestBody lectureUpdates: LectureUpdate
+        @Valid @RequestBody lectureUpdates: LectureUpdate,
 
-    ): ResponseEntity<EntityModel<Lecture>> =
-        lectureService.updateLecture(lectureId, lectureUpdates).getOrThrow()
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String,
+
+    ): ResponseEntity<EntityModel<Lecture>> {
+        email.takeIf{ it.isNotBlank() }?.let{
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+        }
+
+        return lectureService.updateLecture(lectureId, lectureUpdates).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
-
+    }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @DeleteMapping("/{lectureId}")
@@ -95,16 +104,23 @@ class LectureController(
         lectureId: String,
 
         @RequestHeader(HttpHeaders.AUTHORIZATION)
-        authorizationHeader: String?
+        authorizationHeader: String,
+
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String,
 
     ): ResponseEntity<Void> {
+        email.takeIf{ it.isNotBlank() }?.let{
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+        }
+
         lectureService.deleteLecture(lectureId).getOrThrow()
 
         restTemplate.exchange(
             "http://localhost:8000/lectures/$lectureId",
             HttpMethod.DELETE,
             HttpEntity<String>(HttpHeaders().apply {
-                this.set(HttpHeaders.AUTHORIZATION, authorizationHeader!!)
+                this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)
             }),
             String::class.java
         )

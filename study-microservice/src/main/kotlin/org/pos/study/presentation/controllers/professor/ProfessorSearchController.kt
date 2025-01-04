@@ -1,5 +1,6 @@
 package org.pos.study.presentation.controllers.professor
 
+import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
@@ -8,6 +9,7 @@ import org.pos.study.persistence.entities.Professor
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.persistence.repositories.ProfessorRepository
+import org.pos.study.presentation.aspects.RequiresRoles
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -26,6 +28,7 @@ class ProfessorSearchController(
     private val professorModelAssembler: ProfessorModelAssembler
 ) {
 
+    @RequiresRoles(roles = [Auth.Role.ADMIN])
     @GetMapping
     fun searchProfessors(
 

@@ -10,6 +10,8 @@ import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.persistence.entities.Student
+import org.pos.study.presentation.aspects.InjectEmail
 import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -24,7 +26,6 @@ class ProfessorController(
     private val professorService: IProfessorService,
     private val professorModelAssembler: ProfessorModelAssembler
 ) {
-
     @RequiresRoles(roles = [Auth.Role.ADMIN])
     @GetMapping
     fun getAllProfessors(
@@ -47,11 +48,29 @@ class ProfessorController(
     fun getProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE)
         @Max(ProfessorConstraints.Id.MAX_SIZE)
-        @PathVariable id: Long
+        @PathVariable id: Long,
 
-    ): ResponseEntity<EntityModel<*>> =
-        professorService.getProfessorById(id).getOrThrow()
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String
+
+    ): ResponseEntity<EntityModel<*>> {
+        email.takeIf(String::isNotBlank)?.let {
+            professorService.verifyProfessor(id, email).getOrThrow()
+        }
+
+        return professorService.getProfessorById(id).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
+    }
+
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @GetMapping("/me")
+    fun getCurrentProfessor(
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String
+    ): ResponseEntity<EntityModel<Professor>> {
+        return professorService.getProfessorByEmail(email).getOrThrow()
+            .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
+    }
 
     @RequiresRoles(roles = [Auth.Role.ADMIN])
     @PostMapping

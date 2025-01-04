@@ -1,5 +1,6 @@
 package org.pos.study.business.services.lecture
 
+import org.pos.study.business.exceptions.EntityConflict
 import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.persistence.entities.Student
@@ -37,7 +38,7 @@ class LectureStudentService(
 
         students.forEach { student ->
             if (student in lecture.students)
-                throw EntityNotFound("Student with ID ${student.id} already enrolled in lecture with ID $lectureId.")
+                throw EntityConflict("Student with ID ${student.id} already enrolled in lecture with ID $lectureId.")
         }
 
         students.forEach { student ->
@@ -64,7 +65,7 @@ class LectureStudentService(
 
         students.forEach { student ->
             if (student !in lecture.students)
-                throw EntityNotFound("Student with ID ${student.id} is not enrolled in lecture with ID $lectureId.")
+                throw EntityConflict("Student with ID ${student.id} is not enrolled in lecture with ID $lectureId.")
         }
 
         students.forEach { student ->

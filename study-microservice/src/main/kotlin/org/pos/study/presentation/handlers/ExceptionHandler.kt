@@ -1,7 +1,5 @@
 package org.pos.study.presentation.handlers
 
-import org.pos.study.business.exceptions.EntityConflict
-import org.pos.study.business.exceptions.EntityNotFound
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
@@ -11,14 +9,20 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
-import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.method.annotation.HandlerMethodValidationException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.server.ResponseStatusException
+import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @RestControllerAdvice
 class ExceptionHandler {
+
+    @ExceptionHandler(NoResourceFoundException::class)
+    fun handleDataIntegrityViolation(ex: NoResourceFoundException): ResponseEntity<*> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException::class)
     fun handleValidationExceptions(ex: HttpRequestMethodNotSupportedException): ResponseEntity<*> {
