@@ -34,7 +34,7 @@ class StudentService(
     }
 
     override fun getStudentByEmail(email: String): Result<Student> = runCatching {
-        studentRepository.findStudentByEmail(email).getOrElse {
+        studentRepository.findStudentByEmail(email).orElseThrow {
             throw EntityNotFound("Student with email $email not found")
         }
     }

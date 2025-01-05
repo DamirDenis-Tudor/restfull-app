@@ -1,3 +1,0 @@
-[submodule "auth-microservice/grpc-kotlin"]
-	path = auth-microservice/grpc-kotlin
-	url = https://github.com/grpc/grpc-kotlin

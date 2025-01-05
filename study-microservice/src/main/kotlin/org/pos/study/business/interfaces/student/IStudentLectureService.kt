@@ -9,5 +9,4 @@ interface IStudentLectureService {
     fun getLectureByStudent(studentId: Long, lectureId: String): Result<Lecture>
     fun enrollStudentInLecture(studentId: Long, lectureId: String): Result<Lecture>
     fun unrollStudentFromLecture(studentId: Long, lectureId: String): Result<Student>
-    fun isStudentEnrolledInLecture(studentId: Long, lectureId: String): Result<Boolean>
 }

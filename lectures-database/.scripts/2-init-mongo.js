@@ -1,4 +1,6 @@
-use lectures-db;
+// .scripts/2-init-mongo.js
+
+db = db.getSiblingDB("lectures-db");
 
 const courses = [
     {

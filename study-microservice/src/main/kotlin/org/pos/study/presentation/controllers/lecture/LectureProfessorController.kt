@@ -1,27 +1,29 @@
 package org.pos.study.presentation.controllers.lecture
 
 import api.academia.Auth
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
+import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.presentation.aspects.InjectEmail
 import org.pos.study.presentation.aspects.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/professors")
 class LectureProfessorController(
+    private val professorLectureService: IProfessorLectureService,
     private val lectureProfessorService: ILectureProfessorService,
     private val professorModelAssembler: ProfessorModelAssembler,
     private val lectureModelAssembler: LectureModelAssembler
@@ -128,4 +130,59 @@ class LectureProfessorController(
     ): ResponseEntity<EntityModel<*>> =
         lectureProfessorService.updateProfessorForLecture(lectureId, professorId).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+
+
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @GetMapping("/owner")
+    @Operation(
+        summary = "Check if professor owns the lecture",
+        description = "Verifies if the professor is the owner of the specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "True if the professor owns the lecture, false otherwise",
+                content = [Content(mediaType = "text/plain")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "416",
+                description = "Returned when any parameter does not match the expected range",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter is not expected type.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
+    fun isProfessorOwnerOfLecture(
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE) @PathVariable
+        lectureId: String,
+
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String
+
+    ): ResponseEntity<Boolean> {
+        val isOwner = professorLectureService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+        return ResponseEntity.ok(isOwner)
+    }
 }

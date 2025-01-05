@@ -4,3 +4,8 @@
 **/build
 **/gradlew
 **/gradle.bat
+**/.venv
+**/auth_pb2.py
+**/auth_pb2.pyi
+**/auth_pb2_grpc.py
+**/__pycache__

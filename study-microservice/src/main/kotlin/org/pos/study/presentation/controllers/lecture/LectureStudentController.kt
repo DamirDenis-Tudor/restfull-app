@@ -234,4 +234,52 @@ class LectureStudentController(
         return lectureStudentService.unenrollStudentsInLecture(lectureId, studentIds).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
+
+    @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @Operation(
+        summary = "Check if a student is enrolled in a lecture",
+        description = "Checks if a student is enrolled in a specific lecture.",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "True if the student is enrolled, otherwise false",
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or Student not found.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "503",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
+
+    @GetMapping("enrolled")
+    fun isStudentEnrolledInLecture(
+        @PathVariable
+        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        lectureId: String,
+
+        @InjectEmail(forRole = Auth.Role.STUDENT)
+        email: String
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(
+            lectureStudentService
+                .isStudentEnrolledInLecture(email, lectureId)
+                .getOrThrow()
+        )
+    }
 }

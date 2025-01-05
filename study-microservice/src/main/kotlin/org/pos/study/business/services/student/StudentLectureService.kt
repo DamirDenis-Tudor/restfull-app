@@ -84,13 +84,4 @@ class StudentLectureService(
 
         student
     }
-
-    override fun isStudentEnrolledInLecture(studentId: Long, lectureId: String): Result<Boolean> = runCatching {
-        val student = studentRepository.findById(studentId)
-            .orElseThrow { EntityNotFound("Student with ID $studentId not found.") }
-        val lecture = lectureRepository.findById(lectureId)
-            .orElseThrow { EntityNotFound("Lecture with ID $lectureId not found.") }
-
-        lecture.students.contains(student)
-    }
 }

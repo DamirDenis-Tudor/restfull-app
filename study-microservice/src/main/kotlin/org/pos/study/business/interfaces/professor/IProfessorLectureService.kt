@@ -6,5 +6,5 @@ import org.springframework.data.domain.Page
 interface IProfessorLectureService {
     fun getLecturesByProfessor(id: Long, page: Int, size: Int): Result<Page<Lecture>>
     fun getLectureByProfessor(id: Long, lectureId: String): Result<Lecture>
-    fun isProfessorOwnerOfLecture(professorId: Long, lectureId: String): Result<Boolean>
+    fun isProfessorOwnerOfLecture(professorEmail: String, lectureId: String): Result<Boolean>
 }

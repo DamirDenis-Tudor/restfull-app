@@ -6,9 +6,10 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.util.Optional
 
 interface ProfessorRepository : JpaRepository<Professor, Long>{
-    fun findProfessorByEmail(email: String): Result<Professor>
+    fun findProfessorByEmail(email: String): Optional<Professor>
 
     @Query("""
         SELECT p FROM Professor p WHERE

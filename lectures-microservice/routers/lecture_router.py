@@ -1,16 +1,13 @@
-import base64
 from datetime import datetime
-from typing import List, Dict
 
-from fastapi import APIRouter, Request
-
-import auth_pb2
-from database import db_wrapper
+from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status
 
-from files_router import validate_id
-from models import *
-from validator import role_validator
+from database import db_wrapper
+from proto import auth_pb2
+from routers.files_router import validate_id
+from routers.models import *
+from routers.validator import roles_validator, validate_student_enrolled_in_lecture, validate_professor_owner_of_lecture
 
 router = APIRouter(tags=["Lecture Router"])
 
@@ -23,19 +20,6 @@ def generate_hateoas_links(lecture_id: str) -> Dict[str, Link]:
         "create_course": Link(href=f"/lectures/{lecture_id}")
     }
 
-
-def extract_authorization_header(request: Request):
-    authorization_header = request.headers.get("authorization")
-    if not authorization_header:
-        raise HTTPException(status_code=400, detail="Authorization header is missing")
-
-    print(authorization_header.split(" ")[1])
-    print(base64.b64decode(authorization_header.split(" ")[1]).decode('utf-8'))
-
-    return authorization_header
-
-
-
 @router.put("/lectures", status_code=status.HTTP_201_CREATED, responses={
     status.HTTP_409_CONFLICT: {"description": "Course already exists"},
     status.HTTP_201_CREATED: {"description": "Course created successfully"},
@@ -45,11 +29,13 @@ def extract_authorization_header(request: Request):
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
     status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"}
 }, response_model=CreateCourseResponse)
-@role_validator(role=auth_pb2.Role.PROFESSOR)
-async def create_course(request_body: LectureRequestBody):
-    validate_id(request_body.lecture_id)
+async def create_course(
+    request_body: LectureRequestBody,
+    _ = Depends(roles_validator([auth_pb2.PROFESSOR]))):
 
-    existing_course = db_wrapper.get_database().lectures.find_one({"_id": str(request_body.lecture_id)})
+    lecture_id = validate_id(request_body.lecture_id)
+
+    existing_course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id })
     if existing_course:
         raise HTTPException(status_code=409, detail="Course already exists")
 
@@ -80,9 +66,9 @@ async def create_course(request_body: LectureRequestBody):
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=AssessmentTestResponse)
-@role_validator(role=auth_pb2.Role.PROFESSOR)
-async def get_assessments(lecture_id: int):
-    validate_id(lecture_id)
+async def get_assessments(
+        lecture_id: str = Depends(validate_id),
+        _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
 
     lecture = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
 
@@ -103,11 +89,10 @@ async def get_assessments(lecture_id: int):
     }
 
     return AssessmentTestResponse(
-        embedded={"assessment_tests": assessment_tests},
-        links=links
+        _embedded={"assessment_tests": assessment_tests},
+        _links=links
     )
 
-@role_validator(role=auth_pb2.Role.PROFESSOR)
 @router.post("/lectures/{lecture_id}/assessments", responses={
     status.HTTP_404_NOT_FOUND: {"description": "Lecture not found"},
     status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
@@ -117,8 +102,10 @@ async def get_assessments(lecture_id: int):
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
 }, response_model=AssessmentTestResponse)
-async def replace_assessment_tests(lecture_id: int, new_tests: List[AssessmentTest]) -> AssessmentTestResponse:
-    validate_id(lecture_id)
+async def replace_assessment_tests(
+        new_tests: List[AssessmentTest],
+        lecture_id: str = Depends(validate_id),
+        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))) -> AssessmentTestResponse:
 
     lecture = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
     if not lecture:
@@ -134,11 +121,10 @@ async def replace_assessment_tests(lecture_id: int, new_tests: List[AssessmentTe
     )
 
     return AssessmentTestResponse(
-        embedded={"assessment_tests": new_tests},
-        links=generate_hateoas_links(str(lecture_id))
+        _embedded={"assessment_tests": new_tests},
+        _links=generate_hateoas_links(str(lecture_id))
     )
 
-@role_validator(role=auth_pb2.Role.PROFESSOR)
 @router.delete("/lectures/{lecture_id}", responses={
     status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_200_OK: {"description": "Course deleted successfully"},
@@ -148,8 +134,10 @@ async def replace_assessment_tests(lecture_id: int, new_tests: List[AssessmentTe
     status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
 }, response_model=DeleteCourseResponse)
-async def delete_course(lecture_id: int) -> DeleteCourseResponse:
-    validate_id(lecture_id)
+async def delete_course(
+        lecture_id: str = Depends(validate_id),
+        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))
+) -> DeleteCourseResponse:
 
     course = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
     if not course:
@@ -159,7 +147,7 @@ async def delete_course(lecture_id: int) -> DeleteCourseResponse:
 
     return DeleteCourseResponse(
         message=f"Course {lecture_id} deleted successfully",
-        links={
+        _links={
             "create_course": Link(href=f"/lectures/{lecture_id}")
         }
     )

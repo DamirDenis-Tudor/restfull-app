@@ -1,12 +1,25 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, APIRouter
 
-import files_router
-import lecture_router
+from routers import lecture_router, files_router
 
 app = FastAPI(
+    servers=[]
+)
+sub_api = FastAPI(
     title="Lecture Management API",
     description="API for managing lectures and associated files.",
     version="1.0.0",
+    servers=[
+        {
+            "url": "http://localhost:8000/api/academia",
+            "description": "Local Server"
+        },
+        {
+            "url": "/api/academia",
+        }
+    ]
 )
-app.include_router(lecture_router.router, prefix="/api/academia")
-app.include_router(files_router.router, prefix="/api/academia")
+sub_api.include_router(lecture_router.router)
+sub_api.include_router(files_router.router)
+
+app.mount("/api/academia", sub_api)

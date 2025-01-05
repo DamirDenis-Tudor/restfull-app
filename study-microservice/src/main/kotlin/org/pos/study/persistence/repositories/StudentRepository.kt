@@ -7,9 +7,10 @@ import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.repository.query.Param
+import java.util.Optional
 
 interface StudentRepository : JpaRepository<Student, Long> {
-    fun findStudentByEmail(email: String): Result<Student>
+    fun findStudentByEmail(email: String): Optional<Student>
     fun findByLecturesContaining(student: Lecture, pageable: Pageable): Page<Student>
 
     @Query("""
