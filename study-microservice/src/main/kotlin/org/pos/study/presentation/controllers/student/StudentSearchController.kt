@@ -8,9 +8,8 @@ import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.pos.study.persistence.entities.Student
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints
-import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.pos.study.persistence.repositories.StudentRepository
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.hateoas.CollectionModel
@@ -24,7 +23,6 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import org.pos.study.business.exceptions.EntityNotFound
 
 @RestController

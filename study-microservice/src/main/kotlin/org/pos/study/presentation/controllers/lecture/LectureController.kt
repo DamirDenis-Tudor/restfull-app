@@ -1,11 +1,10 @@
 package org.pos.study.presentation.controllers.lecture
 
 import api.academia.Auth
-import io.grpc.ManagedChannelBuilder
+import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.Size
 import kotlinx.coroutines.runBlocking
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
@@ -14,8 +13,8 @@ import org.pos.study.business.dto.lecture.LectureUpdate
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureService
 import org.pos.study.persistence.entities.Lecture
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -26,7 +25,9 @@ import org.springframework.web.client.RestTemplate
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
+import org.pos.study.business.dto.lecture.LectureRequestBody
+import org.pos.study.presentation.annotations.InjectAuthorizationHeader
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @RestController
 @RequestMapping("/lectures")
@@ -138,15 +139,13 @@ class LectureController(
         ]
     )
     fun getLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<Lecture>> =
-        lectureService.getLectureById(lectureId).getOrThrow()
+        lectureService.getLectureById(lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
 
-
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
-    @PutMapping
     @Operation(
         summary = "Create a new lecture",
         description = "Creates a new lecture based on the provided information.",
@@ -187,15 +186,38 @@ class LectureController(
             )
         ]
     )
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @PutMapping
+    @Transactional
     fun createLecture(
         @Valid @RequestBody lecture: LectureCreate,
-    ): ResponseEntity<EntityModel<*>> {
-        return lectureService.createLecture(lecture).getOrThrow()
+
+        @InjectAuthorizationHeader
+        authorizationHeader: String,
+
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        email: String,
+
+        ): ResponseEntity<EntityModel<*>> {
+
+        restTemplate.exchange(
+            "http://0.0.0.0:8000/api/academia/lectures",
+            HttpMethod.PUT,
+            HttpEntity<String>(
+                ObjectMapper().writeValueAsString(LectureRequestBody(lecture.id)),
+                HttpHeaders().apply {
+                    this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)
+                    this.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                },
+            ),
+            String::class.java
+        )
+
+        return lectureService.createLecture(lecture, email).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(lectureModelAssembler.toModel(it)) }
     }
 
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
-    @PatchMapping("/{lectureId}")
+
     @Operation(
         summary = "Update lecture details",
         description = "Updates the details of a specific lecture.",
@@ -250,8 +272,11 @@ class LectureController(
             )
         ]
     )
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @PatchMapping("/{lectureId}")
     fun patchLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
         @Valid @RequestBody lectureUpdates: LectureUpdate,
@@ -267,9 +292,6 @@ class LectureController(
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
 
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
-    @DeleteMapping("/{lectureId}")
-    @Transactional
     @Operation(
         summary = "Delete a specific lecture",
         description = "Deletes a specific lecture.",
@@ -311,25 +333,29 @@ class LectureController(
             )
         ]
     )
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @DeleteMapping("/{lectureId}")
+    @Transactional
     fun deleteLecture(
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String,
+        lectureId: Int,
 
-        @RequestHeader(HttpHeaders.AUTHORIZATION)
+        @InjectAuthorizationHeader
         authorizationHeader: String,
 
         @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String,
+        email: String = "",
     ): ResponseEntity<Void> {
         email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
         }
 
-        lectureService.deleteLecture(lectureId).getOrThrow()
+        lectureService.deleteLecture(lectureId.toString()).getOrThrow()
 
         restTemplate.exchange(
-            "http://localhost:8000/lectures/$lectureId",
+            "http://0.0.0.0:8000/api/academia/lectures/$lectureId",
             HttpMethod.DELETE,
             HttpEntity<String>(HttpHeaders().apply {
                 this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)

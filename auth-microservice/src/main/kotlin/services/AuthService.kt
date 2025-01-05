@@ -75,6 +75,10 @@ class AuthService(private val tokenService: TokenService) : AuthServiceGrpcKt.Au
 
 
     override suspend fun invalidateToken(request: Auth.TokenRequest): Auth.InvalidateTokenResponse {
+        tokenService.validateToken(request.token).getOrElse {
+            return Auth.InvalidateTokenResponse.newBuilder().setError(buildErrorResponse(it)).build()
+        }
+
         return tokenService.invalidateToken(request.token)
             .fold(
                 onSuccess = {

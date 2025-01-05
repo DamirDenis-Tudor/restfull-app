@@ -10,8 +10,8 @@ import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Professor
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/professors")

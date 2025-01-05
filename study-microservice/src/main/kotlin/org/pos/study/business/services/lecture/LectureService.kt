@@ -33,9 +33,9 @@ class LectureService(
             .map { Result.success(it) }
             .orElse(Result.failure(EntityNotFound("Lecture with ID $lectureId not found.")))
 
-    override fun createLecture(lectureCreate: LectureCreate): Result<Lecture> = runCatching {
-        val professor = professorRepository.findById(lectureCreate.professorId).getOrNull()
-            ?: throw EntityNotFound("Professor with ID ${lectureCreate.professorId} not found.")
+    override fun createLecture(lectureCreate: LectureCreate, professorEmail: String): Result<Lecture> = runCatching {
+        val professor = professorRepository.findProfessorByEmail(professorEmail).getOrNull()
+            ?: throw EntityNotFound("Professor with ID $professorEmail not found.")
 
         if (lectureRepository.existsById(lectureCreate.id))
             throw EntityConflict("Lecture with ID ${lectureCreate.id} already exists.")
@@ -58,18 +58,12 @@ class LectureService(
             EntityNotFound("Lecture with ID $lectureId not found.")
         }
 
-        val professor = lectureUpdate.professorId?.let {
-            professorRepository.findById(it).getOrNull()
-                ?: throw EntityNotFound("Professor with ID ${lectureUpdate.professorId} not found.")
-        }
-
         val updatedLecture = existingLecture.copy(
             lectureName = lectureUpdate.lectureName ?: existingLecture.lectureName,
             studyYear = lectureUpdate.studyYear ?: existingLecture.studyYear,
             lectureType = lectureUpdate.lectureType ?: existingLecture.lectureType,
             categoryType = lectureUpdate.categoryType ?: existingLecture.categoryType,
-            examinationType = lectureUpdate.examinationType ?: existingLecture.examinationType,
-            professor = professor ?: existingLecture.professor
+            examinationType = lectureUpdate.examinationType ?: existingLecture.examinationType
         )
 
         lectureRepository.save(updatedLecture)

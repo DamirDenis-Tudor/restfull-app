@@ -1,9 +1,11 @@
 import grpc
-from fastapi import HTTPException, Request, status
 import httpx
+from fastapi import HTTPException, Request, status
+
+from config import auth_ms_host_address, study_ms_host_address
 from proto import auth_pb2_grpc, auth_pb2
 
-channel = grpc.insecure_channel('localhost:50051')
+channel = grpc.insecure_channel(auth_ms_host_address)
 stub = auth_pb2_grpc.AuthServiceStub(channel)
 
 def validate_id(lecture_id: int):
@@ -14,6 +16,9 @@ def validate_id(lecture_id: int):
 
 def roles_validator(roles: list[auth_pb2.Role]):
     def validator(request: Request):
+        global channel
+        global stub
+
         token = request.headers.get("Authorization")
 
         if not token or not token.startswith("Bearer "):
@@ -24,9 +29,7 @@ def roles_validator(roles: list[auth_pb2.Role]):
 
         token = token.split(" ")[1]
         try:
-            token_request = auth_pb2.TokenRequest(token=token)
-
-            response = stub.ValidateToken(token_request)
+            response = stub.ValidateToken(auth_pb2.TokenRequest(token=token))
 
             if response.HasField("error"):
                 raise HTTPException(
@@ -43,8 +46,11 @@ def roles_validator(roles: list[auth_pb2.Role]):
             return response.success.id, response.success.role
 
         except grpc.RpcError as e:
+            channel = grpc.insecure_channel(auth_ms_host_address)
+            stub = auth_pb2_grpc.AuthServiceStub(channel)
+
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
+                status_code=status.HTTP_502_BAD_GATEWAY,
                 detail=str(e)
             )
 
@@ -57,7 +63,7 @@ def validate_professor_owner_of_lecture(roles: list[auth_pb2.Role]):
         if r is auth_pb2.PROFESSOR:
             async with httpx.AsyncClient() as client:
                 try:
-                    url = f"http://localhost:8080/api/academia/lectures/{lecture_id}/professors/owner"
+                    url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/professors/owner"
                     headers = {
                         "Authorization": request.headers.get("Authorization")
                     }
@@ -90,7 +96,7 @@ def validate_student_enrolled_in_lecture(roles: list[auth_pb2.Role]):
         if r is auth_pb2.STUDENT:
             async with httpx.AsyncClient() as client:
                 try:
-                    url = f"http://localhost:8080/api/academia/lectures/{lecture_id}/students/enrolled"
+                    url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/students/enrolled"
                     headers = {
                         "Authorization": request.headers.get("Authorization")
                     }

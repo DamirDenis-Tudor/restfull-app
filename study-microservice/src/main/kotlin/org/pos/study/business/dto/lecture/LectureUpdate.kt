@@ -16,8 +16,6 @@ data class LectureUpdate(
     @field:Max(LectureConstraints.StudyYear.MAX_VALUE)
     var studyYear: Int?,
 
-    var professorId: Long? = null,
-
     var lectureType: Lecture.LectureType? = null,
     var categoryType: Lecture.CategoryType? = null,
     var examinationType: Lecture.ExaminationType? = null,

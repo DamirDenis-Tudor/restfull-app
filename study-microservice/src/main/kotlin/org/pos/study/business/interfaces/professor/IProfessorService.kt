@@ -3,7 +3,6 @@ package org.pos.study.business.interfaces.professor
 import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.persistence.entities.Professor
-import org.pos.study.presentation.aspects.InjectEmail
 import org.springframework.data.domain.Page
 
 interface IProfessorService {

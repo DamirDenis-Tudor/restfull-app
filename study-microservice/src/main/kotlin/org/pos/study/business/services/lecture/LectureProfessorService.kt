@@ -44,7 +44,7 @@ class LectureProfessorService(
         val professor = professorRepository.findProfessorByEmail(email)
             .getOrElse { throw EntityNotFound("Professor with email $email not found.") }
 
-        lectureRepository.findById(lectureId)
+        lectureRepository.findById(lectureId.toString())
             .orElseThrow { EntityNotFound("Lecture with ID $lectureId not found.") }
             .takeIf {
                 it.professor?.id == professor.id

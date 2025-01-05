@@ -9,3 +9,4 @@
 **/auth_pb2.pyi
 **/auth_pb2_grpc.py
 **/__pycache__
+**/files

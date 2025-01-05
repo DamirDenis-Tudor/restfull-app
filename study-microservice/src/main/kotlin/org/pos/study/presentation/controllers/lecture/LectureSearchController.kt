@@ -3,7 +3,6 @@ package org.pos.study.presentation.controllers.lecture
 import api.academia.Auth
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
@@ -13,7 +12,7 @@ import org.pos.study.persistence.entities.Lecture
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.persistence.repositories.LectureRepository
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel

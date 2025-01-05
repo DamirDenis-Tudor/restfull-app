@@ -9,7 +9,7 @@ import org.pos.study.persistence.entities.Professor
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.persistence.repositories.ProfessorRepository
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.springframework.data.domain.PageRequest
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -23,7 +23,6 @@ import org.springframework.web.server.ResponseStatusException
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/professors/search")

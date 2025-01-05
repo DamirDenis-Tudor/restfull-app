@@ -117,7 +117,7 @@ async def replace_assessment_tests(
 
     db_wrapper.get_database().lectures.update_one(
         {"_id": str(lecture_id)},
-        {"$set": {"assessment_tests": [{"type": test.type, "weight": test.weight} for test in new_tests]}}
+        {"$set": {"assessment_tests": [{"type": test.type, "weight": test.weight.real} for test in new_tests]}}
     )
 
     return AssessmentTestResponse(

@@ -1,4 +1,4 @@
-package org.pos.study.presentation.aspects
+package org.pos.study.presentation.annotations
 
 import api.academia.Auth
 

@@ -204,9 +204,10 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
       - name: studentId
         in: path
         required: true
@@ -215,11 +216,6 @@ paths:
           minimum: 0
           type: integer
           format: int64
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: Lecture details
@@ -260,9 +256,10 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
       responses:
         "200":
           description: Enrollment success
@@ -307,8 +304,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
+          maximum: 999
+          minimum: 100
           type: string
       responses:
         "200":
@@ -444,11 +441,6 @@ paths:
           minimum: 0
           type: integer
           format: int64
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: Student found
@@ -588,11 +580,6 @@ paths:
           minimum: 0
           type: integer
           format: int64
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: Professor details retrieved successfully
@@ -730,8 +717,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
+          maximum: 999
+          minimum: 100
           type: string
       responses:
         "200":
@@ -773,19 +760,10 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: Authorization
-        in: header
-        required: true
-        schema:
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
       responses:
         "204":
           description: Lecture deleted successfully
@@ -826,13 +804,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
+          maximum: 999
+          minimum: 100
           type: string
       requestBody:
         content:
@@ -889,13 +862,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
+          maximum: 999
+          minimum: 100
           type: string
       requestBody:
         content:
@@ -947,13 +915,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
+          maximum: 999
+          minimum: 100
           type: string
       requestBody:
         content:
@@ -1009,8 +972,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
+          maximum: 999
+          minimum: 100
           type: string
       - name: professorId
         in: path
@@ -1083,11 +1046,6 @@ paths:
           type: integer
           format: int32
           default: 5
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: List of lectures
@@ -1107,57 +1065,6 @@ paths:
             application/json: {}
         "422":
           description: Returned when parameter range is not in expected value range.
-          content:
-            application/json: {}
-        "503":
-          description: Returned when the authorization service is not available.
-          content:
-            application/json: {}
-  /students/{studentId}/lectures/{lectureId}/enrollment:
-    get:
-      tags:
-      - student-lecture-controller
-      summary: Check if a student is enrolled in a lecture
-      description: Checks if a student is enrolled in a specific lecture.
-      operationId: isStudentEnrolledInLecture
-      parameters:
-      - name: studentId
-        in: path
-        required: true
-        schema:
-          maximum: 9223372036854775807
-          minimum: 0
-          type: integer
-          format: int64
-      - name: lectureId
-        in: path
-        required: true
-        schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: "True if the student is enrolled, otherwise false"
-          content:
-            '*/*':
-              schema:
-                type: boolean
-        "401":
-          description: Authorization header missing or invalid
-          content:
-            application/json: {}
-        "403":
-          description: Current user role is not allowed to this endpoint.
-          content:
-            application/json: {}
-        "404":
-          description: Lecture or Student not found.
           content:
             application/json: {}
         "503":
@@ -1288,12 +1195,6 @@ paths:
       description: Retrieves the student associated with the authenticated user's
         email.
       operationId: getCurrentStudent
-      parameters:
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: Current student found
@@ -1349,11 +1250,6 @@ paths:
           type: integer
           format: int32
           default: 5
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: List of lectures for the professor
@@ -1402,75 +1298,15 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
       responses:
         "200":
           description: Lecture details
           content:
             application/hal+json: {}
-        "401":
-          description: Authorization header missing or invalid
-          content:
-            application/json: {}
-        "403":
-          description: Current user role is not allowed to this endpoint
-          content:
-            application/json: {}
-        "404":
-          description: Not Found
-          content:
-            application/json: {}
-        "416":
-          description: Returned when any parameter does not match the expected range
-          content:
-            application/json: {}
-        "422":
-          description: Returned when parameter is not expected type.
-          content:
-            application/json: {}
-        "503":
-          description: Returned when the authorization service is not available
-          content:
-            application/json: {}
-  /professors/{id}/lectures/{lectureId}/ownership:
-    get:
-      tags:
-      - professor-lecture-controller
-      summary: Check if professor owns the lecture
-      description: Verifies if the professor is the owner of the specific lecture.
-      operationId: isProfessorOwnerOfLecture
-      parameters:
-      - name: id
-        in: path
-        required: true
-        schema:
-          minimum: 0
-          type: integer
-          format: int64
-      - name: lectureId
-        in: path
-        required: true
-        schema:
-          maxLength: 3
-          minLength: 1
-          type: string
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
-      responses:
-        "200":
-          description: "True if the professor owns the lecture, false otherwise"
-          content:
-            text/plain: {}
         "401":
           description: Authorization header missing or invalid
           content:
@@ -1605,12 +1441,6 @@ paths:
       description: "Fetches the details of the professor who is currently logged in,\
         \ based on their email."
       operationId: getCurrentProfessor
-      parameters:
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: Current professor details retrieved successfully
@@ -1640,8 +1470,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
+          maximum: 999
+          minimum: 100
           type: string
       - name: page
         in: query
@@ -1661,11 +1491,6 @@ paths:
           type: integer
           format: int32
           default: 5
-      - name: email
-        in: query
-        required: true
-        schema:
-          type: string
       responses:
         "200":
           description: List of students retrieved successfully
@@ -1695,6 +1520,45 @@ paths:
           description: Service Unavailable
           content:
             application/json: {}
+  /lectures/{lectureId}/students/enrolled:
+    get:
+      tags:
+      - lecture-student-controller
+      summary: Check if a student is enrolled in a lecture
+      description: Checks if a student is enrolled in a specific lecture.
+      operationId: isStudentEnrolledInLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: "True if the student is enrolled, otherwise false"
+          content:
+            '*/*':
+              schema:
+                type: boolean
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint.
+          content:
+            application/json: {}
+        "404":
+          description: Lecture or Student not found.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available.
+          content:
+            application/json: {}
   /lectures/{lectureId}/professors:
     get:
       tags:
@@ -1707,8 +1571,8 @@ paths:
         in: path
         required: true
         schema:
-          maxLength: 3
-          minLength: 1
+          maximum: 999
+          minimum: 100
           type: string
       responses:
         "200":
@@ -1733,6 +1597,51 @@ paths:
             application/json: {}
         "503":
           description: Service Unavailable
+          content:
+            application/json: {}
+  /lectures/{lectureId}/professors/owner:
+    get:
+      tags:
+      - lecture-professor-controller
+      summary: Check if professor owns the lecture
+      description: Verifies if the professor is the owner of the specific lecture.
+      operationId: isProfessorOwnerOfLecture
+      parameters:
+      - name: lectureId
+        in: path
+        required: true
+        schema:
+          maximum: 999
+          minimum: 100
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: "True if the professor owns the lecture, false otherwise"
+          content:
+            text/plain: {}
+        "401":
+          description: Authorization header missing or invalid
+          content:
+            application/json: {}
+        "403":
+          description: Current user role is not allowed to this endpoint
+          content:
+            application/json: {}
+        "404":
+          description: Not Found
+          content:
+            application/json: {}
+        "416":
+          description: Returned when any parameter does not match the expected range
+          content:
+            application/json: {}
+        "422":
+          description: Returned when parameter is not expected type.
+          content:
+            application/json: {}
+        "503":
+          description: Returned when the authorization service is not available
           content:
             application/json: {}
   /lectures/search:
@@ -1837,18 +1746,11 @@ components:
       - id
       - lectureName
       - lectureType
-      - professorId
       - studyYear
       type: object
       properties:
         id:
-          maxLength: 3
-          minLength: 1
           type: string
-        professorId:
-          minimum: 0
-          type: integer
-          format: int64
         lectureName:
           maxLength: 10
           minLength: 3
@@ -2024,9 +1926,6 @@ components:
           minimum: 1
           type: integer
           format: int32
-        professorId:
-          type: integer
-          format: int64
         lectureType:
           type: string
           enum:

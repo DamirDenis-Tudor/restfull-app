@@ -2,8 +2,8 @@ package org.pos.study.business.dto.constraints
 
 sealed class LectureConstraints {
     data object Id {
-        const val MIN_SIZE = 1
-        const val MAX_SIZE = 3
+        const val MIN_SIZE = 100L
+        const val MAX_SIZE = 999L
     }
 
     data object LectureName {

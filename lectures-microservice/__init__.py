@@ -1,1 +1,1 @@
-__all__ = ["proto", "routers"]
+__all__ = ["proto", "routers", "config"]

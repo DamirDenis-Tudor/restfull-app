@@ -1,8 +1,10 @@
 import os
+import re
 from datetime import datetime
 from typing import Optional
 
-from fastapi import File, UploadFile, HTTPException, APIRouter, status, Request, Depends
+from fastapi import File, UploadFile, HTTPException, APIRouter, status, Depends
+from fastapi.responses import FileResponse
 
 from database import db_wrapper
 from proto import auth_pb2
@@ -92,6 +94,8 @@ async def upload_file(
     course_dir = os.path.join("../files", category.value)
     os.makedirs(course_dir, exist_ok=True)
 
+    file.filename = re.sub(r'\s+', '_', file.filename)
+
     file_path = os.path.join(course_dir, file.filename)
     with open(file_path, "wb") as f:
         content = await file.read()
@@ -132,7 +136,6 @@ async def get_file(
         file_name: str,
         lecture_id: str = Depends(validate_id),
         _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
-
     file_metadata = db_wrapper.get_database().lectures.find_one(
         {"_id": lecture_id, f"{category.value}-files.file_name": file_name},
         {f"{category.value}-files.$": 1}
@@ -141,16 +144,15 @@ async def get_file(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File metadata not found in database")
 
     file_path = os.path.join("../files", category.value, file_name)
+
     if not os.path.exists(file_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk")
 
-    return FileResponseSchema(
-        file_metadata=FileMetadata(
-            file_name=file_name,
-            uploaded_at=file_metadata.get("uploaded_at", ""),
-            size=os.path.getsize(file_path)
-        ),
-        _links=generate_file_hateoas_links(lecture_id, category, file_name)
+    return FileResponse(
+        file_path,
+        media_type="application/octet-stream",
+        headers={"Content-Disposition": f"attachment; filename={file_name}"},
+        status_code=status.HTTP_200_OK
     )
 
 

@@ -6,14 +6,13 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.Size
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.persistence.entities.Professor
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.EntityModel
@@ -67,10 +66,11 @@ class LectureProfessorController(
         ]
     )
     fun getProfessorByLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<Professor>> =
-        lectureProfessorService.getProfessorByLecture(lectureId).getOrThrow()
+        lectureProfessorService.getProfessorByLecture(lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
 
     @RequiresRoles(roles = [Auth.Role.UNKNOWN])
@@ -121,7 +121,8 @@ class LectureProfessorController(
         ]
     )
     fun updateProfessorForLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
@@ -175,14 +176,15 @@ class LectureProfessorController(
         ]
     )
     fun isProfessorOwnerOfLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE) @PathVariable
-        lectureId: String,
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE) @PathVariable
+        lectureId: Int,
 
         @InjectEmail(forRole = Auth.Role.PROFESSOR)
         email: String
 
     ): ResponseEntity<Boolean> {
-        val isOwner = professorLectureService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+        val isOwner = professorLectureService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
         return ResponseEntity.ok(isOwner)
     }
 }

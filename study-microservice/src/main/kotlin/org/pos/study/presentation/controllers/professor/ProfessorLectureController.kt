@@ -3,15 +3,14 @@ package org.pos.study.presentation.controllers.professor
 import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.Size
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Lecture
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -20,7 +19,6 @@ import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/professors/{id}/lectures")
@@ -146,11 +144,9 @@ class ProfessorLectureController(
         @Min(ProfessorConstraints.Id.MIN_SIZE) @PathVariable
         id: Long,
 
-        @Size(
-            min = LectureConstraints.Id.MIN_SIZE,
-            max = LectureConstraints.Id.MAX_SIZE
-        ) @PathVariable
-        lectureId: String,
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE) @PathVariable
+        lectureId: Int,
 
         @InjectEmail(forRole = Auth.Role.PROFESSOR)
         email: String
@@ -160,7 +156,7 @@ class ProfessorLectureController(
             professorService.verifyProfessor(id, email).getOrThrow()
         }
 
-        return professorLectureService.getLectureByProfessor(id, lectureId).getOrThrow()
+        return professorLectureService.getLectureByProfessor(id, lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
 

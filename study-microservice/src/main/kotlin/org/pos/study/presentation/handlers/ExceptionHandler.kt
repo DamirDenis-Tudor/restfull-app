@@ -9,6 +9,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.client.HttpClientErrorException
 import org.springframework.web.client.ResourceAccessException
 import org.springframework.web.method.annotation.HandlerMethodValidationException
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
@@ -17,6 +18,12 @@ import org.springframework.web.servlet.resource.NoResourceFoundException
 
 @RestControllerAdvice
 class ExceptionHandler {
+
+    @ExceptionHandler(HttpClientErrorException::class)
+    fun handleDataIntegrityViolation(ex: HttpClientErrorException): ResponseEntity<*> {
+        return ResponseEntity.status(ex.statusCode)
+            .body(EntityModel.of(mapOf("message" to ex.message)))
+    }
 
     @ExceptionHandler(NoResourceFoundException::class)
     fun handleDataIntegrityViolation(ex: NoResourceFoundException): ResponseEntity<*> {
@@ -44,8 +51,6 @@ class ExceptionHandler {
 
     @ExceptionHandler(HandlerMethodValidationException::class)
     fun handleValidationExceptions(ex: HandlerMethodValidationException): ResponseEntity<*> {
-        // TODO: FOR PAGINATION!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
         return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
             .body(EntityModel.of(mapOf("message" to ex.reason)))
     }

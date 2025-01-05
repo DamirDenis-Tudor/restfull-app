@@ -3,16 +3,14 @@ package org.pos.study.presentation.controllers.student
 import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import jakarta.validation.constraints.Size
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints
-import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.business.interfaces.student.IStudentLectureService
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Lecture
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/students/{studentId}/lectures")
@@ -132,8 +129,9 @@ class StudentLectureController(
     @GetMapping("/{lectureId}")
     fun getLectureByStudent(
         @PathVariable
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String,
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
+        lectureId: Int,
 
         @PathVariable
         @Min(StudentConstraints.Id.MIN_SIZE)
@@ -147,7 +145,7 @@ class StudentLectureController(
             studentService.verifyStudent(studentId, it).getOrThrow()
         }
 
-        return studentLectureService.getLectureByStudent(studentId, lectureId).getOrThrow()
+        return studentLectureService.getLectureByStudent(studentId, lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
 
@@ -195,10 +193,11 @@ class StudentLectureController(
         @PathVariable studentId: Long,
 
         @PathVariable
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
+        lectureId: Int
     ): ResponseEntity<EntityModel<Lecture>> {
-        return studentLectureService.enrollStudentInLecture(studentId, lectureId).getOrThrow()
+        return studentLectureService.enrollStudentInLecture(studentId, lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
 
@@ -240,10 +239,11 @@ class StudentLectureController(
         @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable studentId: Long,
 
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String
     ): ResponseEntity<EntityModel<*>> {
-        return studentLectureService.unrollStudentFromLecture(studentId, lectureId).getOrThrow()
+        return studentLectureService.unrollStudentFromLecture(studentId, lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
     }
 

@@ -8,11 +8,9 @@ import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.persistence.entities.Lecture
 
 data class LectureCreate(
-    @field:Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+    @field:Min(value = LectureConstraints.Id.MIN_SIZE)
+    @field:Max(value = LectureConstraints.Id.MAX_SIZE)
     var id: String,
-
-    @field:Min(value = ProfessorConstraints.Id.MIN_SIZE)
-    var professorId: Long,
 
     @field:Size(
         min = LectureConstraints.LectureName.MIN_SIZE,

@@ -8,7 +8,11 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
+import org.pos.study.presentation.annotations.InjectAuthorizationHeader
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.slf4j.LoggerFactory
+import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
@@ -16,6 +20,7 @@ import org.springframework.web.server.ResponseStatusException
 
 @Aspect
 @Component
+@Order(1)
 class RequiresRolesAspect(
     private val authGrpcStub: AuthServiceGrpcKt.AuthServiceCoroutineStub,
     private val request: HttpServletRequest
@@ -24,6 +29,8 @@ class RequiresRolesAspect(
 
     @Around("@annotation(requiresRoles)")
     fun checkRole(joinPoint: ProceedingJoinPoint, requiresRoles: RequiresRoles): Any? = runBlocking {
+        logger.info("checkRole() called with: {}", joinPoint.signature.name)
+
         val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
             ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing.")
 
@@ -54,6 +61,9 @@ class RequiresRolesAspect(
                 joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) {
                     validateResponse.success.id
                 } else ""
+            }
+            parameter.getAnnotation(InjectAuthorizationHeader::class.java)?.let { injectValue ->
+                joinPoint.args[index] = authHeader
             }
         }
 

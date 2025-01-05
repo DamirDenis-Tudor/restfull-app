@@ -3,7 +3,6 @@ package org.pos.study.presentation.controllers.student
 import api.academia.Auth
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
@@ -14,8 +13,8 @@ import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel

@@ -3,7 +3,6 @@ package org.pos.study.business.interfaces.student
 import org.pos.study.persistence.entities.Student
 import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
-import org.pos.study.presentation.aspects.InjectEmail
 import org.springframework.data.domain.Page
 
 interface IStudentService {

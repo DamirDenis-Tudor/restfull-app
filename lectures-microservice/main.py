@@ -1,6 +1,10 @@
-from fastapi import FastAPI, APIRouter
+import os
+
+import uvicorn
+from fastapi import FastAPI
 
 from routers import lecture_router, files_router
+
 
 app = FastAPI(
     servers=[]
@@ -23,3 +27,6 @@ sub_api.include_router(lecture_router.router)
 sub_api.include_router(files_router.router)
 
 app.mount("/api/academia", sub_api)
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

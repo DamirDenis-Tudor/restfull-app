@@ -5,15 +5,14 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
-import jakarta.validation.constraints.Size
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.persistence.entities.Student
-import org.pos.study.presentation.aspects.InjectEmail
-import org.pos.study.presentation.aspects.RequiresRoles
+import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -23,7 +22,6 @@ import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
-import io.swagger.v3.oas.annotations.media.Schema
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/students")
@@ -82,7 +80,8 @@ class LectureStudentController(
         ]
     )
     fun getStudentsByLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
         @Min(PageConstraints.Page.MIN_VALUE)
@@ -100,7 +99,7 @@ class LectureStudentController(
 
     ): ResponseEntity<CollectionModel<EntityModel<Student>>> {
         email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
         }
 
         return lectureStudentService.getStudentsByLecture(lectureId, page, size).getOrThrow()
@@ -156,7 +155,8 @@ class LectureStudentController(
         ]
     )
     fun enrollStudentsInLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
         @RequestBody @NotEmpty @Valid
@@ -167,7 +167,7 @@ class LectureStudentController(
 
     ): ResponseEntity<EntityModel<*>> {
         email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
         }
 
         return lectureStudentService.enrollStudentsInLecture(lectureId, studentIds).getOrThrow()
@@ -217,7 +217,8 @@ class LectureStudentController(
         ]
     )
     fun unenrollStudentsInLecture(
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
         @PathVariable lectureId: String,
 
         @RequestBody @NotEmpty @Valid
@@ -228,7 +229,7 @@ class LectureStudentController(
 
     ): ResponseEntity<EntityModel<*>> {
         email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
         }
 
         return lectureStudentService.unenrollStudentsInLecture(lectureId, studentIds).getOrThrow()
@@ -270,15 +271,16 @@ class LectureStudentController(
     @GetMapping("enrolled")
     fun isStudentEnrolledInLecture(
         @PathVariable
-        @Size(min = LectureConstraints.Id.MIN_SIZE, max = LectureConstraints.Id.MAX_SIZE)
-        lectureId: String,
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
+        lectureId: Int,
 
         @InjectEmail(forRole = Auth.Role.STUDENT)
         email: String
     ): ResponseEntity<Boolean> {
         return ResponseEntity.ok(
             lectureStudentService
-                .isStudentEnrolledInLecture(email, lectureId)
+                .isStudentEnrolledInLecture(email, lectureId.toString())
                 .getOrThrow()
         )
     }
