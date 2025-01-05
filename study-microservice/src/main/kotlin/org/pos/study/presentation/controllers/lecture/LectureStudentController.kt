@@ -94,7 +94,7 @@ class LectureStudentController(
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt(),
 
-        @InjectEmail(forRole = Auth.Role.ADMIN)
+        @InjectEmail(forRole = Auth.Role.PROFESSOR)
         email: String
 
     ): ResponseEntity<CollectionModel<EntityModel<Student>>> {

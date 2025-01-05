@@ -1,6 +1,7 @@
 plugins {
     kotlin("jvm") version "2.0.20"
     id("com.google.protobuf") version "0.9.4"
+    id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
 group = "org.pos"
@@ -38,12 +39,16 @@ dependencies {
     testImplementation("io.grpc:grpc-testing:1.68.1")
 }
 
+tasks.jar {
+    manifest.attributes["Main-Class"] = "org.pos.MainKt"
+}
+
 tasks.test {
     useJUnitPlatform()
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(17)
 }
 
 protobuf {

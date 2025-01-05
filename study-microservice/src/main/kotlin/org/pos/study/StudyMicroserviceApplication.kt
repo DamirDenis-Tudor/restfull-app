@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 
 @OpenAPIDefinition(
     info = Info(
@@ -13,6 +14,7 @@ import org.springframework.boot.runApplication
     )
 )
 @SpringBootApplication
+@EnableJpaRepositories("org.pos.study.persistence.repositories")
 class StudyMicroserviceApplication
 
 fun main(args: Array<String>) {

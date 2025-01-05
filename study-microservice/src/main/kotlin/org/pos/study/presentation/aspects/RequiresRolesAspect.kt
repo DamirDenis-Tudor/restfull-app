@@ -20,7 +20,6 @@ import org.springframework.web.server.ResponseStatusException
 
 @Aspect
 @Component
-@Order(1)
 class RequiresRolesAspect(
     private val authGrpcStub: AuthServiceGrpcKt.AuthServiceCoroutineStub,
     private val request: HttpServletRequest

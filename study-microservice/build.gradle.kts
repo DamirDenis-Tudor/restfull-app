@@ -11,6 +11,10 @@ plugins {
 group = "org.pos"
 version = "0.0.1-SNAPSHOT"
 
+tasks.jar {
+    manifest.attributes["Main-Class"] = "org.pos.study.StudyMicroserviceApplicationKt"
+}
+
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))

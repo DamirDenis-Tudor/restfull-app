@@ -1,4 +1,20 @@
+version: '3.8'
+
 services:
+  auth-ms:
+    build:
+      context: auth-microservice
+    ports:
+      - "50051:50051"
+    environment:
+      - AUTH_DB_HOST=auth-db
+      - AUTH_DB_PORT=3306
+      - AUTH_DB_HOST_DB_USER=user
+      - AUTH_DB_HOST_DB_PASSWORD=password
+    networks:
+      - academia
+      - auth
+
   auth-db:
     build:
       context: auth-database
@@ -6,6 +22,23 @@ services:
       - '3307:3306'
     volumes:
       - mysql_data_auth:/data/db
+    networks:
+      - auth
+
+  study-ms:
+    build:
+      context: study-microservice
+    ports:
+      - "8080:8080"
+    environment:
+      - STUDY_DB_HOST=study-db
+      - STUDY_DB_USER=user
+      - STUDY_DB_PASSWORD=password
+      - LECTURE_MS_HOST_ADDRESS=http://lecture-ms:8000
+      - AUTH_MS_HOST_ADDRESS=auth-ms:50051
+    networks:
+      - academia
+      - study
 
   study-db:
     build:
@@ -14,6 +47,23 @@ services:
       - '3306:3306'
     volumes:
       - mysql_data_study:/data/db
+    networks:
+      - study
+
+  lecture-ms:
+    build:
+      context: lectures-microservice
+    ports:
+      - "8000:8000"
+    environment:
+      - LECTURES_DB_HOST=lectures-db
+      - LECTURES_DB_HOST_DB_USER=user
+      - LECTURES_DB_HOST_DB_PASSWORD=password
+      - STUDY_MS_HOST_ADDRESS=http://study-ms:8080
+      - AUTH_MS_HOST_ADDRESS=172.22.0.2:50051
+    networks:
+      - academia
+      - lecture
 
   lectures-db:
     build:
@@ -22,8 +72,20 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data_lectures:/data/db
+    networks:
+      - lecture
 
 volumes:
   mongo_data_lectures:
   mysql_data_auth:
   mysql_data_study:
+
+networks:
+  academia:
+    driver: bridge
+  study:
+    driver: bridge
+  auth:
+    driver: bridge
+  lecture:
+    driver: bridge

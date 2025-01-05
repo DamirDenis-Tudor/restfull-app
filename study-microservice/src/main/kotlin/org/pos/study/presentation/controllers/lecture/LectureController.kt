@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import org.pos.study.business.dto.lecture.LectureRequestBody
 import org.pos.study.presentation.annotations.InjectAuthorizationHeader
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @RestController
@@ -37,6 +38,9 @@ class LectureController(
     private val lectureProfessorService: ILectureProfessorService,
 ) {
     private val restTemplate = RestTemplate()
+
+    @Value("\${spring.lectures.host.address}")
+    lateinit var lecturesAddress: String
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
     @GetMapping
@@ -201,7 +205,7 @@ class LectureController(
         ): ResponseEntity<EntityModel<*>> {
 
         restTemplate.exchange(
-            "http://0.0.0.0:8000/api/academia/lectures",
+            "$lecturesAddress/api/academia/lectures",
             HttpMethod.PUT,
             HttpEntity<String>(
                 ObjectMapper().writeValueAsString(LectureRequestBody(lecture.id)),
@@ -355,7 +359,7 @@ class LectureController(
         lectureService.deleteLecture(lectureId.toString()).getOrThrow()
 
         restTemplate.exchange(
-            "http://0.0.0.0:8000/api/academia/lectures/$lectureId",
+            "$lecturesAddress/api/academia/lectures/$lectureId",
             HttpMethod.DELETE,
             HttpEntity<String>(HttpHeaders().apply {
                 this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)
