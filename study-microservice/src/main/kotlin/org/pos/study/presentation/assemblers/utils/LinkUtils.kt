@@ -21,12 +21,12 @@ object LinkUtils {
             collectionModel.add(Link.of("$baseUri?page=${page.number - 1}&size=${page.size}").withRel("prev"))
         }
 
-        if (!page.isFirst) {
+        //if (!page.isFirst) {
             collectionModel.add(Link.of("$baseUri?page=0&size=${page.size}").withRel("first"))
-        }
+        //}
 
-        if (!page.isLast) {
+        //if (!page.isLast) {
             collectionModel.add(Link.of("$baseUri?page=${page.totalPages - 1}&size=${page.size}").withRel("last"))
-        }
+        //}
     }
 }

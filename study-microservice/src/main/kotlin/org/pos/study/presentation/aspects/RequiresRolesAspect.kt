@@ -30,39 +30,45 @@ class RequiresRolesAspect(
     fun checkRole(joinPoint: ProceedingJoinPoint, requiresRoles: RequiresRoles): Any? = runBlocking {
         logger.info("checkRole() called with: {}", joinPoint.signature.name)
 
-        val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
-            ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing.")
+        runCatching {
+            (joinPoint.signature as MethodSignature).method
+                .getAnnotation(RequiresRoles::class.java)
+        }.getOrNull()?.let {
 
-        if (!authHeader.startsWith("Bearer ")) {
-            throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid token format.")
-        }
+            val authHeader = request.getHeader(HttpHeaders.AUTHORIZATION)
+                ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing.")
 
-        val validateRequest = Auth.TokenRequest.newBuilder()
-            .setToken(authHeader.split(" ")[1])
-            .build()
-
-        val validateResponse = runCatching { authGrpcStub.validateToken(validateRequest) }.getOrElse {
-            throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "Authentication Service is not available.")
-        }
-
-        logger.info("Authorization header contains the following: role=${validateResponse.success.role}, email=${validateResponse.success.id}")
-
-        if (validateResponse.hasError()) {
-            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, validateResponse.error.message)
-        }
-
-        if (!requiresRoles.roles.contains(validateResponse.success.role)) {
-            throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied for your role.")
-        }
-
-        (joinPoint.signature as MethodSignature).method.parameters.withIndex().forEach { (index, parameter) ->
-            parameter.getAnnotation(InjectEmail::class.java)?.let { injectValue ->
-                joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) {
-                    validateResponse.success.id
-                } else ""
+            if (!authHeader.startsWith("Bearer ")) {
+                throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid token format.")
             }
-            parameter.getAnnotation(InjectAuthorizationHeader::class.java)?.let { injectValue ->
-                joinPoint.args[index] = authHeader
+
+            val validateRequest = Auth.TokenRequest.newBuilder()
+                .setToken(authHeader.split(" ")[1])
+                .build()
+
+            val validateResponse = runCatching { authGrpcStub.validateToken(validateRequest) }.getOrElse {
+                throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "Authentication Service is not available.")
+            }
+
+            logger.info("Authorization header contains the following: role=${validateResponse.success.role}, email=${validateResponse.success.id}")
+
+            if (validateResponse.hasError()) {
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, validateResponse.error.message)
+            }
+
+            if (!requiresRoles.roles.contains(validateResponse.success.role)) {
+                throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied for your role.")
+            }
+
+            (joinPoint.signature as MethodSignature).method.parameters.withIndex().forEach { (index, parameter) ->
+                parameter.getAnnotation(InjectEmail::class.java)?.let { injectValue ->
+                    joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) {
+                        validateResponse.success.id
+                    } else ""
+                }
+                parameter.getAnnotation(InjectAuthorizationHeader::class.java)?.let { injectValue ->
+                    joinPoint.args[index] = authHeader
+                }
             }
         }
 

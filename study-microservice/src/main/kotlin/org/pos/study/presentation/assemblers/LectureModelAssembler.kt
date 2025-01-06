@@ -2,6 +2,7 @@ package org.pos.study.presentation.assemblers
 
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.presentation.assemblers.utils.LinkUtils
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
@@ -11,32 +12,38 @@ import org.springframework.stereotype.Component
 
 @Component
 class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<Lecture>> {
+    @Value(value = "\${spring.lectures.host.address}")
+    lateinit var lecturesAddress: String
+
+    @Value(value = "\${spring.study.host.address}")
+    lateinit var studyAddress: String
+
     override fun toModel(entity: Lecture): EntityModel<Lecture> =
         EntityModel.of(entity).apply {
             this.add(
-                Link.of("/api/academia/lectures")
+                Link.of("${studyAddress}/api/academia/lectures")
                     .withRel("parent")
                     .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}")
+                Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                     .withSelfRel()
                     .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}/professors")
-                    .withRel("lecture-professor")
+                Link.of("${studyAddress}/api/academia/lectures/${entity.id}/professors")
+                    .withRel("professors")
                     .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}/students")
-                    .withRel("lecture-student")
+                Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students")
+                    .withRel("students")
                     .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}/students/enroll")
-                    .withRel("enroll-students")
-                    .withType("PATCH"),
+                Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/assessments")
+                    .withRel("assessments")
+                    .withType("GET"),
 
-                Link.of("/api/academia/lectures/${entity.id}/students/unenroll")
-                    .withRel("unroll-students")
-                    .withType("PATCH")
+                Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/files")
+                    .withRel("files")
+                    .withType("GET"),
             )
         }
 
@@ -56,18 +63,9 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
             LinkUtils.addPaginationLinks(this, baseUri, page)
 
             this.add(
-                Link.of("/api/academia/lectures/search")
+                Link.of("${studyAddress}/api/academia/lectures/search")
                     .withRel("search")
                     .withType("GET"),
-                Link.of("/api/academia/lectures")
-                    .withRel("create-lecture")
-                    .withType("POST"),
-                Link.of("/api/academia/lectures/{id}")
-                    .withRel("delete-lecture")
-                    .withType("DELETE"),
-                Link.of("/api/academia/lectures/{id}")
-                    .withRel("update-lecture")
-                    .withType("PATCH")
             )
         }
     }
