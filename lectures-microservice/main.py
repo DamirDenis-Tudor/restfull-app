@@ -4,10 +4,18 @@ import uvicorn
 from fastapi import FastAPI
 
 from routers import lecture_router, files_router
-
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI(
     servers=[]
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
 )
 sub_api = FastAPI(
     title="Lecture Management API",

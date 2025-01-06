@@ -31,14 +31,22 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-hateoas")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
+    //implementation("org.springframework.boot:spring-boot-starter-security")
+
+
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
+
     implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-api:2.6.0")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+
+    // my sql controller
     runtimeOnly("com.mysql:mysql-connector-j")
+
     developmentOnly("org.springframework.boot:spring-boot-devtools")
-    //developmentOnly("org.springframework.boot:spring-boot-docker-compose")
+
+    // testing
     testImplementation("com.h2database:h2:2.3.232")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
