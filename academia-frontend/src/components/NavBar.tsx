@@ -3,21 +3,86 @@ import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import AuthContext from "../contexts/AuthContext.tsx";
 import React, {useContext} from "react";
-import ProfessorCard from "./ProfessorCard.tsx";
 import {HomePageContext} from "../contexts/HomePageContext.tsx";
-import {LectureList} from "./LectureList.tsx";
-
-enum ComponentType {
-
-}
+import {LectureList} from "./lists/LectureList.tsx";
+import {ProfileCard} from "./cards/ProfileCard.tsx";
+import ProfessorCard from "./cards/ProfessorCard.tsx";
+import StudentCard from "./cards/StudentCard.tsx";
 
 
 export const NavBar: React.FC = () => {
     const {loginResponse, logout} = useContext(AuthContext);
     const {setSelectedComponent} = useContext(HomePageContext);
 
+    const getNavLinks = () => {
+        if (loginResponse.role === "PROFESSOR") {
+            return (
+                <>
+                    <Nav.Link
+                        onClick={() => {
+                            setSelectedComponent(
+                                <ProfileCard
+                                    card={<ProfessorCard layout="horizontal" link={loginResponse._links["me"]}/>}
+                                    lectureLink={loginResponse._links["my-lectures"]} title={''} />
+                            );
+                        }}
+                        className="tw-text-zblack fw-bold"
+                    >Profile</Nav.Link>
+                    <Nav.Link
+                        onClick={() => {
+                            setSelectedComponent(
+                                <LectureList key="All Lectures" link={loginResponse._links["all-lectures"]} />
+                            );
+                        }}
+                        className="tw-text-black fw-bold"
+                    >All Lectures</Nav.Link>
+                </>
+            );
+        } else if (loginResponse.role === "STUDENT") {
+            return (
+                <>
+                    <Nav.Link
+                        onClick={() => {
+                            console.log(loginResponse._links["lectures"])
+                            setSelectedComponent(
+                                <ProfileCard
+                                    card={<StudentCard layout="horizontal" link={loginResponse._links["me"]}/>}
+                                    lectureLink={loginResponse._links["lectures"]} title={'Student Profile'} />
+                            );
+                        }}
+                        className="tw-text-zblack fw-bold"
+                    >Profile</Nav.Link>
+                </>
+            );
+        } else if (loginResponse.role === "ADMIN") {
+            return (
+                <>
+                    <Nav.Link
+                        onClick={() => {
+                            setSelectedComponent(
+                                <LectureList key="Students" link={loginResponse._links["students"]} />
+                            );
+                        }}
+                        className="tw-text-black fw-bold"
+                    >Students</Nav.Link>
+                    <Nav.Link
+                        onClick={() => {
+                            setSelectedComponent(
+                                <LectureList key="Professors" link={loginResponse._links["professors"]} />
+                            );
+                        }}
+                        className="tw-text-black fw-bold"
+                    >Professors</Nav.Link>
+                </>
+            );
+        }
+
+        return <></>;
+    };
+
+
     return (
-        <Navbar expand="lg" bg="light" className="border-black">
+        <Navbar style={{zIndex: 1}} expand="lg" bg="light" className="border-black position-fixed w-100 top-0 start-0">
             <Container>
                 <Navbar.Brand href="/" className="fw-bold flex items-center">
                     <img
@@ -31,27 +96,7 @@ export const NavBar: React.FC = () => {
                 </Nav.Item>
 
                 <Nav className="ms-auto">
-                    <Nav.Link onClick={
-                        () => {
-                            setSelectedComponent(
-                                <ProfessorCard link={loginResponse._links["Profile"]}></ProfessorCard>
-                            )
-                        }
-                    } className="tw-text-zblack fw-bold">Profile</Nav.Link>
-                    <Nav.Link onClick={
-                        () => {
-                            setSelectedComponent(
-                                <LectureList key = "All Lectures" link={loginResponse._links["All Lectures"]}></LectureList>
-                            )
-                        }
-                    } className="tw-text-black fw-bold">All Lectures</Nav.Link>
-                    <Nav.Link onClick={
-                        () => {
-                            setSelectedComponent(
-                                <LectureList key = "My Lectures" link={loginResponse._links["My Lectures"]}></LectureList>
-                            )
-                        }
-                    } className="tw-text-black fw-bold">My Lectures</Nav.Link>
+                    {getNavLinks()}
                     <Nav.Link onClick={logout} className="tw-text-black fw-bold">Logout</Nav.Link>
                 </Nav>
             </Container>

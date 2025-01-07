@@ -30,19 +30,19 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                     .withType("GET"),
 
                 Link.of("${studyAddress}/api/academia/lectures/${entity.id}/professors")
-                    .withRel("Professor")
+                    .withRel("professor")
                     .withType("GET"),
 
                 Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students")
-                    .withRel("Students")
+                    .withRel("students")
                     .withType("GET"),
 
                 Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/assessments")
-                    .withRel("Assessments")
+                    .withRel("assessments")
                     .withType("GET"),
 
                 Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/files")
-                    .withRel("Files")
+                    .withRel("files")
                     .withType("GET"),
             )
         }

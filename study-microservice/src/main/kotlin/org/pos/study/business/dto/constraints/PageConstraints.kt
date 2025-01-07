@@ -10,6 +10,6 @@ sealed class PageConstraints {
     object Size {
         const val MIN_VALUE = 1L
         const val MAX_VALUE = 30L
-        const val DEFAULT_VALUE = 5L
+        const val DEFAULT_VALUE = 3L
     }
 }

@@ -16,6 +16,7 @@ class Category(str, Enum):
 
 class FileMetadata(BaseModel):
     file_name: str
+    category: str
     uploaded_at: str
     size: int
 

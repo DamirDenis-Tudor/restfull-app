@@ -34,9 +34,9 @@ class LoginModelAssembler {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
                         .withSelfRel(),
-                    Link.of("${studyAddress}/api/academia/students/{studentId}/lectures")
+                    Link.of("${studyAddress}/api/academia/students/${userId}/lectures")
                         .withRel("lectures"),
-                    Link.of("${studyAddress}/api/academia/students/me")
+                    Link.of("${studyAddress}/api/academia/students/${userId}")
                         .withRel("me"),
                 )
             }
@@ -46,11 +46,11 @@ class LoginModelAssembler {
                     Link.of("${studyAddress}/api/academia/login")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${userId}")
-                        .withRel("Profile"),
-                    Link.of("${studyAddress}/api/academia/lectures?page=1&size=5")
-                        .withRel("All Lectures"),
+                        .withRel("me"),
+                    Link.of("${studyAddress}/api/academia/lectures")
+                        .withRel("all-lectures"),
                     Link.of("${studyAddress}/api/academia/professors/${userId}/lectures")
-                        .withRel("My Lectures"),
+                        .withRel("my-lectures"),
                 )
             }
 

@@ -22,7 +22,7 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
             Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                 .withSelfRel(),
             Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
-                .withRel("professor-lectures")
+                .withRel("my-lectures")
         )
 
 

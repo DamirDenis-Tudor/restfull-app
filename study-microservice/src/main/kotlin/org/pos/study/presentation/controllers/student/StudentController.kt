@@ -121,7 +121,7 @@ class StudentController(
             )
         ]
     )
-    @RequiresRoles(roles = [Auth.Role.ADMIN, Auth.Role.STUDENT])
+    @RequiresRoles(roles = [Auth.Role.ADMIN, Auth.Role.STUDENT, Auth.Role.PROFESSOR])
     @GetMapping("/{id}")
     fun getStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)

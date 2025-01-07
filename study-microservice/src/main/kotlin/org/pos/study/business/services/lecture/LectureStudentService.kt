@@ -24,7 +24,7 @@ class LectureStudentService(
             throw EntityNotFound("Lecture with ID $lectureId not found.")
         }
         studentRepository.findByLecturesContaining(lecture, PageRequest.of(page, size)).also {
-            if(it.hasContent()) throw EntityNotFound("Lecture with ID $lectureId has no students.")
+            if(!it.hasContent()) throw EntityNotFound("Lecture with ID $lectureId has no students.")
         }
     }
 

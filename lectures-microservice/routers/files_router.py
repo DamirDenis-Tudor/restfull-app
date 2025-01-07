@@ -6,6 +6,7 @@ from typing import Optional
 from fastapi import File, UploadFile, HTTPException, APIRouter, status, Depends
 from fastapi.responses import FileResponse
 
+from config import lectures_ms_host_address
 from database import db_wrapper
 from proto import auth_pb2
 from routers.models import *
@@ -33,7 +34,6 @@ def generate_file_hateoas_links(lecture_id: str, cat: Category, file_name: Optio
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=FileListResponse)
 async def list_files(
-        category: Category,
         lecture_id: str = Depends(validate_id),
         _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
 
@@ -41,33 +41,42 @@ async def list_files(
     if not course:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
 
-    files = db_wrapper.get_database().lectures.find_one(
-        {"_id": lecture_id},
-        {f"{category.value}-files": 1}
-    )
-
-    if not files or f"{category.value}-files" not in files:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="No files found for the given lecture and category")
-
     file_list = []
-    for file_metadata in files[f"{category.value}-files"]:
-        file_name = file_metadata["file_name"]
-        file_list.append(FileResponseSchema(
-            file_metadata=FileMetadata(
-                file_name=file_name,
-                uploaded_at=file_metadata["uploaded_at"],
-                size=file_metadata["size"]
-            ),
-            _links=generate_file_hateoas_links(lecture_id, category, file_name)
+    for category in Category.__members__.values():
+        files = db_wrapper.get_database().lectures.find_one(
+            {"_id": lecture_id},
+            {f"{category.value}-files": 1}
+        )
+
+        if f"{category.value}-files" not in files:
+            continue
+
+        for file_metadata in files[f"{category.value}-files"]:
+            file_name = file_metadata["file_name"]
+            file_list.append(FileResponseSchema(
+                file_metadata=FileMetadata(
+                    file_name=file_name,
+                    category=category.value,
+                    uploaded_at=file_metadata["uploaded_at"],
+                    size=file_metadata["size"]
+                ),
+                _links={
+                    "download": Link(
+                        href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files/{file_name}?category={category.value}"
+                    )
+                }
         ))
+
+    if len(file_list) == 0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="No files found for the given lecture")
 
     return FileListResponse(
         _embedded={
             "files": file_list
         },
         _links={
-            "self": Link(href=f"/lectures/{lecture_id}/files?category={category.value}")
+            "self": Link(href=f"/lectures/{lecture_id}/files"),
         }
     )
 

@@ -91,7 +91,7 @@ class ProfessorLectureController(
 
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
         email.takeIf(String::isNotBlank)?.let {
-            professorService.verifyProfessor(id, email).getOrThrow()
+            //professorService.verifyProfessor(id, email).getOrThrow()
         }
 
         return professorLectureService.getLecturesByProfessor(id, page, size).getOrThrow()

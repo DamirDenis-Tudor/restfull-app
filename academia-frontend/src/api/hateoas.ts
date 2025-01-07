@@ -20,13 +20,14 @@ export interface AssessmentTest {
 
 export interface FileMetadata {
     file_name: string;
+    category: string;
     uploaded_at: string;
     size: number;
 }
 
 export interface FileInfo {
-    fileMetadata: FileMetadata;
-    _links: Link[];
+    file_metadata: FileMetadata;
+    _links: Record<string, Link>;
 }
 
 export interface Professor {
@@ -37,6 +38,17 @@ export interface Professor {
     firstName: string;
     graderType: string;
     lastName: string;
+    _links: Record<string, Link>
+}
+
+export interface Student {
+    id: number;
+    firstName: string;
+    lastName: string;
+    cycleType: string;
+    email: string;
+    studyYear: string;
+    studentGroup: string;
     _links: Record<string, Link>
 }
 
@@ -73,3 +85,5 @@ export const fetchComponentData = async <T>(link: Link): Promise<T> => {
 
     throw Error();
 };
+
+

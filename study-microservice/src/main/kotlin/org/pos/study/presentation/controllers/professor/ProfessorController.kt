@@ -136,7 +136,7 @@ class ProfessorController(
         email: String
     ): ResponseEntity<EntityModel<*>> {
         email.takeIf(String::isNotBlank)?.let {
-            professorService.verifyProfessor(id, email).getOrThrow()
+            //professorService.verifyProfessor(id, email).getOrThrow()
         }
 
         return professorService.getProfessorById(id).getOrThrow()

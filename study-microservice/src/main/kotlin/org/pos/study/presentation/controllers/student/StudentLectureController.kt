@@ -30,7 +30,7 @@ class StudentLectureController(
     private val studentModelAssembler: StudentModelAssembler
 ) {
 
-    @RequiresRoles(roles = [Auth.Role.STUDENT])
+    @RequiresRoles(roles = [Auth.Role.STUDENT, Auth.Role.PROFESSOR])
     @Operation(
         summary = "Get all lectures for a student",
         description = "Retrieves a paginated list of lectures for the specified student.",
