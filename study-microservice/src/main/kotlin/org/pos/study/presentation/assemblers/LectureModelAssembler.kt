@@ -30,19 +30,19 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                     .withType("GET"),
 
                 Link.of("${studyAddress}/api/academia/lectures/${entity.id}/professors")
-                    .withRel("professors")
+                    .withRel("Professor")
                     .withType("GET"),
 
                 Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students")
-                    .withRel("students")
+                    .withRel("Students")
                     .withType("GET"),
 
                 Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/assessments")
-                    .withRel("assessments")
+                    .withRel("Assessments")
                     .withType("GET"),
 
                 Link.of("${lecturesAddress}/api/academia/lectures/${entity.id}/files")
-                    .withRel("files")
+                    .withRel("Files")
                     .withType("GET"),
             )
         }
@@ -54,9 +54,9 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
     ): CollectionModel<EntityModel<Lecture>> {
         val lectureModels = page.content.map { this.toModel(it) }
         val baseUri = when {
-            professorId != null -> "/api/academia/professors/$professorId/lectures"
-            studentId != null -> "/api/academia/students/$studentId/lectures"
-            else -> "/api/academia/lectures"
+            professorId != null -> "${studyAddress}/api/academia/professors/$professorId/lectures"
+            studentId != null -> "${studyAddress}/api/academia/students/$studentId/lectures"
+            else -> "${studyAddress}/api/academia/lectures"
         }
 
         return CollectionModel.of(lectureModels).apply {

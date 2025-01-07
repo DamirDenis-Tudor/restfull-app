@@ -24,6 +24,7 @@ class LectureService(
 
     override fun getLectures(page: Int, size: Int): Result<Page<Lecture>> = runCatching {
         val lecturePage = lectureRepository.findAll(PageRequest.of(page, size))
+
         lecturePage.takeIf { it.hasContent() }
             ?: throw EntityNotFound("Lectures not found at page $page with size $size")
     }

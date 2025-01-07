@@ -11,8 +11,10 @@ class TokenService(private val persistence: BlackListService) {
 
     private val jwtSecret = "your-256-bit-secret"
 
-    fun login(username: String, password: String): Result<String> =
-        persistence.validateUserCredentials(username, password).map (::generateJwt)
+    fun login(username: String, password: String): Result<Pair<String, Int>> {
+        val user = persistence.validateUserCredentials(username, password)
+        return user.map {generateJwt(it) to (user.getOrNull()?.role ?: 0) }
+    }
 
     private fun generateJwt(user: User): String {
         val algorithm = Algorithm.HMAC256(jwtSecret)

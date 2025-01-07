@@ -17,6 +17,7 @@ message LoginRequest {
 message TokenLoginResponse {
   string token = 1;
   string message = 2;
+  string role = 3;
 }
 
 message LoginResponse {

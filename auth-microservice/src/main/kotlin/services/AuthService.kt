@@ -16,13 +16,14 @@ class AuthService(private val tokenService: TokenService) : AuthServiceGrpcKt.Au
     override suspend fun login(request: Auth.LoginRequest): Auth.LoginResponse {
         return tokenService.login(request.username, request.password)
             .fold(
-                onSuccess = { token ->
+                onSuccess = { (token, role) ->
                     Auth.LoginResponse
                         .newBuilder()
                         .setSuccess(
                             Auth.TokenLoginResponse.newBuilder()
                                 .setToken(token)
                                 .setMessage("Login successful")
+                                .setRole(role.toString())
                                 .build()
                         ).build()
                 },

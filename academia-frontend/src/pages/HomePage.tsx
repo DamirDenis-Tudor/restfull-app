@@ -1,18 +1,13 @@
-import { Container } from "react-bootstrap";
-import React, { useContext } from "react";
-import AuthContext from "../contexts/AuthContext.tsx";
-import { NavBarComponent } from "../components/navbar/NavBarComponent.tsx";
+import React from "react";
+import {NavBar} from "../components/NavBar.tsx";
+import {HomePageProvider} from "../contexts/HomePageProvider.tsx";
+
 
 const HomePage: React.FC = () => {
-    useContext(AuthContext);
-
     return (
-        <>
-            <NavBarComponent role="Professor" username="Marius" />
-            <Container fluid className="home-container">
-                {/* Your content goes here */}
-            </Container>
-        </>
+        <HomePageProvider>
+            <NavBar/>
+        </HomePageProvider>
     );
 };
 

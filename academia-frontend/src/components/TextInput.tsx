@@ -1,5 +1,5 @@
 import {Form} from 'react-bootstrap';
-import {useState} from "react";
+import React, {useState} from "react";
 
 interface TextInputComponentProps {
     className?: string;
@@ -9,9 +9,13 @@ interface TextInputComponentProps {
     helpText?: string;
     ariaDescribedby?: string;
     placeholder?: string;
+    value: string;
+    onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+    isValid?: boolean;
+    errorMessage?: string;
 }
 
-export function TextInputComponent(
+export function TextInput(
     {
         className,
         label,
@@ -20,6 +24,10 @@ export function TextInputComponent(
         helpText,
         ariaDescribedby,
         placeholder,
+        value,
+        onChange,
+        isValid = true,
+        errorMessage,
     }: TextInputComponentProps) {
     const [isFocused, setIsFocused] = useState(false);
 
@@ -27,22 +35,30 @@ export function TextInputComponent(
     const handleBlur = () => setIsFocused(false);
 
     return (
-        <>
-            <Form.Label htmlFor={id}>{label}</Form.Label>
+        <div className="mb-3">
+            {label && <Form.Label htmlFor={id}>{label}</Form.Label>}
             <Form.Control
                 className={className}
                 type={type}
                 id={id}
+                value={value}
+                onChange={onChange}
                 aria-describedby={ariaDescribedby}
                 placeholder={placeholder}
                 onFocus={handleFocus}
                 onBlur={handleBlur}
+                isInvalid={!isValid}
             />
             {isFocused && helpText && (
                 <Form.Text id={ariaDescribedby} muted>
                     {helpText}
                 </Form.Text>
             )}
-        </>
+            {!isValid && errorMessage && (
+                <Form.Control.Feedback type="invalid">
+                    {errorMessage}
+                </Form.Control.Feedback>
+            )}
+        </div>
     );
 }

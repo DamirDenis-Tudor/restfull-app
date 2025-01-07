@@ -58,7 +58,7 @@ async def create_course(
     )
 
 
-@router.get("/lectures/{lecture_id}/assessments/", responses={
+@router.get("/lectures/{lecture_id}/assessments", responses={
     status.HTTP_404_NOT_FOUND: {"description": "Lecture or assessments not found"},
     status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
