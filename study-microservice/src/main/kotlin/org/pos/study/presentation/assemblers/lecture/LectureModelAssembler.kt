@@ -68,12 +68,18 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                         .withRel("files")
                         .withType("GET"),
                 ).let {
-                    if(CurrentUserContext.getId().toInt() == (entity.professor?.id ?: -1))
+                    if (CurrentUserContext.getId().toInt() == (entity.professor?.id ?: -1))
                         it + listOf(
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students")
-                            .withRel("students")
-                            .withType("GET")
-                        )
+                                .withRel("students")
+                                .withType("GET"),
+                            Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
+                                .withRel("update")
+                                .withType("POST"),
+                            Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
+                                .withRel("delete")
+                                .withType("POST"),
+                            )
                     else it
                 }
             }
@@ -99,6 +105,14 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                     .withRel("search")
                     .withType("GET"),
             )
+
+            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
+                this.add(
+                    Link.of("${studyAddress}/api/academia/lectures")
+                        .withRel("create")
+                        .withType("POST"),
+                )
+            }
         }
     }
 }

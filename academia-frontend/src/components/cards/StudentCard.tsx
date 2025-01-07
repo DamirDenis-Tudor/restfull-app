@@ -4,6 +4,7 @@ import { fetchLink, Link, Student } from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
 import { ProfileCard } from "./ProfileCard.tsx";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import StudentModal from "../modals/StudentModal.tsx";
 
 interface StudentCardProps {
     link?: Link;
@@ -11,10 +12,11 @@ interface StudentCardProps {
     layout: 'vertical' | 'horizontal';
 }
 
-const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical', }) => {
+const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical' }) => {
     const [student, setStudent] = useState<Student | undefined>(stud);
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     const { setSelectedComponent } = useContext(HomePageContext);
 
@@ -35,7 +37,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
             setSelectedComponent(
                 <ProfileCard
                     card={<StudentCard layout="horizontal" link={student._links["profile"]}/>}
-                    lectureLink={student._links["lectures"]} title={'Student Profile'}                />
+                    lectureLink={student._links["lectures"]} title={'Student Profile'} />
             );
         }
 
@@ -49,8 +51,8 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     };
 
     const handleUpdate = () => {
-        if(student && student._links["delete"]) {
-            fetchLink(student._links["delete"], undefined).then();
+        if(student && student._links["update"]) {
+            setShowModal(true);
         }
     };
 
@@ -94,12 +96,12 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
                         ><FaEdit size={20}/></div>
                     )}
                     {student?._links["delete"] && (
-                    <div
-                        className="icon-button"
-                        onClick={handleDelete}
-                        title="Delete"
-                        style={{cursor: 'pointer', color: '#e74c3c'}}
-                    ><FaTrashAlt size={20} /></div>
+                        <div
+                            className="icon-button"
+                            onClick={handleDelete}
+                            title="Delete"
+                            style={{cursor: 'pointer', color: '#e74c3c'}}
+                        ><FaTrashAlt size={20} /></div>
                     )}
                 </div>
             )}
@@ -140,15 +142,25 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     };
 
     return (
-        <Card
-            className={`student-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
-            style={cardStyle}
-            onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {layout === 'vertical' ? renderVertical() : renderHorizontal()}
-        </Card>
+        <>
+            <Card
+                className={`student-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
+                style={cardStyle}
+                onClick={handleClick}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {layout === 'vertical' ? renderVertical() : renderHorizontal()}
+            </Card>
+
+            {showModal && student && student._links["update"] && (
+                <StudentModal
+                    student={student}
+                    link={student._links["update"]}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+        </>
     );
 };
 

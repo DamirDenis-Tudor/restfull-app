@@ -1,9 +1,10 @@
-import React, {useContext, useEffect, useState} from 'react';
-import {Card, ListGroup} from 'react-bootstrap';
-import {fetchLink, Link, Professor} from "../../api/hateoas.ts";
-import {HomePageContext} from "../../contexts/HomePageContext.tsx";
-import {ProfileCard} from "./ProfileCard.tsx";
-import {FaEdit, FaTrashAlt} from "react-icons/fa";
+import React, { useContext, useEffect, useState } from 'react';
+import { Card, ListGroup } from 'react-bootstrap';
+import { fetchLink, Link, Professor } from "../../api/hateoas.ts";
+import { HomePageContext } from "../../contexts/HomePageContext.tsx";
+import { ProfileCard } from "./ProfileCard.tsx";
+import { FaEdit, FaTrashAlt } from "react-icons/fa";
+import ProfessorModal from "../modals/ProfessorModal.tsx"; // Import the modal component
 
 interface ProfessorCardProps {
     link?: Link;
@@ -11,12 +12,13 @@ interface ProfessorCardProps {
     layout: 'vertical' | 'horizontal';
 }
 
-const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vertical'}) => {
+const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'vertical' }) => {
     const [professor, setProfessor] = useState<Professor | undefined>(prof);
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
-    const {setSelectedComponent} = useContext(HomePageContext);
+    const { setSelectedComponent } = useContext(HomePageContext);
 
     useEffect(() => {
         if (link) {
@@ -34,8 +36,8 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
         if (professor && professor._links["profile"]) {
             setSelectedComponent(
                 <ProfileCard
-                    card={<ProfessorCard layout="horizontal" link={professor._links["profile"]}/>}
-                    lectureLink={professor._links["my-lectures"]} title={'Professor Profile'}/>
+                    card={<ProfessorCard layout="horizontal" link={professor._links["profile"]} />}
+                    lectureLink={professor._links["my-lectures"]} title={'Professor Profile'} />
             );
         }
 
@@ -49,8 +51,8 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
     };
 
     const handleUpdate = () => {
-        if (professor && professor._links["delete"]) {
-            fetchLink(professor._links["delete"], undefined).then();
+        if (professor && professor._links["update"]) {
+            setShowModal(true); // Show the modal when editing a professor
         }
     };
 
@@ -90,19 +92,44 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
                             className="icon-button"
                             onClick={handleUpdate}
                             title="Update"
-                            style={{cursor: 'pointer', color: '#f39c12'}}
-                        ><FaEdit size={20}/></div>
+                            style={{ cursor: 'pointer', color: '#f39c12' }}
+                        ><FaEdit size={20} /></div>
                     )}
                     {professor?._links["delete"] && (
                         <div
                             className="icon-button"
                             onClick={handleDelete}
                             title="Delete"
-                            style={{cursor: 'pointer', color: '#e74c3c'}}
-                        ><FaTrashAlt size={20}/></div>
+                            style={{ cursor: 'pointer', color: '#e74c3c' }}
+                        ><FaTrashAlt size={20} /></div>
                     )}
                 </div>
             )}
+        </Card.Body>
+    );
+
+    const renderHorizontal = () => (
+        <Card.Body className="d-flex flex-wrap justify-content-between p-3">
+            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+                <strong>Name:</strong>
+                <span>{professor?.firstName} {professor?.lastName}</span>
+            </div>
+            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+                <strong>Email:</strong>
+                <span>{professor?.email}</span>
+            </div>
+            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+                <strong>Department:</strong>
+                <span>{professor?.affiliation}</span>
+            </div>
+            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+                <strong>Association Type:</strong>
+                <span>{professor?.associationType}</span>
+            </div>
+            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+                <strong>Grader Type:</strong>
+                <span>{professor?.graderType}</span>
+            </div>
         </Card.Body>
     );
 
@@ -114,48 +141,26 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
         transform: isHovered ? 'scale(1.05)' : 'scale(1)',
     };
 
-
-    const renderHorizontal = () => (
-        <Card.Body className="d-flex flex-wrap justify-content-between p-3">
-            <div className="d-flex flex-column align-items-center mb-3"
-                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
-                <strong>Name:</strong>
-                <span>{professor?.firstName} {professor?.lastName}</span>
-            </div>
-            <div className="d-flex flex-column align-items-center mb-3"
-                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
-                <strong>Email:</strong>
-                <span>{professor?.email}</span>
-            </div>
-            <div className="d-flex flex-column align-items-center mb-3"
-                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
-                <strong>Department:</strong>
-                <span>{professor?.affiliation}</span>
-            </div>
-            <div className="d-flex flex-column align-items-center mb-3"
-                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
-                <strong>Association Type:</strong>
-                <span>{professor?.associationType}</span>
-            </div>
-            <div className="d-flex flex-column align-items-center mb-3"
-                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
-                <strong>Grader Type:</strong>
-                <span>{professor?.graderType}</span>
-            </div>
-        </Card.Body>
-    );
-
-
     return (
-        <Card
-            className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
-            style={cardStyle}
-            onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            {layout === 'vertical' ? renderVertical() : renderHorizontal()}
-        </Card>
+        <>
+            <Card
+                className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
+                style={cardStyle}
+                onClick={handleClick}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                {layout === 'vertical' ? renderVertical() : renderHorizontal()}
+            </Card>
+
+            {showModal && professor && professor._links["update"] && (
+                <ProfessorModal
+                    professor={professor}
+                    link={professor._links["update"]}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+        </>
     );
 };
 

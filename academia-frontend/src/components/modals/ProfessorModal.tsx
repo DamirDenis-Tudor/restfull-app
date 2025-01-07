@@ -15,7 +15,7 @@ export interface ProfessorData {
 interface ProfessorModalProps {
     professor?: ProfessorData;
     link: Link;
-    onClose: () => void; // Function to handle modal close
+    onClose: () => void;
 }
 
 const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClose }) => {
@@ -28,14 +28,13 @@ const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClos
         graderType: '',
     });
 
-    // Set form data when the modal is opened for editing
     useEffect(() => {
         if (professor) {
             setFormData(professor);
         }
     }, [professor]);
 
-    // Handle form field changes
+
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData((prev) => ({
@@ -44,13 +43,12 @@ const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClos
         }));
     };
 
-    // Handle form submission
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        // Send the form data to the API using the provided link
+
         fetchLink(link, formData)
             .then(() => {
-                onClose(); // Close modal after submission
+                onClose();
             })
             .catch((error) => {
                 console.error("Error submitting professor data:", error);

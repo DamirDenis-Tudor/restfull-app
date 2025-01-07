@@ -1,17 +1,20 @@
 import React, { useContext, useState } from 'react';
-import { Card, ListGroup } from 'react-bootstrap';
-import { Lecture } from "../../api/hateoas.ts";
+import { Card, ListGroup, Button } from 'react-bootstrap';
+import {fetchLink, Lecture} from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
-import { LectureInfo } from "../LectureInfo.tsx";
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import LectureModal from "../modals/LectureModal.tsx";
+import {LectureInfo} from "../LectureInfo.tsx";
 
 interface LectureCardProps {
     lecture?: Lecture;
     clickable?: boolean;
 }
 
-export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable=true }) => {
+export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = true }) => {
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const { setSelectedComponent } = useContext(HomePageContext);
 
     const handleClick = () => {
@@ -27,7 +30,20 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable=tru
                 />
             );
         }
-        setIsClicked(false)
+
+        setIsClicked(false);
+    };
+
+    const handleEdit = () => {
+        if (lecture) {
+            setShowModal(true);
+        }
+    };
+
+    const handleDelete = () => {
+        if (lecture && lecture._links["delete"]) {
+            fetchLink(lecture._links["delete"]).then()
+        }
     };
 
     const cardStyle = {
@@ -39,43 +55,74 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable=tru
     };
 
     return (
-        <Card
-            className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm`}
-            style={cardStyle}
-            onClick={handleClick}
-            onMouseEnter={() => setIsHovered(true)}
-            onMouseLeave={() => setIsHovered(false)}
-        >
-            <Card.Body>
-                <Card.Title>Details</Card.Title>
-                {lecture ? (
-                    <ListGroup variant="flush">
-                        <ListGroup.Item>
-                            <div><strong>Lecture Name:</strong></div>
-                            <div>{lecture.lectureName}</div>
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                            <div><strong>Study Year:</strong></div>
-                            <div>{lecture.studyYear}</div>
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                            <div><strong>Lecture Type:</strong></div>
-                            <div>{lecture.lectureType}</div>
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                            <div><strong>Category:</strong></div>
-                            <div>{lecture.categoryType}</div>
-                        </ListGroup.Item>
-                        <ListGroup.Item>
-                            <div><strong>Examination Type:</strong></div>
-                            <div>{lecture.examinationType}</div>
-                        </ListGroup.Item>
-                    </ListGroup>
-                ) : (
-                    <div>No lecture data available.</div>
-                )}
-            </Card.Body>
-        </Card>
+        <div>
+            <Card
+                className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm`}
+                style={cardStyle}
+                onClick={handleClick}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+            >
+                <Card.Body>
+                    <Card.Title>Details</Card.Title>
+                    {lecture ? (
+                        <ListGroup variant="flush">
+                            <ListGroup.Item>
+                                <div><strong>Lecture Name:</strong></div>
+                                <div>{lecture.lectureName}</div>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <div><strong>Study Year:</strong></div>
+                                <div>{lecture.studyYear}</div>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <div><strong>Lecture Type:</strong></div>
+                                <div>{lecture.lectureType}</div>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <div><strong>Category:</strong></div>
+                                <div>{lecture.categoryType}</div>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
+                                <div><strong>Examination Type:</strong></div>
+                                <div>{lecture.examinationType}</div>
+                            </ListGroup.Item>
+                        </ListGroup>
+                    ) : (
+                        <div>No lecture data available.</div>
+                    )}
+
+                    <div className="d-flex justify-content-between mt-3">
+                        {lecture?._links["update"] && (
+                            <Button
+                                variant="warning"
+                                onClick={handleEdit}
+                                title="Edit"
+                            >
+                                <FaEdit size={16} />
+                            </Button>
+                        )}
+                        {lecture?._links["delete"] && (
+                            <Button
+                                variant="danger"
+                                onClick={handleDelete}
+                                title="Delete"
+                            >
+                                <FaTrashAlt size={16} />
+                            </Button>
+                        )}
+                    </div>
+                </Card.Body>
+            </Card>
+
+            {showModal && lecture && (
+                <LectureModal
+                    lecture={lecture}
+                    link={lecture._links["update"]!}
+                    onClose={() => setShowModal(false)}
+                />
+            )}
+        </div>
     );
 };
 

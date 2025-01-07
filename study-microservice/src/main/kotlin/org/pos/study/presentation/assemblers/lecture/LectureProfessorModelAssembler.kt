@@ -49,6 +49,14 @@ class LectureProfessorModelAssembler(
                     .withRel("search")
                     .withType("GET"),
             )
+
+            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
+                this.add(
+                    Link.of("${studyAddress}/api/academia/lectures")
+                        .withRel("create")
+                        .withType("POST"),
+                )
+            }
         }
     }
 }
