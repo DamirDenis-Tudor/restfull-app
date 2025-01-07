@@ -81,12 +81,9 @@ class StudentService(
 
     override fun verifyStudent(
         id: Long,
-        email: String
     ): Result<Unit> = runCatching {
         studentRepository.findById(id).getOrElse {
-            throw EntityNotFound("Student with ID $id not found.")
-        }.takeIf {
-            it.email == email
-        } ?: throw EntityUnverifiable("No student with id $id has email $email.")
+            throw EntityUnverifiable("No student with id $id has email.")
+        }
     }
 }

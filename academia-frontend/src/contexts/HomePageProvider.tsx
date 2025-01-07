@@ -5,6 +5,7 @@ import {ProfileCard} from "../components/cards/ProfileCard.tsx";
 import AuthContext from "./AuthContext.tsx";
 import ProfessorCard from "../components/cards/ProfessorCard.tsx";
 import StudentCard from "../components/cards/StudentCard.tsx";
+import {StudentList} from "../components/lists/StudentList.tsx";
 
 
 export const HomePageProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
@@ -14,11 +15,13 @@ export const HomePageProvider: React.FC<{ children: React.ReactNode }> = ({child
             <ProfileCard
                 card={<ProfessorCard link={loginResponse._links["me"]} layout={"horizontal"}/>}
                 lectureLink={loginResponse._links["my-lectures"]} title={"Professor Profile"}/>
-        ) : (
+        ) : loginResponse.role === "STUDENT" ? (
             <ProfileCard
                 card={<StudentCard link={loginResponse._links["me"]} layout={"horizontal"}/>}
-                lectureLink={loginResponse._links["my-lectures"]} title={"Student Profile"}/>
-        )
+                lectureLink={loginResponse._links["lectures"]} title={"Student Profile"}/>
+        ) : loginResponse.role === "ADMIN" ? (
+            <StudentList key="Students" link={loginResponse._links["students"]} />
+        ) : <></>
     );
 
     return (

@@ -34,9 +34,9 @@ class LectureService(
             .map { Result.success(it) }
             .orElse(Result.failure(EntityNotFound("Lecture with ID $lectureId not found.")))
 
-    override fun createLecture(lectureCreate: LectureCreate, professorEmail: String): Result<Lecture> = runCatching {
-        val professor = professorRepository.findProfessorByEmail(professorEmail).getOrNull()
-            ?: throw EntityNotFound("Professor with ID $professorEmail not found.")
+    override fun createLecture(lectureCreate: LectureCreate, id: String): Result<Lecture> = runCatching {
+        val professor = professorRepository.findById(id.toLong()).getOrNull()
+            ?: throw EntityNotFound("Professor with ID $id not found.")
 
         if (lectureRepository.existsById(lectureCreate.id))
             throw EntityConflict("Lecture with ID ${lectureCreate.id} already exists.")

@@ -8,6 +8,8 @@ import {LectureList} from "./lists/LectureList.tsx";
 import {ProfileCard} from "./cards/ProfileCard.tsx";
 import ProfessorCard from "./cards/ProfessorCard.tsx";
 import StudentCard from "./cards/StudentCard.tsx";
+import {StudentList} from "./lists/StudentList.tsx";
+import {ProfessorList} from "./lists/ProfessorsList.tsx";
 
 
 export const NavBar: React.FC = () => {
@@ -43,7 +45,6 @@ export const NavBar: React.FC = () => {
                 <>
                     <Nav.Link
                         onClick={() => {
-                            console.log(loginResponse._links["lectures"])
                             setSelectedComponent(
                                 <ProfileCard
                                     card={<StudentCard layout="horizontal" link={loginResponse._links["me"]}/>}
@@ -60,7 +61,7 @@ export const NavBar: React.FC = () => {
                     <Nav.Link
                         onClick={() => {
                             setSelectedComponent(
-                                <LectureList key="Students" link={loginResponse._links["students"]} />
+                                <StudentList key="Students" link={loginResponse._links["students"]} />
                             );
                         }}
                         className="tw-text-black fw-bold"
@@ -68,7 +69,7 @@ export const NavBar: React.FC = () => {
                     <Nav.Link
                         onClick={() => {
                             setSelectedComponent(
-                                <LectureList key="Professors" link={loginResponse._links["professors"]} />
+                                <ProfessorList key="Professors" link={loginResponse._links["professors"]} />
                             );
                         }}
                         className="tw-text-black fw-bold"

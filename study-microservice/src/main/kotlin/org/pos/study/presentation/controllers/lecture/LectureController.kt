@@ -2,39 +2,40 @@ package org.pos.study.presentation.controllers.lecture
 
 import api.academia.Auth
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
-import kotlinx.coroutines.runBlocking
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.lecture.LectureCreate
+import org.pos.study.business.dto.lecture.LectureRequestBody
 import org.pos.study.business.dto.lecture.LectureUpdate
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureService
+import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Lecture
-import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.InjectAuthorizationHeader
+import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.*
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
-import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.responses.ApiResponse
-import io.swagger.v3.oas.annotations.media.Content
-import org.pos.study.business.dto.lecture.LectureRequestBody
-import org.pos.study.presentation.annotations.InjectAuthorizationHeader
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 
 @RestController
 @RequestMapping("/lectures")
 class LectureController(
     private val lectureModelAssembler: LectureModelAssembler,
     private val lectureService: ILectureService,
+    private val studentService: IStudentService,
     private val lectureProfessorService: ILectureProfessorService,
 ) {
     private val restTemplate = RestTemplate()
@@ -94,12 +95,12 @@ class LectureController(
         @Max(PageConstraints.Size.MAX_VALUE)
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt()
-    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> = runBlocking {
-        lectureService.getLectures(page, size).getOrThrow()
+    ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
+        return lectureService.getLectures(page, size).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(it)) }
     }
 
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR, Auth.Role.STUDENT])
     @GetMapping("/{lectureId}")
     @Operation(
         summary = "Get a specific lecture",
@@ -145,10 +146,11 @@ class LectureController(
     fun getLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String
-    ): ResponseEntity<EntityModel<Lecture>> =
-        lectureService.getLectureById(lectureId.toString()).getOrThrow()
+        @PathVariable lectureId: String,
+    ): ResponseEntity<EntityModel<Lecture>> {
+        return lectureService.getLectureById(lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+    }
 
     @Operation(
         summary = "Create a new lecture",
@@ -199,7 +201,7 @@ class LectureController(
         @InjectAuthorizationHeader
         authorizationHeader: String,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
+        @InjectId(forRole = Auth.Role.PROFESSOR)
         email: String,
 
         ): ResponseEntity<EntityModel<*>> {
@@ -285,11 +287,11 @@ class LectureController(
 
         @Valid @RequestBody lectureUpdates: LectureUpdate,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String,
+        @InjectId(forRole = Auth.Role.PROFESSOR)
+        id: String,
     ): ResponseEntity<EntityModel<Lecture>> {
-        email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId).getOrThrow()
+        id.takeIf { it.isNotBlank() }?.let {
+            lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId).getOrThrow()
         }
 
         return lectureService.updateLecture(lectureId, lectureUpdates).getOrThrow()
@@ -349,11 +351,11 @@ class LectureController(
         @InjectAuthorizationHeader
         authorizationHeader: String,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String = "",
+        @InjectId(forRole = Auth.Role.PROFESSOR)
+        id: String = "",
     ): ResponseEntity<Void> {
-        email.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
+        id.takeIf { it.isNotBlank() }?.let {
+            lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         }
 
         lectureService.deleteLecture(lectureId.toString()).getOrThrow()

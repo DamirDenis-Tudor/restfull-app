@@ -8,5 +8,5 @@ interface ILectureStudentService {
     fun getStudentsByLecture(lectureId: String, page: Int, size: Int): Result<Page<Student>>
     fun enrollStudentsInLecture(lectureId: String, studentIds: List<Long>): Result<Lecture>
     fun unenrollStudentsInLecture(lectureId: String, studentIds: List<Long>): Result<Lecture>
-    fun isStudentEnrolledInLecture(studentEmail: String, lectureId: String): Result<Boolean>
+    fun isStudentEnrolledInLecture(id: String, lectureId: String): Result<Boolean>
 }

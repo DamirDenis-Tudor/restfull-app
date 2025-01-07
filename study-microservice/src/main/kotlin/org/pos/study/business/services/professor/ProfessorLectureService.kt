@@ -38,9 +38,9 @@ class ProfessorLectureService(
         lecture
     }
 
-    override fun isProfessorOwnerOfLecture(professorEmail: String, lectureId: String): Result<Boolean> = runCatching {
-        val professor = professorRepository.findProfessorByEmail(professorEmail)
-            .orElseThrow { EntityNotFound("Professor with ID $professorEmail not found.") }
+    override fun isProfessorOwnerOfLecture(id: String, lectureId: String): Result<Boolean> = runCatching {
+        val professor = professorRepository.findById(id.toLong())
+            .orElseThrow { EntityNotFound("Professor with ID $id not found.") }
         val lecture = lectureRepository.findById(lectureId)
             .orElseThrow { EntityNotFound("Lecture with ID $lectureId not found.") }
 

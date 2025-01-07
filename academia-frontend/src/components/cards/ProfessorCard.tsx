@@ -42,7 +42,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
     };
 
     const cardStyle = {
-        width: layout === 'horizontal' ? '100%' : '20rem', // Adjust width based on layout
+        width: layout === 'horizontal' ? '100%' : '20rem',
         cursor: 'pointer',
         transition: 'transform 0.3s ease, border-color 0.3s ease',
         borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',

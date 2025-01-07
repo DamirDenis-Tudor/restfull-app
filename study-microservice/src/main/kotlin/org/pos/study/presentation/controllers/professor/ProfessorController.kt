@@ -10,7 +10,6 @@ import org.pos.study.business.dto.professor.ProfessorCreate
 import org.pos.study.business.dto.professor.ProfessorUpdate
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Professor
-import org.pos.study.presentation.annotations.InjectEmail
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -132,49 +131,9 @@ class ProfessorController(
         @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String
     ): ResponseEntity<EntityModel<*>> {
-        email.takeIf(String::isNotBlank)?.let {
-            //professorService.verifyProfessor(id, email).getOrThrow()
-        }
 
         return professorService.getProfessorById(id).getOrThrow()
-            .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
-    }
-
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
-    @Operation(
-        summary = "Get the current logged-in professor",
-        description = "Fetches the details of the professor who is currently logged in, based on their email.",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Current professor details retrieved successfully",
-                content = [Content(mediaType = "application/hal+json")]
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Authorization header missing or invalid",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "404",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "503",
-                description = "Returned when the authorization service is not available.",
-                content = [Content(mediaType = "application/json")]
-            )
-        ]
-    )
-    @GetMapping("/me")
-    fun getCurrentProfessor(
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String
-    ): ResponseEntity<EntityModel<Professor>> {
-        return professorService.getProfessorByEmail(email).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
     }
 

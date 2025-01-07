@@ -13,5 +13,5 @@ interface IStudentService {
     fun updateStudent(id: Long, studentUpdate: StudentUpdate): Result<Student>
     fun deleteStudent(id: Long): Result<Any>
 
-    fun verifyStudent(id: Long, email: String): Result<Unit>
+    fun verifyStudent(id: Long): Result<Unit>
 }

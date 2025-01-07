@@ -17,7 +17,7 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
 
     override fun toModel(entity: Professor): EntityModel<Professor> =
         EntityModel.of(entity).add(
-            Link.of("${studyAddress}/api/academia/professors")
+            Link.of("${studyAddress}/api/academia/professors&size=3")
                 .withRel("parent"),
             Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                 .withSelfRel(),

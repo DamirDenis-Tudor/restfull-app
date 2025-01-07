@@ -50,7 +50,7 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
     fun toCollectionModel(
         page: Page<Lecture>,
         professorId: Long? = null,
-        studentId: Long? = null
+        studentId: Long? = null,
     ): CollectionModel<EntityModel<Lecture>> {
         val lectureModels = page.content.map { this.toModel(it) }
         val baseUri = when {

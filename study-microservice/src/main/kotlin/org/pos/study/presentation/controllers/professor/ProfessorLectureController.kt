@@ -9,7 +9,6 @@ import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Lecture
-import org.pos.study.presentation.annotations.InjectEmail
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -19,6 +18,8 @@ import org.springframework.web.bind.annotation.*
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
+import org.pos.study.business.exceptions.EntityUnverifiable
+import org.pos.study.presentation.annotations.InjectId
 
 @RestController
 @RequestMapping("/professors/{id}/lectures")
@@ -71,7 +72,6 @@ class ProfessorLectureController(
         ]
     )
     fun getLecturesByProfessor(
-
         @Min(ProfessorConstraints.Id.MIN_SIZE)
         @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
@@ -86,12 +86,12 @@ class ProfessorLectureController(
         @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
         size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt(),
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String
+        @InjectId(forRole = Auth.Role.PROFESSOR)
+        idAuth: String
 
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
-        email.takeIf(String::isNotBlank)?.let {
-            //professorService.verifyProfessor(id, email).getOrThrow()
+        if(id != idAuth.toLong()) {
+            throw EntityUnverifiable("Current user $id is not allowed to this endpoint for user with id $idAuth ")
         }
 
         return professorLectureService.getLecturesByProfessor(id, page, size).getOrThrow()
@@ -148,12 +148,12 @@ class ProfessorLectureController(
         @Max(LectureConstraints.Id.MAX_SIZE) @PathVariable
         lectureId: Int,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String
+        @InjectId(forRole = Auth.Role.PROFESSOR)
+        idAuth: String
 
     ): ResponseEntity<EntityModel<Lecture>> {
-        email.takeIf(String::isNotBlank)?.let {
-            professorService.verifyProfessor(id, email).getOrThrow()
+        if(id != idAuth.toLong()) {
+            throw EntityUnverifiable("Current user $id is not allowed to this endpoint for user with id $idAuth ")
         }
 
         return professorLectureService.getLectureByProfessor(id, lectureId.toString()).getOrThrow()

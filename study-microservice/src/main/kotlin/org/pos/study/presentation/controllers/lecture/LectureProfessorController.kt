@@ -11,7 +11,7 @@ import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.persistence.entities.Professor
-import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
@@ -180,11 +180,11 @@ class LectureProfessorController(
         @Max(LectureConstraints.Id.MAX_SIZE) @PathVariable
         lectureId: Int,
 
-        @InjectEmail(forRole = Auth.Role.PROFESSOR)
-        email: String
+        @InjectId(forRole = Auth.Role.PROFESSOR)
+        id: String
 
     ): ResponseEntity<Boolean> {
-        val isOwner = professorLectureService.isProfessorOwnerOfLecture(email, lectureId.toString()).getOrThrow()
+        val isOwner = professorLectureService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         return ResponseEntity.ok(isOwner)
     }
 }

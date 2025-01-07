@@ -82,7 +82,8 @@ class ExceptionHandler {
 
     @ExceptionHandler(Exception::class)
     fun handleGeneralException(ex: Exception): ResponseEntity<*> {
+        ex.printStackTrace()
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(EntityModel.of(mapOf("message" to ex.message)))
+            .body(EntityModel.of(mapOf("message" to ex.stackTrace)))
     }
 }

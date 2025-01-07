@@ -8,8 +8,16 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
+import org.pos.study.business.interfaces.lecture.ILectureStudentService
+import org.pos.study.business.interfaces.professor.IProfessorService
+import org.pos.study.business.interfaces.student.IStudentService
+import org.pos.study.business.services.professor.ProfessorService
+import org.pos.study.persistence.repositories.ProfessorRepository
+import org.pos.study.persistence.repositories.StudentRepository
 import org.pos.study.presentation.annotations.InjectAuthorizationHeader
 import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.InjectId
+import org.pos.study.presentation.annotations.InjectRole
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.slf4j.LoggerFactory
 import org.springframework.core.annotation.Order
@@ -17,11 +25,14 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
+import kotlin.jvm.optionals.getOrNull
 
 @Aspect
 @Component
 class RequiresRolesAspect(
     private val authGrpcStub: AuthServiceGrpcKt.AuthServiceCoroutineStub,
+    private val professorService: IProfessorService,
+    private val studentService: IStudentService,
     private val request: HttpServletRequest
 ) {
     private val logger = LoggerFactory.getLogger(RequiresRolesAspect::class.java)
@@ -60,18 +71,32 @@ class RequiresRolesAspect(
                 throw ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied for your role.")
             }
 
+            val id = when (validateResponse.success.role) {
+                Auth.Role.PROFESSOR -> {
+                    professorService.getProfessorByEmail(validateResponse.success.id).getOrThrow().id.toString()
+                }
+                Auth.Role.STUDENT -> {
+                    studentService.getStudentByEmail(validateResponse.success.id).getOrThrow().id.toString()
+                }
+                else -> ""
+            }
+
+            CurrentUserContext.setData(validateResponse.success.role to id)
+
             (joinPoint.signature as MethodSignature).method.parameters.withIndex().forEach { (index, parameter) ->
-                parameter.getAnnotation(InjectEmail::class.java)?.let { injectValue ->
-                    joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) {
-                        validateResponse.success.id
-                    } else ""
+                parameter.getAnnotation(InjectId::class.java)?.let { injectValue ->
+                    joinPoint.args[index] = if (injectValue.forRole == validateResponse.success.role) id  else ""
                 }
                 parameter.getAnnotation(InjectAuthorizationHeader::class.java)?.let { injectValue ->
                     joinPoint.args[index] = authHeader
                 }
+
+                parameter.getAnnotation(InjectRole::class.java)?.let { injectValue ->
+                    joinPoint.args[index] = validateResponse.success.role
+                }
             }
         }
 
-        joinPoint.proceed(joinPoint.args)
+        joinPoint.proceed(joinPoint.args).also { CurrentUserContext.clear() }
     }
 }

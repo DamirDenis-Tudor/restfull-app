@@ -11,9 +11,10 @@ import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints
 import org.pos.study.business.dto.student.StudentCreate
 import org.pos.study.business.dto.student.StudentUpdate
+import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
-import org.pos.study.presentation.annotations.InjectEmail
+import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
@@ -128,55 +129,16 @@ class StudentController(
         @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
 
-        @InjectEmail(forRole = Auth.Role.STUDENT)
-        email: String
+        @InjectId(forRole = Auth.Role.STUDENT)
+        idAuth: String
     ): ResponseEntity<EntityModel<Student>> {
-        email.takeIf { it.isNotBlank() }?.let {
-            studentService.verifyStudent(id, it).getOrThrow()
+        idAuth.takeIf { it.isNotBlank() }?.let {
+            if (idAuth.toLong() == id) {
+                throw EntityUnverifiable("Student with id $idAuth cannot view info of student $id ")
+            }
         }
 
         return studentService.getStudentById(id).getOrThrow()
-            .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
-    }
-
-    @Operation(
-        summary = "Get the current authenticated student",
-        description = "Retrieves the student associated with the authenticated user's email.",
-        responses = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Current student found",
-                content = [Content(mediaType = "application/hal+json")]
-            ),
-            ApiResponse(
-                responseCode = "401",
-                description = "Unauthorized, token invalid or missing",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "403",
-                description = "Forbidden, user does not have necessary permissions",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "Student not found",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "503",
-                description = "Returned when the authorization service is not available.",
-                content = [Content(mediaType = "application/json")]
-            )
-        ]
-    )
-    @RequiresRoles(roles = [Auth.Role.STUDENT])
-    @GetMapping("/me")
-    fun getCurrentStudent(
-        @InjectEmail(forRole = Auth.Role.STUDENT)
-        email: String
-    ): ResponseEntity<EntityModel<Student>> {
-        return studentService.getStudentByEmail(email).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }
     }
 

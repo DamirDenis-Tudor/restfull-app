@@ -24,15 +24,15 @@ class ProfessorService(
     override fun getAllProfessors(page: Int, size: Int): Result<Page<Professor>> = runCatching {
         val professorPage = professorRepository.findAll(PageRequest.of(page, size))
 
-        if (professorPage.hasContent())
+        if (!professorPage.hasContent())
             throw EntityNotFound("No professors found")
 
         professorPage
     }
 
     override fun getProfessorById(id: Long): Result<Professor> = runCatching {
-        professorRepository.findById(id).orElseThrow {
-            throw EntityNotFound("Professor with ID $id not found.")
+        return@runCatching professorRepository.findById(id).orElseThrow {
+            EntityNotFound("Professor with ID $id not found.")
         }
     }
 
