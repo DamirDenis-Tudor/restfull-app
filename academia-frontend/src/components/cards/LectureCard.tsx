@@ -6,9 +6,10 @@ import { LectureInfo } from "../LectureInfo.tsx";
 
 interface LectureCardProps {
     lecture?: Lecture;
+    clickable?: boolean;
 }
 
-export const LectureCard: React.FC<LectureCardProps> = ({ lecture }) => {
+export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable=true }) => {
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const { setSelectedComponent } = useContext(HomePageContext);
@@ -16,7 +17,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture }) => {
     const handleClick = () => {
         setIsClicked(true);
 
-        if (lecture) {
+        if (lecture && clickable) {
             setSelectedComponent(
                 <LectureInfo
                     lectureLink={lecture._links["self"]}

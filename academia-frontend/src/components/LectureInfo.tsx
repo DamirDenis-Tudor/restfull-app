@@ -6,7 +6,7 @@ import {
     AssessmentTest,
     EmbeddedResponse,
     FileInfo,
-    fetchComponentData
+    fetchLink
 } from "../api/hateoas.ts";
 import AssessmentsSection from "./cards/AssesmentsCard.tsx";
 import FilesSection from "./cards/FileCard.tsx";
@@ -36,7 +36,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
 
 
     useEffect(() => {
-        fetchComponentData<Lecture>(lectureLink)
+        fetchLink<Lecture>(lectureLink)
             .then((data) => {
                 setLectureInfo(data);
             })
@@ -44,7 +44,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 console.error("Error fetching lectureLink data:", error);
             });
 
-        fetchComponentData<EmbeddedResponse<AssessmentTest>>(assessmentLink)
+        fetchLink<EmbeddedResponse<AssessmentTest>>(assessmentLink)
             .then((data) => {
                 setAssessments(data);
             })
@@ -52,7 +52,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 console.error("Error fetching assessmentLink data:", error);
             });
 
-        fetchComponentData<EmbeddedResponse<FileInfo>>(filesLink)
+        fetchLink<EmbeddedResponse<FileInfo>>(filesLink)
             .then((data) => {
                 setFiles(data);
             })
@@ -76,9 +76,9 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
             <Col md={12} lg={11}>
                 <ItemsList
                     items={[
-                        <LectureCard key={"3"} lecture={lectureInfo}/>,
                         <ProfessorCard layout={"vertical"} key={professorLink.href} link={professorLink}/>,
                         <AssessmentsSection assessments={assessments?._embedded.assessment_tests}/>,
+                        <LectureCard key={"3"} lecture={lectureInfo} clickable={false}/>,
                     ]} title={'Lecture Details'}
                 />
 

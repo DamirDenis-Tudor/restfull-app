@@ -1,16 +1,17 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Card, ListGroup } from 'react-bootstrap';
-import { fetchComponentData, Link, Student } from "../../api/hateoas.ts";
+import { fetchLink, Link, Student } from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
 import { ProfileCard } from "./ProfileCard.tsx";
+import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 
 interface StudentCardProps {
     link?: Link;
     stud?: Student;
-    layout: 'vertical' | 'horizontal'; // Added layout prop to control the layout
+    layout: 'vertical' | 'horizontal';
 }
 
-const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical' }) => {
+const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical', }) => {
     const [student, setStudent] = useState<Student | undefined>(stud);
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -19,7 +20,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
 
     useEffect(() => {
         if (link) {
-            fetchComponentData<Student>(link)
+            fetchLink<Student>(link)
                 .then((data) => setStudent(data))
                 .catch((error) => {
                     throw error;
@@ -30,10 +31,10 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     const handleClick = () => {
         setIsClicked(true);
 
-        if (student) {
+        if (student && student._links["profile"]) {
             setSelectedComponent(
                 <ProfileCard
-                    card={<StudentCard layout="horizontal" link={student._links["self"]}/>}
+                    card={<StudentCard layout="horizontal" link={student._links["profile"]}/>}
                     lectureLink={student._links["lectures"]} title={'Student Profile'}                />
             );
         }
@@ -41,12 +42,16 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
         setTimeout(() => setIsClicked(false), 300);
     };
 
-    const cardStyle = {
-        width: layout === 'horizontal' ? '100%' : '20rem',
-        cursor: 'pointer',
-        transition: 'transform 0.3s ease, border-color 0.3s ease',
-        borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+    const handleDelete = () => {
+        if(student && student._links["delete"]) {
+            fetchLink(student._links["delete"], undefined).then();
+        }
+    };
+
+    const handleUpdate = () => {
+        if(student && student._links["delete"]) {
+            fetchLink(student._links["delete"], undefined).then();
+        }
     };
 
     const renderVertical = () => (
@@ -78,6 +83,26 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
             ) : (
                 <div>No student data available.</div>
             )}
+            {layout === 'vertical' && (
+                <div className="d-flex justify-content-between mt-3">
+                    {student?._links["update"] && (
+                        <div
+                            className="icon-button"
+                            onClick={handleUpdate}
+                            title="Update"
+                            style={{cursor: 'pointer', color: '#f39c12'}}
+                        ><FaEdit size={20}/></div>
+                    )}
+                    {student?._links["delete"] && (
+                    <div
+                        className="icon-button"
+                        onClick={handleDelete}
+                        title="Delete"
+                        style={{cursor: 'pointer', color: '#e74c3c'}}
+                    ><FaTrashAlt size={20} /></div>
+                    )}
+                </div>
+            )}
         </Card.Body>
     );
 
@@ -105,6 +130,14 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
             </div>
         </Card.Body>
     );
+
+    const cardStyle = {
+        width: layout === 'horizontal' ? '100%' : '20rem',
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease, border-color 0.3s ease',
+        borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+    };
 
     return (
         <Card

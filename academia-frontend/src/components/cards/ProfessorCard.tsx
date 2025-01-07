@@ -1,8 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { Card, ListGroup } from 'react-bootstrap';
-import { fetchComponentData, Link, Professor } from "../../api/hateoas.ts";
-import { HomePageContext } from "../../contexts/HomePageContext.tsx";
-import { ProfileCard } from "./ProfileCard.tsx";
+import React, {useContext, useEffect, useState} from 'react';
+import {Card, ListGroup} from 'react-bootstrap';
+import {fetchLink, Link, Professor} from "../../api/hateoas.ts";
+import {HomePageContext} from "../../contexts/HomePageContext.tsx";
+import {ProfileCard} from "./ProfileCard.tsx";
+import {FaEdit, FaTrashAlt} from "react-icons/fa";
 
 interface ProfessorCardProps {
     link?: Link;
@@ -10,16 +11,16 @@ interface ProfessorCardProps {
     layout: 'vertical' | 'horizontal';
 }
 
-const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'vertical' }) => {
+const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vertical'}) => {
     const [professor, setProfessor] = useState<Professor | undefined>(prof);
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
 
-    const { setSelectedComponent } = useContext(HomePageContext);
+    const {setSelectedComponent} = useContext(HomePageContext);
 
     useEffect(() => {
         if (link) {
-            fetchComponentData<Professor>(link)
+            fetchLink<Professor>(link)
                 .then((data) => setProfessor(data))
                 .catch((error) => {
                     throw error;
@@ -34,19 +35,23 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
             setSelectedComponent(
                 <ProfileCard
                     card={<ProfessorCard layout="horizontal" link={professor._links["profile"]}/>}
-                    lectureLink={professor._links["my-lectures"]} title={'Professor Profile'}                />
+                    lectureLink={professor._links["my-lectures"]} title={'Professor Profile'}/>
             );
         }
 
         setIsClicked(false);
     };
 
-    const cardStyle = {
-        width: layout === 'horizontal' ? '100%' : '20rem',
-        cursor: 'pointer',
-        transition: 'transform 0.3s ease, border-color 0.3s ease',
-        borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+    const handleDelete = () => {
+        if (professor && professor._links["delete"]) {
+            fetchLink(professor._links["delete"], undefined).then();
+        }
+    };
+
+    const handleUpdate = () => {
+        if (professor && professor._links["delete"]) {
+            fetchLink(professor._links["delete"], undefined).then();
+        }
     };
 
     const renderVertical = () => (
@@ -78,29 +83,62 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
             ) : (
                 <div>No professor data available.</div>
             )}
+            {layout === 'vertical' && (
+                <div className="d-flex justify-content-between mt-3">
+                    {professor?._links["update"] && (
+                        <div
+                            className="icon-button"
+                            onClick={handleUpdate}
+                            title="Update"
+                            style={{cursor: 'pointer', color: '#f39c12'}}
+                        ><FaEdit size={20}/></div>
+                    )}
+                    {professor?._links["delete"] && (
+                        <div
+                            className="icon-button"
+                            onClick={handleDelete}
+                            title="Delete"
+                            style={{cursor: 'pointer', color: '#e74c3c'}}
+                        ><FaTrashAlt size={20}/></div>
+                    )}
+                </div>
+            )}
         </Card.Body>
     );
+
+    const cardStyle = {
+        width: layout === 'horizontal' ? '100%' : '20rem',
+        cursor: 'pointer',
+        transition: 'transform 0.3s ease, border-color 0.3s ease',
+        borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+    };
 
 
     const renderHorizontal = () => (
         <Card.Body className="d-flex flex-wrap justify-content-between p-3">
-            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+            <div className="d-flex flex-column align-items-center mb-3"
+                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
                 <strong>Name:</strong>
                 <span>{professor?.firstName} {professor?.lastName}</span>
             </div>
-            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+            <div className="d-flex flex-column align-items-center mb-3"
+                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
                 <strong>Email:</strong>
                 <span>{professor?.email}</span>
             </div>
-            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+            <div className="d-flex flex-column align-items-center mb-3"
+                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
                 <strong>Department:</strong>
                 <span>{professor?.affiliation}</span>
             </div>
-            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+            <div className="d-flex flex-column align-items-center mb-3"
+                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
                 <strong>Association Type:</strong>
                 <span>{professor?.associationType}</span>
             </div>
-            <div className="d-flex flex-column align-items-center mb-3" style={{ flex: '1 1 calc(20% - 1rem)', minWidth: '250px' }}>
+            <div className="d-flex flex-column align-items-center mb-3"
+                 style={{flex: '1 1 calc(20% - 1rem)', minWidth: '250px'}}>
                 <strong>Grader Type:</strong>
                 <span>{professor?.graderType}</span>
             </div>

@@ -1,13 +1,15 @@
 import React from 'react';
-import {Row, Col, Pagination, Container} from 'react-bootstrap';
-import {EmbeddedResponse, Link} from "../../api/hateoas.ts";
-import {v4} from "uuid";
+import { Row, Col, Pagination, Container, Button } from 'react-bootstrap';
+import { EmbeddedResponse, Link } from "../../api/hateoas.ts";
+import { v4 } from "uuid";
+import { FaPlusCircle } from "react-icons/fa";
 
 interface PaginationProps<T> {
     title: string;
     data?: EmbeddedResponse<T>;
     setCurrentLink: React.Dispatch<React.SetStateAction<Link | undefined>>;
     renderItem: (item: T) => React.ReactNode;
+    onAddElement?: () => void;
 }
 
 export const PaginationList = <T, >(
@@ -16,7 +18,9 @@ export const PaginationList = <T, >(
         data,
         setCurrentLink,
         renderItem,
+        onAddElement = () => {},
     }: PaginationProps<T>) => {
+
     if (!data) {
         return <div>Loading...</div>;
     }
@@ -30,11 +34,27 @@ export const PaginationList = <T, >(
 
     return (
         <Container className="flex row w-100 h-100 mb-10 p-4 border-1 justify-content-evenly">
-            <h4>{title}</h4>
+            <div className="d-flex justify-content-between align-items-center mb-3">
+                <h4>{title}</h4>
+                <Button
+                    variant="primary"
+                    className="d-flex align-items-center"
+                    onClick={onAddElement} // Trigger the onAddElement function passed from parent
+                    style={{
+                        padding: '0.5rem 1rem',
+                        borderRadius: '50%',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                >
+                    <FaPlusCircle style={{ fontSize: '1.5rem' }} />
+                </Button>
+            </div>
             <Row
-                xs={1} sm={2} md={3} lg={ Math.max(items.length, 3)} xl={Math.max(items.length, 3)}
+                xs={1} sm={2} md={3} lg={Math.max(items.length, 3)} xl={Math.max(items.length, 3)}
                 className="g-4"
-                style={{maxWidth: '90%', margin: '0 auto'}}
+                style={{ maxWidth: '90%', margin: '0 auto' }}
             >
                 {items.slice(0, 5).map((item) => (
                     <Col key={v4()} className="border p-3 rounded mb-3">

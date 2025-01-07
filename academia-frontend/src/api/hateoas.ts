@@ -62,19 +62,24 @@ export interface GenericResponse<T> {
 }
 
 
-export const fetchComponentData = async <T>(link: Link): Promise<T> => {
+export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T> => {
     try {
-        console.log(link.href);
-        const response = await fetch(link.href, {
-            method: "GET",
+        const options: RequestInit = {
+            method: link.type,
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${sessionStorage.getItem('token')}`,
             },
-        });
+        };
+
+        if (body && (link.type === 'POST' || link.type === 'PUT')) {
+            options.body = JSON.stringify(body);
+        }
+
+        const response = await fetch(link.href, options);
 
         const data = await response.text();
-       // console.log(data);
+
         if (response.ok) {
             return JSON.parse(data);
         }

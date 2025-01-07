@@ -22,10 +22,13 @@ class LoginModelAssembler {
             Auth.Role.ADMIN -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
+                        .withType("GET")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors")
+                        .withType("GET")
                         .withRel("professors"),
                     Link.of("${studyAddress}/api/academia/students")
+                        .withType("GET")
                         .withRel("students")
                 )
             }
@@ -33,10 +36,13 @@ class LoginModelAssembler {
             Auth.Role.STUDENT -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
+                        .withType("GET")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/students/${userId}/lectures")
+                        .withType("GET")
                         .withRel("lectures"),
                     Link.of("${studyAddress}/api/academia/students/${userId}")
+                        .withType("GET")
                         .withRel("me"),
                 )
             }
@@ -44,12 +50,16 @@ class LoginModelAssembler {
             Auth.Role.PROFESSOR -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
+                        .withType("GET")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${userId}")
+                        .withType("GET")
                         .withRel("me"),
                     Link.of("${studyAddress}/api/academia/lectures")
+                        .withType("GET")
                         .withRel("all-lectures"),
                     Link.of("${studyAddress}/api/academia/professors/${userId}/lectures")
+                        .withType("GET")
                         .withRel("my-lectures"),
                 )
             }

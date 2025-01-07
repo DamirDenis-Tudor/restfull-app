@@ -13,7 +13,7 @@ import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
-import org.pos.study.presentation.assemblers.student.StudentModelAssembler
+import org.pos.study.presentation.assemblers.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity

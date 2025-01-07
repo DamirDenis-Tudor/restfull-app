@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {EmbeddedResponse, fetchComponentData, Lecture, Link} from "../../api/hateoas.ts";
+import {EmbeddedResponse, fetchLink, Lecture, Link} from "../../api/hateoas.ts";
 import LectureCard from "../cards/LectureCard.tsx";
 import {v4} from "uuid";
 import {PaginationList} from "./PaginationList.tsx";
@@ -14,7 +14,7 @@ export const LectureList: React.FC<LectureListProps> = ({link}) => {
 
     useEffect(() => {
         if (currentLink) {
-            fetchComponentData<EmbeddedResponse<Lecture>>(currentLink)
+            fetchLink<EmbeddedResponse<Lecture>>(currentLink)
                 .then((data) => {
                     setLecturesData(data);
                 })

@@ -22,10 +22,14 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
             Auth.Role.STUDENT -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/professors&size=3")
+                        .withType("GET")
                         .withRel("parent"),
+
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withType("GET")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                        .withType("GET")
                         .withRel("my-lectures")
                 )
             }
@@ -33,15 +37,33 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
             Auth.Role.PROFESSOR -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/professors&size=3")
+                        .withType("GET")
                         .withRel("parent"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withType("GET")
                         .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                        .withType("GET")
                         .withRel("my-lectures")
                 )
             }
+
+            Auth.Role.ADMIN -> {
+                listOf(
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withType("GET")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/professor/${entity.id}")
+                        .withRel("update")
+                        .withType("POST"),
+                    Link.of("${studyAddress}/api/academia/professor/${entity.id}")
+                        .withRel("delete")
+                        .withType("DELETE"),
+                )
+            }
+
             else -> emptyList()
         }
 
@@ -56,8 +78,18 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
             LinkUtils.addPaginationLinks(this, baseUri, page)
 
             this.add(
-                Link.of("${studyAddress}/api/academia/professors/search").withRel("search-professors").withType("GET"),
+                Link.of("${studyAddress}/api/academia/professors/search")
+                    .withRel("search-professors")
+                    .withType("GET"),
             )
+
+            if (CurrentUserContext.getRole() == Auth.Role.ADMIN) {
+                this.add(
+                    Link.of("${studyAddress}/api/academia/professors")
+                        .withRel("create")
+                        .withType("POST"),
+                )
+            }
         }
     }
 }

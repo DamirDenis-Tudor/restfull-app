@@ -1,8 +1,10 @@
 import React, {useEffect, useState} from 'react';
-import {EmbeddedResponse, fetchComponentData, Link, Professor} from "../../api/hateoas.ts";
+import {EmbeddedResponse, fetchLink, Link, Professor} from "../../api/hateoas.ts";
 import {v4} from "uuid";
 import {PaginationList} from "./PaginationList.tsx";
 import ProfessorCard from "../cards/ProfessorCard.tsx";
+import {Button} from "react-bootstrap";
+import {FaPlusCircle} from "react-icons/fa";
 
 interface ProfessorListProps {
     link?: Link;
@@ -14,7 +16,7 @@ export const ProfessorList: React.FC<ProfessorListProps> = ({link}) => {
 
     useEffect(() => {
         if (currentLink) {
-            fetchComponentData<EmbeddedResponse<Professor>>(currentLink)
+            fetchLink<EmbeddedResponse<Professor>>(currentLink)
                 .then((data) => {
                     setProfessorData(data);
                 })
@@ -23,6 +25,10 @@ export const ProfessorList: React.FC<ProfessorListProps> = ({link}) => {
                 });
         }
     }, [currentLink, link]);
+
+    const handleAddProfessor = () => {
+        console.log("Add new professor clicked");
+    };
 
     return (
         <>
