@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import org.pos.study.presentation.assemblers.LectureModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.PageConstraints

@@ -20,7 +20,7 @@ import org.pos.study.persistence.entities.Lecture
 import org.pos.study.presentation.annotations.InjectAuthorizationHeader
 import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.LectureModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel

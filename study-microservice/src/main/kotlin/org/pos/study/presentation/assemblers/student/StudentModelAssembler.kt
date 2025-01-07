@@ -1,4 +1,4 @@
-package org.pos.study.presentation.assemblers
+package org.pos.study.presentation.assemblers.student
 
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.assemblers.utils.LinkUtils
@@ -15,8 +15,8 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
     @Value(value = "\${spring.study.host.address}")
     lateinit var studyAddress: String
 
-    override fun toModel(entity: Student): EntityModel<Student> =
-        EntityModel.of(entity).add(
+    override fun toModel(entity: Student): EntityModel<Student> {
+        return EntityModel.of(entity).add(
             Link.of("${studyAddress}/api/academia/students")
                 .withRel("parent"),
             Link.of("$studyAddress/api/academia/students/${entity.id}")
@@ -24,12 +24,13 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
             Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
                 .withRel("lectures"),
         )
+    }
 
     fun toCollectionModel(page: Page<Student>, lectureId: Long? = null): CollectionModel<EntityModel<Student>> {
         val studentModels = page.content.map { this.toModel(it) }
         val baseUri = when {
-            lectureId != null -> "$studyAddress/api/academia/professors/$lectureId/lectures"
-            else -> "$studyAddress/api/academia/lectures"
+            lectureId != null -> "$studyAddress/api/academia/lectures/$lectureId/lectures"
+            else -> "$studyAddress/api/academia/students"
         }
 
         return CollectionModel.of(studentModels).apply {

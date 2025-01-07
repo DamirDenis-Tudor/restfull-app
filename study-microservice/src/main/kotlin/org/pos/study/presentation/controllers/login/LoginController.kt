@@ -61,8 +61,6 @@ class LoginController(
                 Auth.Role.ADMIN, Auth.Role.UNKNOWN,  Auth.Role.UNRECOGNIZED-> null
             }
 
-        println(userId)
-
         return@runBlocking ResponseEntity.ok(loginModelAssembler.toModel(loginResponse, userId = userId?.toString()))
     }
 }

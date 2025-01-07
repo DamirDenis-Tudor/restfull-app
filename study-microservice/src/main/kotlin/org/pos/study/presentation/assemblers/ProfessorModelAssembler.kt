@@ -1,6 +1,8 @@
 package org.pos.study.presentation.assemblers
 
+import api.academia.Auth
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.presentation.aspects.CurrentUserContext
 import org.pos.study.presentation.assemblers.utils.LinkUtils
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.data.domain.Page
@@ -15,16 +17,36 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
     @Value(value = "\${spring.study.host.address}")
     lateinit var studyAddress: String
 
-    override fun toModel(entity: Professor): EntityModel<Professor> =
-        EntityModel.of(entity).add(
-            Link.of("${studyAddress}/api/academia/professors&size=3")
-                .withRel("parent"),
-            Link.of("${studyAddress}/api/academia/professors/${entity.id}")
-                .withSelfRel(),
-            Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
-                .withRel("my-lectures")
-        )
+    override fun toModel(entity: Professor): EntityModel<Professor> {
+        val links = when (CurrentUserContext.getRole()) {
+            Auth.Role.STUDENT -> {
+                listOf(
+                    Link.of("${studyAddress}/api/academia/professors&size=3")
+                        .withRel("parent"),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                        .withRel("my-lectures")
+                )
+            }
 
+            Auth.Role.PROFESSOR -> {
+                listOf(
+                    Link.of("${studyAddress}/api/academia/professors&size=3")
+                        .withRel("parent"),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withRel("profile"),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                        .withRel("my-lectures")
+                )
+            }
+            else -> emptyList()
+        }
+
+        return EntityModel.of(entity).add(links)
+    }
 
     fun toCollectionModel(page: Page<Professor>): CollectionModel<EntityModel<Professor>> {
         val professorModels = page.content.map { this.toModel(it) }

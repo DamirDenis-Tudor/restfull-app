@@ -8,24 +8,17 @@ import org.aspectj.lang.ProceedingJoinPoint
 import org.aspectj.lang.annotation.Around
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.reflect.MethodSignature
-import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.business.interfaces.student.IStudentService
-import org.pos.study.business.services.professor.ProfessorService
-import org.pos.study.persistence.repositories.ProfessorRepository
-import org.pos.study.persistence.repositories.StudentRepository
 import org.pos.study.presentation.annotations.InjectAuthorizationHeader
-import org.pos.study.presentation.annotations.InjectEmail
 import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.InjectRole
 import org.pos.study.presentation.annotations.RequiresRoles
 import org.slf4j.LoggerFactory
-import org.springframework.core.annotation.Order
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Component
 import org.springframework.web.server.ResponseStatusException
-import kotlin.jvm.optionals.getOrNull
 
 @Aspect
 @Component

@@ -16,7 +16,7 @@ import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.StudentModelAssembler
+import org.pos.study.presentation.assemblers.student.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
@@ -133,7 +133,7 @@ class StudentController(
         idAuth: String
     ): ResponseEntity<EntityModel<Student>> {
         idAuth.takeIf { it.isNotBlank() }?.let {
-            if (idAuth.toLong() == id) {
+            if (idAuth.toLong() != id) {
                 throw EntityUnverifiable("Student with id $idAuth cannot view info of student $id ")
             }
         }

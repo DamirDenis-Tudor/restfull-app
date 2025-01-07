@@ -41,5 +41,5 @@ data class Lecture(
 
     enum class ExaminationType { Examen, Cologviu }
 
-    override fun toString(): String = this.let{ it.students = mutableListOf(); it.professor = null }.toString()
+    override fun toString(): String = this.let{ it.students = mutableListOf(); }.toString()
 }

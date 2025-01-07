@@ -10,7 +10,7 @@ import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.LectureModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
@@ -91,11 +91,11 @@ class ProfessorLectureController(
 
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
         if(id != idAuth.toLong()) {
-            throw EntityUnverifiable("Current user $id is not allowed to this endpoint for user with id $idAuth ")
+            //throw EntityUnverifiable("Current user $id is not allowed to this endpoint for user with id $idAuth ")
         }
 
         return professorLectureService.getLecturesByProfessor(id, page, size).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(page = it, professorId = id)) }
+            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(page = it)) }
     }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])

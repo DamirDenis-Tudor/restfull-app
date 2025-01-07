@@ -9,12 +9,13 @@ import jakarta.validation.constraints.Min
 import org.pos.study.business.dto.constraints.LectureConstraints
 import org.pos.study.business.dto.constraints.ProfessorConstraints
 import org.pos.study.business.interfaces.lecture.ILectureProfessorService
+import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.business.interfaces.professor.IProfessorLectureService
 import org.pos.study.persistence.entities.Professor
 import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.LectureModelAssembler
 import org.pos.study.presentation.assemblers.ProfessorModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureProfessorModelAssembler
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -24,10 +25,11 @@ import org.springframework.web.bind.annotation.*
 class LectureProfessorController(
     private val professorLectureService: IProfessorLectureService,
     private val lectureProfessorService: ILectureProfessorService,
+    private val lectureStudentService: ILectureStudentService,
     private val professorModelAssembler: ProfessorModelAssembler,
-    private val lectureModelAssembler: LectureModelAssembler
+    private val lectureProfessorModelAssembler: LectureProfessorModelAssembler
 ) {
-    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR, Auth.Role.STUDENT])
     @GetMapping
     @Operation(
         summary = "Get professor by lecture",
@@ -68,11 +70,18 @@ class LectureProfessorController(
     fun getProfessorByLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String
-    ): ResponseEntity<EntityModel<Professor>> =
-        lectureProfessorService.getProfessorByLecture(lectureId.toString()).getOrThrow()
-            .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
+        @PathVariable lectureId: String,
 
+        @InjectId(forRole = Auth.Role.STUDENT)
+        id: String
+    ): ResponseEntity<EntityModel<Professor>> {
+        id.takeIf { it.isNotEmpty() }?.let {
+            lectureStudentService.isStudentEnrolledInLecture(id, lectureId).getOrThrow()
+        }
+
+        return lectureProfessorService.getProfessorByLecture(lectureId.toString()).getOrThrow()
+            .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }
+    }
     @RequiresRoles(roles = [Auth.Role.UNKNOWN])
     @PatchMapping("/{professorId}")
     @Operation(
@@ -130,7 +139,7 @@ class LectureProfessorController(
         @PathVariable professorId: Long
     ): ResponseEntity<EntityModel<*>> =
         lectureProfessorService.updateProfessorForLecture(lectureId, professorId).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+            .let { ResponseEntity.ok(lectureProfessorModelAssembler.toModel(it)) }
 
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])

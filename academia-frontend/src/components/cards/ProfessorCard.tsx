@@ -30,10 +30,10 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
     const handleClick = () => {
         setIsClicked(true);
 
-        if (professor) {
+        if (professor && professor._links["profile"]) {
             setSelectedComponent(
                 <ProfileCard
-                    card={<ProfessorCard layout="horizontal" link={professor._links["self"]}/>}
+                    card={<ProfessorCard layout="horizontal" link={professor._links["profile"]}/>}
                     lectureLink={professor._links["my-lectures"]} title={'Professor Profile'}                />
             );
         }

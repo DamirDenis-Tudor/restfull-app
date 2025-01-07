@@ -9,7 +9,7 @@ import org.pos.study.business.dto.constraints.StudentConstraints
 import org.pos.study.business.interfaces.student.IStudentLectureService
 import org.pos.study.persistence.entities.Lecture
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.LectureModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
@@ -19,12 +19,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.presentation.annotations.InjectId
+import org.pos.study.presentation.assemblers.lecture.LectureStudentModelAssembler
 
 @RestController
 @RequestMapping("/students/{studentId}/lectures")
 class StudentLectureController(
     private val studentLectureService: IStudentLectureService,
-    private val lectureModelAssembler: LectureModelAssembler
+    private val lectureModelAssembler: LectureModelAssembler,
+    private val lectureStudentModelAssembler: LectureStudentModelAssembler
 ) {
 
     @RequiresRoles(roles = [Auth.Role.STUDENT, Auth.Role.PROFESSOR])
@@ -84,13 +86,13 @@ class StudentLectureController(
         idAuth: String
     ): ResponseEntity<CollectionModel<EntityModel<Lecture>>> {
         idAuth.takeIf { it.isNotBlank() }?.let {
-            if (idAuth.toLong() == studentId) {
+            if (idAuth.toLong() != studentId) {
                 throw EntityUnverifiable("Student with id $idAuth cannot view info of student $studentId ")
             }
         }
 
         return studentLectureService.getLecturesByStudent(studentId, page, size).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(page = it, studentId = studentId)) }
+            .let { ResponseEntity.ok(lectureStudentModelAssembler.toCollectionModel(page = it)) }
     }
 
     @RequiresRoles(roles = [Auth.Role.STUDENT])
@@ -141,7 +143,7 @@ class StudentLectureController(
         idAuth: String
     ): ResponseEntity<EntityModel<Lecture>> {
         idAuth.takeIf { it.isNotBlank() }?.let {
-            if (idAuth.toLong() == studentId) {
+            if (idAuth.toLong() != studentId) {
                 throw EntityUnverifiable("Student with id $idAuth cannot view info of student $studentId ")
             }
         }

@@ -12,8 +12,8 @@ import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.LectureModelAssembler
-import org.pos.study.presentation.assemblers.StudentModelAssembler
+import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
+import org.pos.study.presentation.assemblers.student.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
@@ -22,6 +22,7 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import org.pos.study.presentation.annotations.InjectId
+import org.pos.study.presentation.assemblers.lecture.LectureStudentModelAssembler
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/students")
@@ -29,6 +30,7 @@ class LectureStudentController(
     private val lectureStudentService: ILectureStudentService,
     private val lectureProfessorService: ILectureProfessorService,
     private val studentModelAssembler: StudentModelAssembler,
+    private val lectureStudentModelAssembler: LectureStudentModelAssembler,
     private val lectureModelAssembler: LectureModelAssembler
 ) {
 
@@ -103,7 +105,7 @@ class LectureStudentController(
         }
 
         return lectureStudentService.getStudentsByLecture(lectureId, page, size).getOrThrow()
-            .let { ResponseEntity.ok(studentModelAssembler.toCollectionModel(it)) }
+            .let { ResponseEntity.ok(studentModelAssembler.toCollectionModel(it, lectureId.toLong())) }
     }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -171,7 +173,7 @@ class LectureStudentController(
         }
 
         return lectureStudentService.enrollStudentsInLecture(lectureId, studentIds).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+            .let { ResponseEntity.ok(lectureStudentModelAssembler.toModel(it)) }
     }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -233,7 +235,7 @@ class LectureStudentController(
         }
 
         return lectureStudentService.unenrollStudentsInLecture(lectureId, studentIds).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+            .let { ResponseEntity.ok(lectureStudentModelAssembler.toModel(it)) }
     }
 
     @RequiresRoles(roles = [Auth.Role.STUDENT])
