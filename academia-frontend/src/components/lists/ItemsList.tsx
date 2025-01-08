@@ -1,6 +1,5 @@
 import React from 'react';
 import { Row, Col, Container, Button } from 'react-bootstrap';
-import { v4 } from 'uuid';
 import { FaPlusCircle } from 'react-icons/fa';
 
 interface ItemsListProps {
@@ -14,6 +13,7 @@ export const ItemsList: React.FC<ItemsListProps> = ({ title, items, onAddElement
         <Container className="flex row w-100 h-100 mb-10 p-4 border-1 justify-content-evenly">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4>{title}</h4>
+
                 {onAddElement && (
                     <Button
                         variant="primary"
@@ -37,7 +37,7 @@ export const ItemsList: React.FC<ItemsListProps> = ({ title, items, onAddElement
                 style={{ maxWidth: '90%', margin: '0 auto' }}
             >
                 {items.map((element) => (
-                    <Col key={v4()} className="border p-3 rounded mb-3">
+                    <Col className="border p-3 rounded mb-3">
                         {element}
                     </Col>
                 ))}

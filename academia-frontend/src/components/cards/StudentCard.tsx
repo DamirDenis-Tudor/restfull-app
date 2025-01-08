@@ -77,6 +77,9 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
             {student ? (
                 <ListGroup variant="flush">
                     <ListGroup.Item>
+                        <strong>Id: {student.id}</strong>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
                         <strong>Name:</strong>
                         <span className="d-block">{student.firstName} {student.lastName}</span>
                     </ListGroup.Item>

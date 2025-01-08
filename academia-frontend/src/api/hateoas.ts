@@ -69,9 +69,11 @@ export const fetchLink = async <T, B>(link: Link, body: B): Promise<T> => {
             },
         };
 
-        if (body && (link.type === 'POST' || link.type === 'PUT')) {
+        if (body && (link.type === 'POST' || link.type === 'PUT' || link.type === 'PATCH')) {
             options.body = JSON.stringify(body);
         }
+
+        console.log(options)
 
         const response = await fetch(link.href, options);
 

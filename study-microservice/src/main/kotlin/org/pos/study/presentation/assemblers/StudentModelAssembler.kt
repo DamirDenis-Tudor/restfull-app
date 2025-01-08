@@ -48,6 +48,9 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                     Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
                         .withType("GET")
                         .withRel("lectures"),
+                    Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
+                        .withType("GET")
+                        .withRel("lectures"),
                 )
             }
 
@@ -73,7 +76,7 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
     fun toCollectionModel(page: Page<Student>, lectureId: Long? = null): CollectionModel<EntityModel<Student>> {
         val studentModels = page.content.map { this.toModel(it) }
         val baseUri = when {
-            lectureId != null -> "$studyAddress/api/academia/lectures/$lectureId/lectures"
+            lectureId != null -> "$studyAddress/api/academia/lectures/$lectureId/students"
             else -> "$studyAddress/api/academia/students"
         }
 
@@ -87,6 +90,14 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
             )
 
             if (CurrentUserContext.getRole() == Auth.Role.ADMIN) {
+                this.add(
+                    Link.of("$studyAddress/api/academia/students")
+                        .withRel("create")
+                        .withType("POST"),
+                )
+            }
+
+            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
                 this.add(
                     Link.of("$studyAddress/api/academia/students")
                         .withRel("create")

@@ -76,6 +76,12 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                                 .withRel("update")
                                 .withType("PUT"),
+                            Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students/unenroll")
+                                .withRel("unenroll")
+                                .withType("PATCH"),
+                            Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students/enroll")
+                                .withRel("enroll")
+                                .withType("PATCH"),
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                                 .withRel("delete")
                                 .withType("DELETE"),

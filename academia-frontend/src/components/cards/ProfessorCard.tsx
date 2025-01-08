@@ -24,14 +24,15 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
     const { setSelectedComponent } = useContext(HomePageContext);
 
     useEffect(() => {
-        if (link) {
+        if (link && professor === undefined) {
+            console.log("professorfffffffffff");
             fetchLink<Professor, undefined>(link, undefined)
                 .then((data) => setProfessor(data))
                 .catch((error) => {
                     throw error;
                 });
         }
-    }, [link]);
+    }, [link, professor]);
 
     const handleClick = () => {
         setIsClicked(true);
@@ -77,6 +78,9 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
             {professor ? (
                 <ListGroup variant="flush">
                     <ListGroup.Item>
+                        <strong>Id: {professor.professorId}</strong>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
                         <strong>Name:</strong>
                         <span className="d-block">{professor.firstName} {professor.lastName}</span>
                     </ListGroup.Item>
@@ -99,6 +103,9 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
                 </ListGroup>
             ) : (
                 <ListGroup variant="flush">
+                    <ListGroup.Item>
+                        <strong>Id: -</strong>
+                    </ListGroup.Item>
                     <ListGroup.Item>
                         <strong>Name:</strong>
                         <span className="d-block">-</span>

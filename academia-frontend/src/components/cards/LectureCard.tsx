@@ -1,37 +1,47 @@
-import React, { useContext, useState } from 'react';
-import { Card, ListGroup, Button } from 'react-bootstrap';
-import { fetchLink, Lecture } from "../../api/hateoas.ts";
-import { HomePageContext } from "../../contexts/HomePageContext.tsx";
-import { FaEdit, FaTrashAlt } from 'react-icons/fa';
+import React, {useContext, useState} from 'react';
+import {Card, ListGroup, Button} from 'react-bootstrap';
+import {fetchLink, Lecture} from "../../api/hateoas.ts";
+import {HomePageContext} from "../../contexts/HomePageContext.tsx";
+import {FaEdit, FaTrashAlt} from 'react-icons/fa';
 import LectureModal from "../modals/LectureModal.tsx";
-import { LectureInfo } from "../LectureInfo.tsx";
+import {LectureInfo} from "../LectureInfo.tsx";
 import ConfirmationModal from "../modals/ConfirmationModal.tsx";
-import {toast} from "react-toastify"; // Import the confirmation modal
+import {toast} from "react-toastify";
+import {useNavigate} from "react-router"; // Import the confirmation modal
 
 interface LectureCardProps {
     lecture?: Lecture;
     clickable?: boolean;
 }
 
-export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = true }) => {
+export const LectureCard: React.FC<LectureCardProps> = ({lecture, clickable = true}) => {
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
-    const { setSelectedComponent } = useContext(HomePageContext);
+    const {setSelectedComponent} = useContext(HomePageContext);
+    const navigate = useNavigate();
 
     const handleClick = () => {
         setIsClicked(true);
 
         if (lecture && clickable) {
-            setSelectedComponent(
-                <LectureInfo
-                    lectureLink={lecture._links["self"]}
-                    assessmentLink={lecture._links["assessments"]}
-                    filesLink={lecture._links["files"]}
-                    professorLink={lecture._links["professor"]}
-                />
-            );
+            // setSelectedComponent(
+            //     <LectureInfo
+            //         lectureLink={lecture._links["self"]}
+            //         assessmentLink={lecture._links["assessments"]}
+            //         filesLink={lecture._links["files"]}
+            //         professorLink={lecture._links["professor"]}
+            //     />
+            // );
+            navigate("/lecture/"+lecture.id , {
+                state: {
+                    lectureLink: lecture._links["self"],
+                    assessmentLink: lecture._links["assessments"],
+                    filesLink: lecture._links["files"],
+                    professorLink: lecture._links["professor"]
+                }
+            });
         }
 
         setIsClicked(false);
@@ -81,6 +91,9 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
                     {lecture ? (
                         <ListGroup variant="flush">
                             <ListGroup.Item>
+                                <strong>Id: {lecture.id}</strong>
+                            </ListGroup.Item>
+                            <ListGroup.Item>
                                 <div><strong>Lecture Name:</strong></div>
                                 <div>{lecture.lectureName}</div>
                             </ListGroup.Item>
@@ -112,7 +125,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
                                 onClick={handleEdit}
                                 title="Edit"
                             >
-                                <FaEdit size={16} />
+                                <FaEdit size={16}/>
                             </Button>
                         )}
                         {lecture?._links["delete"] && (
@@ -121,7 +134,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
                                 onClick={handleDelete}
                                 title="Delete"
                             >
-                                <FaTrashAlt size={16} />
+                                <FaTrashAlt size={16}/>
                             </Button>
                         )}
                     </div>
