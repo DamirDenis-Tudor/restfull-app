@@ -6,6 +6,8 @@ import AuthContext from "./AuthContext.tsx";
 import ProfessorCard from "../components/cards/ProfessorCard.tsx";
 import StudentCard from "../components/cards/StudentCard.tsx";
 import {StudentList} from "../components/lists/StudentList.tsx";
+import {NavBar} from "../components/NavBar.tsx";
+import {ToastContainer} from "react-toastify";
 
 
 export const HomePageProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
@@ -26,13 +28,14 @@ export const HomePageProvider: React.FC<{ children: React.ReactNode }> = ({child
 
     return (
         <HomePageContext.Provider value={{componentWithLink, setSelectedComponent}}>
-            {children}
+            <ToastContainer/>
+            <NavBar/>
             <div className="h-screen flex items-center justify-center bg-white-200">
                 <Container
                     fluid
                     className="w-75 min-h-[90%]  h-auto flex flex-col items-center justify-center
                     tw-bg-gray-500 bg-opacity-80 p-6 rounded-lg shadow-lg mx-auto mt-20 mb-auto"
-                >{componentWithLink}
+                >{children}
                 </Container>
             </div>
 

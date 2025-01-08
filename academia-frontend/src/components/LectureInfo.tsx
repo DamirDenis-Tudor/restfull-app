@@ -120,7 +120,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 <ItemsList
                     items={[
                         <ProfessorCard layout={"vertical"} link={professorLink}/>,
-                        <AssessmentsSection assessments={assessments}/>,
+                        <AssessmentsSection key={"3"} assessments={assessments}/>,
                         <LectureCard key={"3"} lecture={lectureInfo} clickable={false}/>,
                     ]}
                     title={'Lecture Details'}

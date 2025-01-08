@@ -54,7 +54,7 @@ class LectureProfessorModelAssembler(
                 this.add(
                     Link.of("${studyAddress}/api/academia/lectures")
                         .withRel("create")
-                        .withType("POST"),
+                        .withType("PUT"),
                 )
             }
         }

@@ -10,6 +10,10 @@ export const downloadFile = async (fileUrl: string) => {
         });
 
         if (!response.ok) {
+            if(response.status === 401) {
+                sessionStorage.setItem('token', '');
+                window.location.href = '/login'
+            }
             throw new Error('Failed to fetch the file');
         }
 
@@ -38,11 +42,12 @@ export const uploadFile = async (fileUrl: Link, file: File) => {
         });
 
         if (!response.ok) {
+            if(response.status === 401) {
+                sessionStorage.setItem('token', '');
+                window.location.href = '/login'
+            }
             throw new Error('Failed to upload file');
         }
-
-        const responseData = await response.json();
-        console.log(responseData);
 
     } catch (error) {
         console.error('Error uploading file:', error);

@@ -4,7 +4,6 @@ import {fetchLink, Lecture} from "../../api/hateoas.ts";
 import {HomePageContext} from "../../contexts/HomePageContext.tsx";
 import {FaEdit, FaTrashAlt} from 'react-icons/fa';
 import LectureModal from "../modals/LectureModal.tsx";
-import {LectureInfo} from "../LectureInfo.tsx";
 import ConfirmationModal from "../modals/ConfirmationModal.tsx";
 import {toast} from "react-toastify";
 import {useNavigate} from "react-router"; // Import the confirmation modal
@@ -19,21 +18,13 @@ export const LectureCard: React.FC<LectureCardProps> = ({lecture, clickable = tr
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
-    const {setSelectedComponent} = useContext(HomePageContext);
+    useContext(HomePageContext);
     const navigate = useNavigate();
 
     const handleClick = () => {
         setIsClicked(true);
 
         if (lecture && clickable) {
-            // setSelectedComponent(
-            //     <LectureInfo
-            //         lectureLink={lecture._links["self"]}
-            //         assessmentLink={lecture._links["assessments"]}
-            //         filesLink={lecture._links["files"]}
-            //         professorLink={lecture._links["professor"]}
-            //     />
-            // );
             navigate("/lecture/"+lecture.id , {
                 state: {
                     lectureLink: lecture._links["self"],

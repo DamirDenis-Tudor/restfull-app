@@ -4,17 +4,13 @@ import Navbar from 'react-bootstrap/Navbar';
 import AuthContext from "../contexts/AuthContext.tsx";
 import React, {useContext} from "react";
 import {HomePageContext} from "../contexts/HomePageContext.tsx";
-import {LectureList} from "./lists/LectureList.tsx";
-import {ProfileCard} from "./cards/ProfileCard.tsx";
-import ProfessorCard from "./cards/ProfessorCard.tsx";
-import StudentCard from "./cards/StudentCard.tsx";
-import {StudentList} from "./lists/StudentList.tsx";
-import {ProfessorList} from "./lists/ProfessorsList.tsx";
+import {useNavigate} from "react-router";
 
 
 export const NavBar: React.FC = () => {
     const {loginResponse, logout} = useContext(AuthContext);
-    const {setSelectedComponent} = useContext(HomePageContext);
+    useContext(HomePageContext);
+    const navigate = useNavigate();
 
     const getNavLinks = () => {
         if (loginResponse.role === "PROFESSOR") {
@@ -22,18 +18,23 @@ export const NavBar: React.FC = () => {
                 <>
                     <Nav.Link
                         onClick={() => {
-                            setSelectedComponent(
-                                <ProfileCard
-                                    card={<ProfessorCard layout="horizontal" link={loginResponse._links["me"]}/>}
-                                    lectureLink={loginResponse._links["my-lectures"]} title={''} />
+                            navigate("/profile/me", {
+                                    state: {
+                                        my_lectures: loginResponse._links["my-lectures"],
+                                        me: loginResponse._links["me"]
+                                    },
+                                }
                             );
                         }}
                         className="tw-text-zblack fw-bold"
                     >Profile</Nav.Link>
                     <Nav.Link
                         onClick={() => {
-                            setSelectedComponent(
-                                <LectureList key="All Lectures" link={loginResponse._links["all-lectures"]} />
+                            navigate("/lectures", {
+                                    state: {
+                                        lectures: loginResponse._links["all-lectures"],
+                                    },
+                                }
                             );
                         }}
                         className="tw-text-black fw-bold"
@@ -45,10 +46,12 @@ export const NavBar: React.FC = () => {
                 <>
                     <Nav.Link
                         onClick={() => {
-                            setSelectedComponent(
-                                <ProfileCard
-                                    card={<StudentCard layout="horizontal" link={loginResponse._links["me"]}/>}
-                                    lectureLink={loginResponse._links["lectures"]} title={'Student Profile'} />
+                            navigate("/profile/me", {
+                                    state: {
+                                        lectures: loginResponse._links["lectures"],
+                                        me: loginResponse._links["me"]
+                                    },
+                                }
                             );
                         }}
                         className="tw-text-zblack fw-bold"
@@ -60,16 +63,22 @@ export const NavBar: React.FC = () => {
                 <>
                     <Nav.Link
                         onClick={() => {
-                            setSelectedComponent(
-                                <StudentList key="Students" link={loginResponse._links["students"]} />
+                            navigate("/students", {
+                                    state: {
+                                        students: loginResponse._links["students"],
+                                    },
+                                }
                             );
                         }}
                         className="tw-text-black fw-bold"
                     >Students</Nav.Link>
                     <Nav.Link
                         onClick={() => {
-                            setSelectedComponent(
-                                <ProfessorList key="Professors" link={loginResponse._links["professors"]} />
+                            navigate("/students", {
+                                    state: {
+                                        students: loginResponse._links["professors"],
+                                    },
+                                }
                             );
                         }}
                         className="tw-text-black fw-bold"

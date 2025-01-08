@@ -1,11 +1,11 @@
 import React from "react";
-import {HomePageProvider} from "../contexts/HomePageProvider.tsx";
-import {LectureInfo} from "../components/LectureInfo.tsx";
-import {useLocation} from "react-router";
-
+import { LectureInfo } from "../components/LectureInfo.tsx";
+import { useLocation } from "react-router";
+import { HomePageProvider } from "../contexts/HomePageProvider.tsx";
 
 const LecturePage: React.FC = () => {
     const location = useLocation();
+
     return (
         <HomePageProvider>
             {location.state ? (
@@ -15,8 +15,9 @@ const LecturePage: React.FC = () => {
                     professorLink={location.state.professorLink}
                     filesLink={location.state.filesLink}
                 />
-            ) : (<></>)
-            }
+            ) : (
+                <></>
+            )}
         </HomePageProvider>
     );
 };

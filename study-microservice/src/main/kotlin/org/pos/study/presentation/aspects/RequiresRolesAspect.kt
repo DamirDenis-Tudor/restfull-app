@@ -43,7 +43,7 @@ class RequiresRolesAspect(
                 ?: throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Authorization header is missing.")
 
             if (!authHeader.startsWith("Bearer ")) {
-                throw ResponseStatusException(HttpStatus.UNPROCESSABLE_ENTITY, "Invalid token format.")
+                throw ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid token format.")
             }
 
             val validateRequest = Auth.TokenRequest.newBuilder()

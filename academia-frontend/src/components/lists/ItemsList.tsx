@@ -36,8 +36,8 @@ export const ItemsList: React.FC<ItemsListProps> = ({ title, items, onAddElement
                 className="g-4"
                 style={{ maxWidth: '90%', margin: '0 auto' }}
             >
-                {items.map((element) => (
-                    <Col className="border p-3 rounded mb-3">
+                {items.map((element, index) => (
+                    <Col key={index} className="border p-3 rounded mb-3">
                         {element}
                     </Col>
                 ))}

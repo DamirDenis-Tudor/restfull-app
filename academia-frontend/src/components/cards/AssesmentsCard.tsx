@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import { Card, ListGroup, Button, Modal, Form, Alert } from 'react-bootstrap';
 import {AssessmentTest, EmbeddedResponse, fetchLink} from "../../api/hateoas.ts";
 import {toast} from "react-toastify";
@@ -11,16 +11,8 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
-    const [editJson, setEditJson] = useState<string | null>(JSON.stringify(assessments?._embedded?.assessment_tests, null, 2));
+    const [editJson, setEditJson] = useState<string>();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
-    const cardStyle = {
-        width: '20rem',
-        cursor: 'pointer',
-        transition: 'transform 0.3s ease, border-color 0.3s ease',
-        borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
-    };
 
     const handleClick = () => {
         setIsClicked(true);
@@ -32,6 +24,10 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
         setErrorMessage(null);
     };
 
+    useEffect(() => {
+        setEditJson(JSON.stringify(assessments?._embedded?.assessment_tests, null, 2))
+    }, [assessments]);
+
     const handleModalShow = () => setShowModal(true);
 
     const handleSave = async () => {
@@ -42,7 +38,7 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
                 if (assessments?._links?.update) {
                     fetchLink(assessments?._links?.update, updatedAssessments)
                         .then(() => {
-                                toast.error("Successfully updated assessments");
+                                toast.success("Successfully updated assessments");
                                 setShowModal(false)
                             }
                         )
@@ -62,7 +58,13 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
         <>
             <Card
                 className={`shadow-sm ${isClicked ? 'clicked' : ''}`}
-                style={cardStyle}
+                style={ {
+                    width: '20rem',
+                    cursor: 'pointer',
+                    transition: 'transform 0.3s ease, border-color 0.3s ease',
+                    borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
+                    transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+                }}
                 onClick={handleClick}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}

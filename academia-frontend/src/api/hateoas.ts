@@ -73,18 +73,21 @@ export const fetchLink = async <T, B>(link: Link, body: B): Promise<T> => {
             options.body = JSON.stringify(body);
         }
 
-        console.log(options)
-
         const response = await fetch(link.href, options);
 
         const data = await response.text();
+        
+        if(response.status === 401) {
+            sessionStorage.setItem('token', '');
+            window.location.href = '/login'
+        }
 
         if (response.ok) {
+
             if (data) {
                 return JSON.parse(data);
             }
         } else {
-            console.log(data)
             const message = JSON.parse(data)?.message ?? JSON.parse(data)?.detail ?? "error"
             throw new Error(response.status + ": " + message);
         }
