@@ -168,7 +168,7 @@ class ProfessorController(
             ),
             ApiResponse(
                 responseCode = "422",
-                description = "Bad request: Invalid data provided",
+                description = "Invalid data provided",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -180,7 +180,7 @@ class ProfessorController(
     )
     @PostMapping
     fun createProfessor(
-        @Valid @RequestBody professorCreate: ProfessorCreate
+        @RequestBody professorCreate: ProfessorCreate
     ): ResponseEntity<EntityModel<Professor>> =
         professorService.createProfessor(professorCreate).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(professorModelAssembler.toModel(it)) }
@@ -230,13 +230,13 @@ class ProfessorController(
             )
         ]
     )
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     fun patchProfessor(
         @Min(ProfessorConstraints.Id.MIN_SIZE)
         @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
 
-        @Valid @RequestBody professorUpdates: ProfessorUpdate
+        @RequestBody professorUpdates: ProfessorUpdate
     ): ResponseEntity<EntityModel<*>> {
         return professorService.updateProfessor(id, professorUpdates).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }

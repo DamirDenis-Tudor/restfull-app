@@ -5,6 +5,8 @@ import { HomePageContext } from "../../contexts/HomePageContext.tsx";
 import { ProfileCard } from "./ProfileCard.tsx";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import StudentModal from "../modals/StudentModal.tsx";
+import ConfirmationModal from "../modals/ConfirmationModal.tsx";
+import {toast} from "react-toastify";
 
 interface StudentCardProps {
     link?: Link;
@@ -17,6 +19,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
 
     const { setSelectedComponent } = useContext(HomePageContext);
 
@@ -45,8 +48,20 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     };
 
     const handleDelete = () => {
+        setShowConfirmDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
         if(student && student._links["delete"]) {
-            fetchLink(student._links["delete"], undefined).then();
+            fetchLink(student._links["delete"], undefined)
+                .then(() => {
+                    toast.success("Student Deleted Successfully.");
+                    setShowConfirmDeleteModal(false);
+                })
+                .catch(() => {
+                    toast.error("Error deleting student");
+                    setShowConfirmDeleteModal(false);
+                });
         }
     };
 
@@ -160,6 +175,13 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
                     onClose={() => setShowModal(false)}
                 />
             )}
+
+            <ConfirmationModal
+                show={showConfirmDeleteModal}
+                message="Are you sure you want to delete this student?"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowConfirmDeleteModal(false)}
+            />
         </>
     );
 };

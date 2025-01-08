@@ -18,7 +18,7 @@ export const PaginationList = <T, >(
         data,
         setCurrentLink,
         renderItem,
-        onAddElement = () => {},
+        onAddElement,
     }: PaginationProps<T>) => {
 
     if (!data) {
@@ -36,20 +36,22 @@ export const PaginationList = <T, >(
         <Container className="flex row w-100 h-100 mb-10 p-4 border-1 justify-content-evenly">
             <div className="d-flex justify-content-between align-items-center mb-3">
                 <h4>{title}</h4>
-                <Button
-                    variant="primary"
-                    className="d-flex align-items-center"
-                    onClick={onAddElement} // Trigger the onAddElement function passed from parent
-                    style={{
-                        padding: '0.5rem 1rem',
-                        borderRadius: '50%',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                    }}
-                >
-                    <FaPlusCircle style={{ fontSize: '1.5rem' }} />
-                </Button>
+                {onAddElement && (
+                    <Button
+                        variant="primary"
+                        className="d-flex align-items-center"
+                        onClick={onAddElement}
+                        style={{
+                            padding: '0.5rem 1rem',
+                            borderRadius: '50%',
+                            display: 'flex',
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                        }}
+                    >
+                        <FaPlusCircle style={{ fontSize: '1.5rem' }} />
+                    </Button>
+                )}
             </div>
             <Row
                 xs={1} sm={2} md={3} lg={Math.max(items.length, 3)} xl={Math.max(items.length, 3)}

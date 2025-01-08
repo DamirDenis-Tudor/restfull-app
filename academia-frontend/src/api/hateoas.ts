@@ -63,6 +63,7 @@ export interface GenericResponse<T> {
 
 
 export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T> => {
+    // eslint-disable-next-line no-useless-catch
     try {
         const options: RequestInit = {
             method: link.type,
@@ -81,11 +82,12 @@ export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T
         const data = await response.text();
 
         if (response.ok) {
-            return JSON.parse(data);
+            if (data) {
+                return JSON.parse(data);
+            }
         } else {
-            throw new Error( JSON.parse(data).message );
+            throw new Error(response.status + ": " + JSON.parse(data).message);
         }
-
     } catch (error) {
         throw error;
     }

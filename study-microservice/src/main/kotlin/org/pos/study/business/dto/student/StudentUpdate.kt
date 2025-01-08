@@ -10,25 +10,25 @@ data class StudentUpdate(
     @field:Size(
         min = StudentConstraints.FirstName.MIN_SIZE,
         max = StudentConstraints.FirstName.MAX_SIZE
-    ) val firstName: String? = null,
+    ) val firstName: String,
 
     @field:Size(
         min = StudentConstraints.LastName.MIN_SIZE,
         max = StudentConstraints.LastName.MAX_SIZE
-    ) val lastName: String? = null,
+    ) val lastName: String,
 
     @field:Size(
         min = StudentConstraints.Email.MIN_SIZE,
         max = StudentConstraints.Email.MAX_SIZE
-    ) val email: String? = null,
+    ) val email: String,
 
     @field:Min(StudentConstraints.StudyYear.MIN_VALUE)
     @field:Max(StudentConstraints.StudyYear.MAX_VALUE)
-    val studyYear: Int? = null,
+    val studyYear: Int,
 
     @field:Min(StudentConstraints.StudentGroup.MIN_VALUE)
     @field:Max(StudentConstraints.StudentGroup.MAX_VALUE)
-    val studentGroup: Int? = null,
+    val studentGroup: Int,
 
-    val cycleType: Student.CycleType? = null,
+    val cycleType: Student.CycleType,
 )

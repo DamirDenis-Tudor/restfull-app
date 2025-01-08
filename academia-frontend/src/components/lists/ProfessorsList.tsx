@@ -38,13 +38,14 @@ export const ProfessorList: React.FC<ProfessorListProps> = ({link}) => {
         <>
             {currentLink && professorData && (
                 <PaginationList
+                    key="professors"
                     title="List of Professors"
                     data={professorData}
                     setCurrentLink={setCurrentLink}
                     renderItem={(professor: Professor) => {
                         return <ProfessorCard key={v4()} prof={professor} layout={'vertical'}/>;
                     }}
-                    onAddElement={openModal}
+                    onAddElement={professorData?._links["create"] ? openModal : undefined}
                 />
             )}
 

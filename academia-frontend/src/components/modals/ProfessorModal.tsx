@@ -49,6 +49,11 @@ const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClos
 
         fetchLink(link, formData)
             .then(() => {
+                if (professor){
+                    toast.success("Professor updated successfully.");
+                }else {
+                    toast.success("Professor created successfully.");
+                }
                 onClose();
             })
             .catch((error) => {

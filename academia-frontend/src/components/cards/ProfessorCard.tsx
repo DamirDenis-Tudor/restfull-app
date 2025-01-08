@@ -4,7 +4,9 @@ import { fetchLink, Link, Professor } from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
 import { ProfileCard } from "./ProfileCard.tsx";
 import { FaEdit, FaTrashAlt } from "react-icons/fa";
-import ProfessorModal from "../modals/ProfessorModal.tsx"; // Import the modal component
+import ProfessorModal from "../modals/ProfessorModal.tsx";
+import ConfirmationModal from "../modals/ConfirmationModal.tsx";
+import {toast} from "react-toastify";
 
 interface ProfessorCardProps {
     link?: Link;
@@ -17,6 +19,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
 
     const { setSelectedComponent } = useContext(HomePageContext);
 
@@ -45,14 +48,26 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
     };
 
     const handleDelete = () => {
+        setShowConfirmDeleteModal(true); // Show the confirmation modal
+    };
+
+    const confirmDelete = () => {
         if (professor && professor._links["delete"]) {
-            fetchLink(professor._links["delete"], undefined).then();
+            fetchLink(professor._links["delete"], undefined)
+                .then(() => {
+                    toast.success("Professor Deleted Successfully.");
+                    setShowConfirmDeleteModal(false);
+                })
+                .catch(() => {
+                    toast.error("Error deleting student");
+                    setShowConfirmDeleteModal(false);
+                });
         }
     };
 
     const handleUpdate = () => {
         if (professor && professor._links["update"]) {
-            setShowModal(true); // Show the modal when editing a professor
+            setShowModal(true);
         }
     };
 
@@ -160,6 +175,13 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
                     onClose={() => setShowModal(false)}
                 />
             )}
+
+            <ConfirmationModal
+                show={showConfirmDeleteModal}
+                message="Are you sure you want to delete this professor?"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowConfirmDeleteModal(false)}
+            />
         </>
     );
 };

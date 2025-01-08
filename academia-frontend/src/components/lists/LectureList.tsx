@@ -38,13 +38,14 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
         <>
             {currentLink && lecturesData && (
                 <PaginationList
+                    key={"lectures"}
                     title="List of lectures"
                     data={lecturesData}
                     setCurrentLink={setCurrentLink}
                     renderItem={(lecture: Lecture | undefined) => (
                         <LectureCard key={v4()} lecture={lecture} />
                     )}
-                    onAddElement={openModal}
+                    onAddElement={lecturesData?._links["create"] ? openModal : undefined}
                 />
             )}
 

@@ -54,7 +54,7 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
             Auth.Role.ADMIN -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
-                        .withType("POST")
+                        .withType("PUT")
                         .withRel("update"),
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
                         .withType("DELETE")

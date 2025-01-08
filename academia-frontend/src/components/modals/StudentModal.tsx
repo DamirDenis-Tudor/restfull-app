@@ -47,6 +47,12 @@ const StudentModal: React.FC<StudentModalProps> = ({ student, link, onClose }) =
         e.preventDefault();
         fetchLink(link, formData)
             .then(() => {
+                if (student){
+                    toast.success("Student updated successfully.");
+                }else {
+                    toast.success("Student created successfully.");
+                }
+
                 onClose();
             })
             .catch((error) => {

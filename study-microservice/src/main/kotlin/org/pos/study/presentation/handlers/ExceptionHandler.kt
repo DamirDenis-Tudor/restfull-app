@@ -1,5 +1,6 @@
 package org.pos.study.presentation.handlers
 
+import com.fasterxml.jackson.databind.exc.InvalidFormatException
 import org.springframework.dao.DataIntegrityViolationException
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
@@ -47,12 +48,17 @@ class ExceptionHandler {
     fun handleValidationExceptions(ex: HttpMessageNotReadableException): ResponseEntity<*> {
         val concreteProblem = ex.message?.split("problem:")
 
+        val status = when(ex.cause){
+            is InvalidFormatException -> HttpStatus.UNPROCESSABLE_ENTITY
+            else -> HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+        }
+
         concreteProblem?.size?.takeIf { it > 1 }?.let {
-            return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+            return ResponseEntity.status(status)
                 .body(EntityModel.of(mapOf("message" to ex.message?.split("problem:")[1])))
         }
 
-        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+        return ResponseEntity.status(status)
             .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 

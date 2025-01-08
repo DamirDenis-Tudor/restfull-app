@@ -1,10 +1,12 @@
 import React, { useContext, useState } from 'react';
 import { Card, ListGroup, Button } from 'react-bootstrap';
-import {fetchLink, Lecture} from "../../api/hateoas.ts";
+import { fetchLink, Lecture } from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import LectureModal from "../modals/LectureModal.tsx";
-import {LectureInfo} from "../LectureInfo.tsx";
+import { LectureInfo } from "../LectureInfo.tsx";
+import ConfirmationModal from "../modals/ConfirmationModal.tsx";
+import {toast} from "react-toastify"; // Import the confirmation modal
 
 interface LectureCardProps {
     lecture?: Lecture;
@@ -15,6 +17,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
+    const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
     const { setSelectedComponent } = useContext(HomePageContext);
 
     const handleClick = () => {
@@ -41,8 +44,18 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
     };
 
     const handleDelete = () => {
+        setShowConfirmDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
         if (lecture && lecture._links["delete"]) {
-            fetchLink(lecture._links["delete"]).then()
+            fetchLink(lecture._links["delete"]).then(() => {
+                toast.error("Lecture deleted successfully.");
+                setShowConfirmDeleteModal(false);
+            }).catch(() => {
+                toast.error("Error deleting lecture");
+                setShowConfirmDeleteModal(false);
+            });
         }
     };
 
@@ -122,6 +135,13 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
                     onClose={() => setShowModal(false)}
                 />
             )}
+
+            <ConfirmationModal
+                show={showConfirmDeleteModal}
+                message="Are you sure you want to delete this lecture?"
+                onConfirm={confirmDelete}
+                onCancel={() => setShowConfirmDeleteModal(false)}
+            />
         </div>
     );
 };

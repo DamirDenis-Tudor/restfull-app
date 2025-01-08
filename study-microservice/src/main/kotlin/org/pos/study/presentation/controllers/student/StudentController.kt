@@ -228,12 +228,12 @@ class StudentController(
         ]
     )
     @RequiresRoles(roles = [Auth.Role.ADMIN])
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     fun updateStudent(
         @Min(StudentConstraints.Id.MIN_SIZE)
         @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
-        @Valid @RequestBody studentUpdate: StudentUpdate
+        @RequestBody studentUpdate: StudentUpdate
     ): ResponseEntity<EntityModel<Student>> {
         return studentService.updateStudent(id, studentUpdate).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }

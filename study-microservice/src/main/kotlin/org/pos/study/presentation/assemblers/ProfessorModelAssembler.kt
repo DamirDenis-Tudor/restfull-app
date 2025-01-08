@@ -55,10 +55,10 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withType("GET")
                         .withSelfRel(),
-                    Link.of("${studyAddress}/api/academia/professor/${entity.id}")
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withRel("update")
-                        .withType("POST"),
-                    Link.of("${studyAddress}/api/academia/professor/${entity.id}")
+                        .withType("PUT"),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withRel("delete")
                         .withType("DELETE"),
                 )

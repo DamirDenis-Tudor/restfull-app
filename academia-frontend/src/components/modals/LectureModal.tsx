@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { fetchLink, Link } from '../../api/hateoas.ts';
+import {toast} from "react-toastify";
 
 export interface LectureData {
     id: string;
@@ -46,9 +47,15 @@ const LectureModal: React.FC<LectureModalProps> = ({ lecture, link, onClose }) =
 
         fetchLink(link, formData)
             .then(() => {
+                if (lecture){
+                    toast.success("Lecture updated successfully.");
+                }else {
+                    toast.success("Lecture created successfully.");
+                }
                 onClose();
             })
             .catch((error) => {
+                toast.error(error.message);
                 console.error("Error updating lecture data:", error);
             });
     };
