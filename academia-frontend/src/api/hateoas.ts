@@ -82,13 +82,13 @@ export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T
 
         if (response.ok) {
             return JSON.parse(data);
+        } else {
+            throw new Error( JSON.parse(data).message );
         }
+
     } catch (error) {
-        console.error("Fetch error:", error);
         throw error;
     }
-
-    throw Error();
 };
 
 

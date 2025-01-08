@@ -45,7 +45,14 @@ class ExceptionHandler {
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
     fun handleValidationExceptions(ex: HttpMessageNotReadableException): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+        val concreteProblem = ex.message?.split("problem:")
+
+        concreteProblem?.size?.takeIf { it > 1 }?.let {
+            return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+                .body(EntityModel.of(mapOf("message" to ex.message?.split("problem:")[1])))
+        }
+
+        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
             .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 
@@ -57,9 +64,8 @@ class ExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<*> {
-        val errors = ex.bindingResult.fieldErrors.associate { it.field to (it.defaultMessage ?: "Invalid value") }
         return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-            .body(EntityModel.of(mapOf("errors" to errors, "message" to "Validation failed")))
+            .body(EntityModel.of(mapOf("message" to "${ex.fieldError?.field} ${ex.fieldError?.defaultMessage}")))
     }
 
     @ExceptionHandler(DataIntegrityViolationException::class)

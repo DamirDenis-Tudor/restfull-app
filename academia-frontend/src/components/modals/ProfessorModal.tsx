@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { fetchLink, Link } from "../../api/hateoas.ts";
+import { toast } from 'react-toastify';
 
 export interface ProfessorData {
     professorId?: number;
@@ -51,6 +52,7 @@ const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClos
                 onClose();
             })
             .catch((error) => {
+                toast.error(error.message);
                 console.error("Error submitting professor data:", error);
             });
     };

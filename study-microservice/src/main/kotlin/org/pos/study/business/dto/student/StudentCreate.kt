@@ -1,5 +1,6 @@
 package org.pos.study.business.dto.student
 
+import jakarta.validation.Valid
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size

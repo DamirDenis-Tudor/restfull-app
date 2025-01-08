@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button, Form } from 'react-bootstrap';
 import { fetchLink, Link } from "../../api/hateoas.ts";
+import { toast } from 'react-toastify';
 
 export interface StudentData {
     id?: number;
@@ -46,10 +47,10 @@ const StudentModal: React.FC<StudentModalProps> = ({ student, link, onClose }) =
         e.preventDefault();
         fetchLink(link, formData)
             .then(() => {
-                // Close the modal on success
                 onClose();
             })
             .catch((error) => {
+                toast.error(error.message);
                 console.error("Error creating/updating student:", error);
             });
     };

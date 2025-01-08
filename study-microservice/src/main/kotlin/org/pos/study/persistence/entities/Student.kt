@@ -1,7 +1,9 @@
 package org.pos.study.persistence.entities
 
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnore
 import jakarta.persistence.*
+import org.springframework.web.bind.MethodArgumentNotValidException
 
 @Entity
 data class Student(
@@ -12,17 +14,17 @@ data class Student(
 
     var lastName: String,
 
-    @Column( nullable = true)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     var cycleType: CycleType?,
 
     @Column(unique = true, nullable = false)
     var email: String,
 
-    @Column( nullable = false)
+    @Column(nullable = false)
     var studyYear: Int,
 
-    @Column( nullable = false)
+    @Column(nullable = false)
     var studentGroup: Int,
 
     @JsonIgnore
@@ -35,7 +37,18 @@ data class Student(
     var lectures: MutableList<Lecture> = mutableListOf()
 
 ) {
-    enum class CycleType { Licenta, Master }
+    enum class CycleType {
+        Licenta, Master;
 
-    override fun toString(): String = this.let{ it.lectures = mutableListOf() }.toString()
+        companion object {
+            @JsonCreator
+            @JvmStatic
+            fun fromString(value: String): CycleType {
+                return entries.find { it.name.equals(value, ignoreCase = true) }
+                    ?: throw IllegalArgumentException("Invalid cycle type: $value, accepted values: ${entries.map { it.name }}")
+            }
+        }
+    }
+
+    override fun toString(): String = this.let { it.lectures = mutableListOf() }.toString()
 }
