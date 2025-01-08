@@ -17,7 +17,7 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
 
     useEffect(() => {
         if (currentLink) {
-            fetchLink<EmbeddedResponse<Lecture>>(currentLink)
+            fetchLink<EmbeddedResponse<Lecture>, undefined>(currentLink, undefined)
                 .then((data) => {
                     setLecturesData(data);
                 })

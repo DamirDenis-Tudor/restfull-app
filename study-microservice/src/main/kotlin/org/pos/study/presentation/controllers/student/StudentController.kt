@@ -233,7 +233,7 @@ class StudentController(
         @Min(StudentConstraints.Id.MIN_SIZE)
         @Max(StudentConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
-        @RequestBody studentUpdate: StudentUpdate
+        @Valid @RequestBody studentUpdate: StudentUpdate
     ): ResponseEntity<EntityModel<Student>> {
         return studentService.updateStudent(id, studentUpdate).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toModel(it)) }

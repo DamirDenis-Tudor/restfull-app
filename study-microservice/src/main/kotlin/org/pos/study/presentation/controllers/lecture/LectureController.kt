@@ -146,7 +146,7 @@ class LectureController(
     fun getLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
     ): ResponseEntity<EntityModel<Lecture>> {
         return lectureService.getLectureById(lectureId.toString()).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
@@ -206,21 +206,22 @@ class LectureController(
 
         ): ResponseEntity<EntityModel<*>> {
 
-        restTemplate.exchange(
-            "$lecturesAddress/api/academia/lectures",
-            HttpMethod.PUT,
-            HttpEntity<String>(
-                ObjectMapper().writeValueAsString(LectureRequestBody(lecture.id)),
-                HttpHeaders().apply {
-                    this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)
-                    this.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                },
-            ),
-            String::class.java
-        )
-
         return lectureService.createLecture(lecture, email).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(lectureModelAssembler.toModel(it)) }
+            .also {
+                restTemplate.exchange(
+                    "$lecturesAddress/api/academia/lectures",
+                    HttpMethod.PUT,
+                    HttpEntity<String>(
+                        ObjectMapper().writeValueAsString(LectureRequestBody(lecture.id.toString())),
+                        HttpHeaders().apply {
+                            this.set(HttpHeaders.AUTHORIZATION, authorizationHeader)
+                            this.set(HttpHeaders.CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                        },
+                    ),
+                    String::class.java
+                )
+            } as ResponseEntity<EntityModel<*>>
     }
 
 
@@ -279,11 +280,11 @@ class LectureController(
         ]
     )
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
-    @PatchMapping("/{lectureId}")
-    fun patchLecture(
+    @PutMapping("/{lectureId}")
+    fun updateLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @Valid @RequestBody lectureUpdates: LectureUpdate,
 
@@ -291,10 +292,10 @@ class LectureController(
         id: String,
     ): ResponseEntity<EntityModel<Lecture>> {
         id.takeIf { it.isNotBlank() }?.let {
-            lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId).getOrThrow()
+            lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         }
 
-        return lectureService.updateLecture(lectureId, lectureUpdates).getOrThrow()
+        return lectureService.updateLecture(lectureId.toString(), lectureUpdates).getOrThrow()
             .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
     }
 

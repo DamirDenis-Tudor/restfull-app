@@ -10,13 +10,13 @@ data class LectureUpdate(
     @field:Size(
         min = LectureConstraints.LectureName.MIN_SIZE,
         max = LectureConstraints.LectureName.MAX_SIZE
-    ) var lectureName: String?,
+    ) var lectureName: String,
 
     @field:Min(LectureConstraints.StudyYear.MIN_VALUE)
     @field:Max(LectureConstraints.StudyYear.MAX_VALUE)
-    var studyYear: Int?,
+    var studyYear: Int,
 
-    var lectureType: Lecture.LectureType? = null,
-    var categoryType: Lecture.CategoryType? = null,
-    var examinationType: Lecture.ExaminationType? = null,
+    var lectureType: Lecture.LectureType,
+    var categoryType: Lecture.CategoryType,
+    var examinationType: Lecture.ExaminationType,
 )

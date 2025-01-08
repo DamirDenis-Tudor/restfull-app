@@ -10,7 +10,7 @@ import org.pos.study.persistence.entities.Lecture
 data class LectureCreate(
     @field:Min(value = LectureConstraints.Id.MIN_SIZE)
     @field:Max(value = LectureConstraints.Id.MAX_SIZE)
-    var id: String,
+    var id: Int,
 
     @field:Size(
         min = LectureConstraints.LectureName.MIN_SIZE,

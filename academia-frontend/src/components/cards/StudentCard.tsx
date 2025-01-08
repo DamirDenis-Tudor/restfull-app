@@ -25,7 +25,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
 
     useEffect(() => {
         if (link) {
-            fetchLink<Student>(link)
+            fetchLink<Student, undefined>(link, undefined)
                 .then((data) => setStudent(data))
                 .catch((error) => {
                     throw error;

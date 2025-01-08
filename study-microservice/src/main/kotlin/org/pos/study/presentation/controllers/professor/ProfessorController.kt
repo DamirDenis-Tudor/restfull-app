@@ -180,7 +180,7 @@ class ProfessorController(
     )
     @PostMapping
     fun createProfessor(
-        @RequestBody professorCreate: ProfessorCreate
+        @Valid @RequestBody professorCreate: ProfessorCreate
     ): ResponseEntity<EntityModel<Professor>> =
         professorService.createProfessor(professorCreate).getOrThrow()
             .let { ResponseEntity.status(HttpStatus.CREATED).body(professorModelAssembler.toModel(it)) }
@@ -236,7 +236,7 @@ class ProfessorController(
         @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable id: Long,
 
-        @RequestBody professorUpdates: ProfessorUpdate
+        @Valid @RequestBody professorUpdates: ProfessorUpdate
     ): ResponseEntity<EntityModel<*>> {
         return professorService.updateProfessor(id, professorUpdates).getOrThrow()
             .let { ResponseEntity.ok(professorModelAssembler.toModel(it)) }

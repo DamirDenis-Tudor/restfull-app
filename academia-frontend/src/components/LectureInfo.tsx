@@ -9,7 +9,7 @@ import {
     fetchLink
 } from "../api/hateoas.ts";
 import AssessmentsSection from "./cards/AssesmentsCard.tsx";
-import FilesSection from "./cards/FileCard.tsx";
+import FilesSection from "./lists/FileSection.tsx";
 import LectureCard from "./cards/LectureCard.tsx";
 import ProfessorCard from "./cards/ProfessorCard.tsx";
 import {StudentList} from "./lists/StudentList.tsx";
@@ -36,7 +36,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
 
 
     useEffect(() => {
-        fetchLink<Lecture>(lectureLink)
+        fetchLink<Lecture, undefined>(lectureLink, undefined)
             .then((data) => {
                 setLectureInfo(data);
             })
@@ -44,7 +44,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 console.error("Error fetching lectureLink data:", error);
             });
 
-        fetchLink<EmbeddedResponse<AssessmentTest>>(assessmentLink)
+        fetchLink<EmbeddedResponse<AssessmentTest>, undefined>(assessmentLink, undefined)
             .then((data) => {
                 setAssessments(data);
             })
@@ -52,7 +52,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 console.error("Error fetching assessmentLink data:", error);
             });
 
-        fetchLink<EmbeddedResponse<FileInfo>>(filesLink)
+        fetchLink<EmbeddedResponse<FileInfo>, undefined>(filesLink, undefined)
             .then((data) => {
                 setFiles(data);
             })
@@ -77,12 +77,12 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 <ItemsList
                     items={[
                         <ProfessorCard layout={"vertical"} key={professorLink.href} link={professorLink}/>,
-                        <AssessmentsSection assessments={assessments?._embedded.assessment_tests}/>,
+                        <AssessmentsSection assessments={assessments}/>,
                         <LectureCard key={"3"} lecture={lectureInfo} clickable={false}/>,
                     ]} title={'Lecture Details'}
                 />
 
-                <FilesSection files={files?._embedded.files}/>
+                <FilesSection fData={files}/>
                 <StudentList link={lectureInfo?._links.students}/>
             </Col>
         </>

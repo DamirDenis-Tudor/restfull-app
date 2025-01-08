@@ -70,13 +70,13 @@ class LectureProfessorController(
     fun getProfessorByLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @InjectId(forRole = Auth.Role.STUDENT)
         id: String
     ): ResponseEntity<EntityModel<Professor>> {
         id.takeIf { it.isNotEmpty() }?.let {
-            lectureStudentService.isStudentEnrolledInLecture(id, lectureId).getOrThrow()
+            lectureStudentService.isStudentEnrolledInLecture(id, lectureId.toString()).getOrThrow()
         }
 
         return lectureProfessorService.getProfessorByLecture(lectureId.toString()).getOrThrow()
@@ -132,13 +132,13 @@ class LectureProfessorController(
     fun updateProfessorForLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @Min(ProfessorConstraints.Id.MIN_SIZE)
         @Max(ProfessorConstraints.Id.MAX_SIZE)
         @PathVariable professorId: Long
     ): ResponseEntity<EntityModel<*>> =
-        lectureProfessorService.updateProfessorForLecture(lectureId, professorId).getOrThrow()
+        lectureProfessorService.updateProfessorForLecture(lectureId.toString(), professorId).getOrThrow()
             .let { ResponseEntity.ok(lectureProfessorModelAssembler.toModel(it)) }
 
 

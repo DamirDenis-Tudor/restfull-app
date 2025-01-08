@@ -3,6 +3,7 @@ package org.pos.study.business.dto.professor
 import jakarta.validation.constraints.Size
 import org.pos.study.persistence.entities.Professor
 import org.pos.study.business.dto.constraints.ProfessorConstraints
+import org.springframework.validation.annotation.Validated
 
 data class ProfessorCreate(
     @field:Size(

@@ -84,7 +84,7 @@ class LectureStudentController(
     fun getStudentsByLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @Min(PageConstraints.Page.MIN_VALUE)
         @Max(PageConstraints.Page.MAX_VALUE)
@@ -104,7 +104,7 @@ class LectureStudentController(
             lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         }
 
-        return lectureStudentService.getStudentsByLecture(lectureId, page, size).getOrThrow()
+        return lectureStudentService.getStudentsByLecture(lectureId.toString(), page, size).getOrThrow()
             .let { ResponseEntity.ok(studentModelAssembler.toCollectionModel(it, lectureId.toLong())) }
     }
 
@@ -159,7 +159,7 @@ class LectureStudentController(
     fun enrollStudentsInLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @RequestBody @NotEmpty @Valid
         studentIds: List<@Min(StudentConstraints.Id.MIN_SIZE) @Max(StudentConstraints.Id.MAX_SIZE) Long>,
@@ -172,7 +172,7 @@ class LectureStudentController(
             lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         }
 
-        return lectureStudentService.enrollStudentsInLecture(lectureId, studentIds).getOrThrow()
+        return lectureStudentService.enrollStudentsInLecture(lectureId.toString(), studentIds).getOrThrow()
             .let { ResponseEntity.ok(lectureStudentModelAssembler.toModel(it)) }
     }
 
@@ -221,7 +221,7 @@ class LectureStudentController(
     fun unenrollStudentsInLecture(
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
-        @PathVariable lectureId: String,
+        @PathVariable lectureId: Int,
 
         @RequestBody @NotEmpty @Valid
         studentIds: List<@Min(StudentConstraints.Id.MIN_SIZE) @Max(StudentConstraints.Id.MAX_SIZE) Long>,
@@ -234,7 +234,7 @@ class LectureStudentController(
             lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
         }
 
-        return lectureStudentService.unenrollStudentsInLecture(lectureId, studentIds).getOrThrow()
+        return lectureStudentService.unenrollStudentsInLecture(lectureId.toString(), studentIds).getOrThrow()
             .let { ResponseEntity.ok(lectureStudentModelAssembler.toModel(it)) }
     }
 

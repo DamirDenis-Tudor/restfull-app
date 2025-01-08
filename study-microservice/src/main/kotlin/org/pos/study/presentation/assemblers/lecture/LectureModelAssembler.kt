@@ -75,10 +75,10 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                                 .withType("GET"),
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                                 .withRel("update")
-                                .withType("POST"),
+                                .withType("PUT"),
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                                 .withRel("delete")
-                                .withType("POST"),
+                                .withType("DELETE"),
                             )
                     else it
                 }
@@ -110,7 +110,7 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                 this.add(
                     Link.of("${studyAddress}/api/academia/lectures")
                         .withRel("create")
-                        .withType("POST"),
+                        .withType("PUT"),
                 )
             }
         }

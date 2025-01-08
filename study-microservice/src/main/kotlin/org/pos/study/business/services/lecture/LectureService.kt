@@ -38,11 +38,11 @@ class LectureService(
         val professor = professorRepository.findById(id.toLong()).getOrNull()
             ?: throw EntityNotFound("Professor with ID $id not found.")
 
-        if (lectureRepository.existsById(lectureCreate.id))
+        if (lectureRepository.existsById(lectureCreate.id.toString()))
             throw EntityConflict("Lecture with ID ${lectureCreate.id} already exists.")
 
         val newLecture = Lecture(
-            id = lectureCreate.id,
+            id = lectureCreate.id.toString(),
             lectureName = lectureCreate.lectureName,
             studyYear = lectureCreate.studyYear,
             lectureType = lectureCreate.lectureType,

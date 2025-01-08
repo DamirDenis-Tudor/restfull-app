@@ -71,7 +71,7 @@ services:
     ports:
       - "27017:27017"
     volumes:
-      - mongo_data_lectures:/data/db
+      - mongo_data_lectures:/data/db1
     networks:
       - lecture
 

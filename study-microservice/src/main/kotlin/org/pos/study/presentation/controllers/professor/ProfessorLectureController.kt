@@ -20,13 +20,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import org.pos.study.business.exceptions.EntityUnverifiable
 import org.pos.study.presentation.annotations.InjectId
+import org.pos.study.presentation.assemblers.lecture.LectureProfessorModelAssembler
+import org.pos.study.presentation.controllers.lecture.LectureProfessorController
 
 @RestController
 @RequestMapping("/professors/{id}/lectures")
 class ProfessorLectureController(
     private val professorService: IProfessorService,
     private val professorLectureService: IProfessorLectureService,
-    private val lectureModelAssembler: LectureModelAssembler
+    private val lecturesProfessorModelAssembler: LectureProfessorModelAssembler
 ) {
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -95,7 +97,7 @@ class ProfessorLectureController(
         }
 
         return professorLectureService.getLecturesByProfessor(id, page, size).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toCollectionModel(page = it)) }
+            .let { ResponseEntity.ok(lecturesProfessorModelAssembler.toCollectionModel(page = it)) }
     }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -157,7 +159,7 @@ class ProfessorLectureController(
         }
 
         return professorLectureService.getLectureByProfessor(id, lectureId.toString()).getOrThrow()
-            .let { ResponseEntity.ok(lectureModelAssembler.toModel(it)) }
+            .let { ResponseEntity.ok(lecturesProfessorModelAssembler.toModel(it)) }
     }
 
 }

@@ -1,69 +1,65 @@
 import React from 'react';
-import { Card, ListGroup } from 'react-bootstrap';
-import { FileInfo } from "../../api/hateoas.ts";
-import { ItemsList } from "../lists/ItemsList.tsx";
-import { FaDownload } from 'react-icons/fa';
+import { FaDownload, FaTrashAlt } from 'react-icons/fa';
+import { Button } from 'react-bootstrap';
 import { downloadFile } from "../../api/calls.ts";
+import { FileInfo } from "../../api/hateoas.ts";
 
-interface FilesSectionProps {
-    files?: FileInfo[];
+interface FileCardProps {
+    file: FileInfo;
+    onDelete: (file: FileInfo) => void;
 }
 
-const FilesSection: React.FC<FilesSectionProps> = ({ files }) => {
-    const renderFiles = (files: FileInfo[], title: string) => {
-        return (
-            <Card className="mb-3">
-                <Card.Body>
-                    <Card.Title>{title}</Card.Title>
-                    <ListGroup variant="flush">
-                        {files && files.length > 0 ? (
-                            files.map((file, index) => (
-                                <ListGroup.Item
-                                    key={index}
-                                    className="border p-3 d-flex justify-content-between align-items-center"
-                                >
-                                    <div className="d-flex justify-content-between w-100">
-                                        <div className="text-truncate" style={{ maxWidth: 'calc(100% - 30px)' }}>
-                                            {file.file_metadata.file_name}
-                                            <br />
-                                            <small>Uploaded on: {new Date(file.file_metadata.uploaded_at).toLocaleString()}</small>
-                                        </div>
-
-                                        <FaDownload
-                                            size={20}
-                                            className="ml-2 text-primary"
-                                            style={{ cursor: 'pointer' }}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                downloadFile(file._links.download.href).then();
-                                            }}
-                                        />
-                                    </div>
-                                </ListGroup.Item>
-                            ))
-                        ) : (
-                            <ListGroup.Item key={1000} className="border p-3">
-                                <strong>No {title.toLowerCase()} files available</strong>
-                            </ListGroup.Item>
-                        )}
-                    </ListGroup>
-                </Card.Body>
-            </Card>
-        );
-    };
-
-    const courseFiles = files?.filter(file => file.file_metadata.category === 'course');
-    const labFiles = files?.filter(file => file.file_metadata.category === 'lab');
-
+const FileCard: React.FC<FileCardProps> = ({ file, onDelete }) => {
     return (
-        <ItemsList
-            title="Files"
-            items={[
-                renderFiles(courseFiles || [], 'Course Files'),
-                renderFiles(labFiles || [], 'Lab Files')
-            ]}
-        />
+        <div className="d-flex justify-content-between w-100 border p-3">
+            <div className="text-truncate" style={{ maxWidth: 'calc(100% - 30px)' }}>
+                {file.file_name}
+                <br />
+                <small>Uploaded on: {new Date(file.uploaded_at).toLocaleString()}</small>
+            </div>
+
+            <div className="d-flex">
+                <Button
+                    variant="success"
+                    size="sm"
+                    className="ml-2"
+                    style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '5px 10px',
+                        backgroundColor: '#4CAF50',
+                        borderColor: '#4CAF50',
+                        color: 'white'
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        downloadFile(file._links.download.href).then();
+                    }}
+                >
+                    <FaDownload size={16} />
+                </Button>
+
+                {file._links["delete"] && (
+                    <Button
+                        variant="danger"
+                        size="sm"
+                        className="ml-2"
+                        style={{
+                            backgroundColor: '#FF7043',
+                            borderColor: '#FF7043',
+                            color: 'white'
+                        }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(file);
+                        }}
+                    >
+                        <FaTrashAlt size={16} />
+                    </Button>
+                )}
+            </div>
+        </div>
     );
 };
 
-export default FilesSection;
+export default FileCard;

@@ -6,6 +6,7 @@ import org.springframework.hateoas.EntityModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.validation.FieldError
 import org.springframework.web.HttpRequestMethodNotSupportedException
 import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
@@ -48,9 +49,9 @@ class ExceptionHandler {
     fun handleValidationExceptions(ex: HttpMessageNotReadableException): ResponseEntity<*> {
         val concreteProblem = ex.message?.split("problem:")
 
-        val status = when(ex.cause){
+        val status = when (ex.cause) {
             is InvalidFormatException -> HttpStatus.UNPROCESSABLE_ENTITY
-            else -> HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE
+            else -> HttpStatus.UNPROCESSABLE_ENTITY
         }
 
         concreteProblem?.size?.takeIf { it > 1 }?.let {
@@ -62,22 +63,32 @@ class ExceptionHandler {
             .body(EntityModel.of(mapOf("message" to ex.message)))
     }
 
+
     @ExceptionHandler(HandlerMethodValidationException::class)
     fun handleValidationExceptions(ex: HandlerMethodValidationException): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
-            .body(EntityModel.of(mapOf("message" to ex.reason)))
+        for (error in ex.allErrors) {
+            if (error is FieldError) {
+                return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+                    .body(EntityModel.of(mapOf("message" to ("${error.field}: ${error.defaultMessage ?: "Invalid value"}"))))
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
+            .body(EntityModel.of(mapOf("message" to "Unknown validation error")))
     }
+
+
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
     fun handleValidationExceptions(ex: MethodArgumentNotValidException): ResponseEntity<*> {
-        return ResponseEntity.status(HttpStatus.REQUESTED_RANGE_NOT_SATISFIABLE)
+        return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY)
             .body(EntityModel.of(mapOf("message" to "${ex.fieldError?.field} ${ex.fieldError?.defaultMessage}")))
     }
 
     @ExceptionHandler(DataIntegrityViolationException::class)
     fun handleDataIntegrityViolation(ex: DataIntegrityViolationException): ResponseEntity<*> {
         return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(EntityModel.of(mapOf("message" to "Data integrity violation.", "errors" to ex.cause?.message)))
+            .body(EntityModel.of(mapOf("message" to (ex.cause?.cause?.message ?: "Data integrity violation"))))
     }
 
     @ExceptionHandler(ResourceAccessException::class)

@@ -18,15 +18,11 @@ export interface AssessmentTest {
     weight: number;
 }
 
-export interface FileMetadata {
+export interface FileInfo {
     file_name: string;
     category: string;
     uploaded_at: string;
     size: number;
-}
-
-export interface FileInfo {
-    file_metadata: FileMetadata;
     _links: Record<string, Link>;
 }
 
@@ -62,7 +58,7 @@ export interface GenericResponse<T> {
 }
 
 
-export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T> => {
+export const fetchLink = async <T, B>(link: Link, body: B): Promise<T> => {
     // eslint-disable-next-line no-useless-catch
     try {
         const options: RequestInit = {
@@ -86,11 +82,15 @@ export const fetchLink = async <T>(link: Link, body: any = undefined): Promise<T
                 return JSON.parse(data);
             }
         } else {
-            throw new Error(response.status + ": " + JSON.parse(data).message);
+            console.log(data)
+            const message = JSON.parse(data)?.message ?? JSON.parse(data)?.detail ?? "error"
+            throw new Error(response.status + ": " + message);
         }
     } catch (error) {
         throw error;
     }
+
+    throw Error()
 };
 
 

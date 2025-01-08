@@ -25,7 +25,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
 
     useEffect(() => {
         if (link) {
-            fetchLink<Professor>(link)
+            fetchLink<Professor, undefined>(link, undefined)
                 .then((data) => setProfessor(data))
                 .catch((error) => {
                     throw error;
@@ -98,7 +98,28 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
                     </ListGroup.Item>
                 </ListGroup>
             ) : (
-                <div>No professor data available.</div>
+                <ListGroup variant="flush">
+                    <ListGroup.Item>
+                        <strong>Name:</strong>
+                        <span className="d-block">-</span>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        <strong>Email:</strong>
+                        <span className="d-block">-</span>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        <strong>Department:</strong>
+                        <span className="d-block">-</span>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        <strong>Association Type:</strong>
+                        <span className="d-block">-</span>
+                    </ListGroup.Item>
+                    <ListGroup.Item>
+                        <strong>Grader Type:</strong>
+                        <span className="d-block">-</span>
+                    </ListGroup.Item>
+                </ListGroup>
             )}
             {layout === 'vertical' && (
                 <div className="d-flex justify-content-between mt-3">
@@ -153,7 +174,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({ link, prof, layout = 'ver
         cursor: 'pointer',
         transition: 'transform 0.3s ease, border-color 0.3s ease',
         borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+        transform: isHovered ? 'scale(1.05)' : 'scale(1)'
     };
 
     return (

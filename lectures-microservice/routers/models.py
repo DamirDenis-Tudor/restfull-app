@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 
 class Link(BaseModel):
     href: str
+    type: str
 
     class Config:
         exclude_none = True
@@ -14,15 +15,12 @@ class Category(str, Enum):
     course = "course"
     lab = "lab"
 
-class FileMetadata(BaseModel):
+
+class FileResponseSchema(BaseModel):
     file_name: str
     category: str
     uploaded_at: str
     size: int
-
-
-class FileResponseSchema(BaseModel):
-    file_metadata: FileMetadata
     links: Dict[str, Link] = Field(..., alias="_links")
 
     class Config:
@@ -38,7 +36,6 @@ class FileListResponse(BaseModel):
 
 class UploadFileResponseSchema(BaseModel):
     message: str
-    file_metadata: FileMetadata
     links: Dict[str, Link] = Field(..., alias="_links")
 
     class Config:

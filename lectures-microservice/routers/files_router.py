@@ -1,4 +1,5 @@
 import os
+import random
 import re
 from datetime import datetime
 from typing import Optional
@@ -10,19 +11,9 @@ from config import lectures_ms_host_address
 from database import db_wrapper
 from proto import auth_pb2
 from routers.models import *
-from routers.validator import validate_professor_owner_of_lecture, roles_validator, validate_id, \
-    validate_student_enrolled_in_lecture
+from routers.validator import validate_id, professor_owner, validate_user, student_enrolled
 
 router = APIRouter(prefix="/lectures/{lecture_id}", tags=["Files Controller"])
-
-
-def generate_file_hateoas_links(lecture_id: str, cat: Category, file_name: Optional[str] = None) -> Dict[str, Link]:
-    base_link = f"/lectures/{lecture_id}/files"
-    return {
-        "upload": Link(href=base_link),
-        "delete": Link(href=f"{base_link}/{file_name}") if file_name else None,
-        "get_file": Link(href=f"{base_link}/{file_name}?category={cat}") if file_name else None
-    }
 
 
 @router.get("/files", responses={
@@ -35,12 +26,14 @@ def generate_file_hateoas_links(lecture_id: str, cat: Category, file_name: Optio
 }, response_model=FileListResponse)
 async def list_files(
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
-
-    course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id})
-    if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
-
+        owner=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR, auth_pb2.STUDENT],
+            execute_for=[
+                (auth_pb2.PROFESSOR, professor_owner(throw_on_false=False)),
+                (auth_pb2.STUDENT, student_enrolled()),
+            ],
+        ))
+):
     file_list = []
     for category in Category.__members__.values():
         files = db_wrapper.get_database().lectures.find_one(
@@ -48,36 +41,60 @@ async def list_files(
             {f"{category.value}-files": 1}
         )
 
-        if f"{category.value}-files" not in files:
+        if not files or f"{category.value}-files" not in files:
             continue
 
         for file_metadata in files[f"{category.value}-files"]:
             file_name = file_metadata["file_name"]
-            file_list.append(FileResponseSchema(
-                file_metadata=FileMetadata(
-                    file_name=file_name,
-                    category=category.value,
-                    uploaded_at=file_metadata["uploaded_at"],
-                    size=file_metadata["size"]
-                ),
-                _links={
-                    "download": Link(
-                        href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files/{file_name}?category={category.value}"
+
+            links = {
+                'download': Link(
+                    href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files/{file_name}?category={category.value}",
+                    type="GET"
+                )
+            }
+
+            if owner:
+                links = {
+                    'download': Link(
+                        href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files/{file_name}?category={category.value}",
+                        type="GET"
+                    ),
+                    'delete': Link(
+                        href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files/{file_name}?category={category.value}",
+                        type="DELETE"
                     )
                 }
-        ))
+
+            file_list.append(FileResponseSchema(
+                file_name=file_name,
+                category=category.value,
+                uploaded_at=file_metadata["uploaded_at"],
+                size=file_metadata["size"],
+                _links=links
+            ))
+
+    links = {"self": Link(href=f"/lectures/{lecture_id}/files", type="GET")}
+    if owner:
+        links = {
+            "self": Link(href=f"/lectures/{lecture_id}/files", type="GET"),
+            'upload': Link(
+                href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/files?category="+"{}",
+                type="POST"
+            )
+        }
 
     if len(file_list) == 0:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="No files found for the given lecture")
+        FileListResponse(
+            _embedded={},
+            _links=links
+        )
 
     return FileListResponse(
         _embedded={
             "files": file_list
         },
-        _links={
-            "self": Link(href=f"/lectures/{lecture_id}/files"),
-        }
+        _links=links
     )
 
 
@@ -94,16 +111,19 @@ async def upload_file(
         category: Category,
         lecture_id: str = Depends(validate_id),
         file: UploadFile = File(...),
-        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))):
-
-    course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id})
-    if not course:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Course not found")
-
-    course_dir = os.path.join("../files", category.value)
+        _=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR, auth_pb2.STUDENT],
+            execute_for=[
+                (auth_pb2.PROFESSOR, professor_owner()),
+            ],
+        ))
+):
+    course_dir = os.path.join(f"../files/{lecture_id}", category.value)
     os.makedirs(course_dir, exist_ok=True)
 
+    time = random.randint(1000, 9999)
     file.filename = re.sub(r'\s+', '_', file.filename)
+    file.filename = f"{time}_{file.filename}"
 
     file_path = os.path.join(course_dir, file.filename)
     with open(file_path, "wb") as f:
@@ -119,16 +139,14 @@ async def upload_file(
     db_wrapper.get_database().lectures.update_one(
         {"_id": lecture_id},
         {"$push": {f"{category.value}-files": file_metadata}},
+        upsert=True
     )
 
     return UploadFileResponseSchema(
         message="File uploaded or updated successfully",
-        file_metadata=FileMetadata(
-            file_name=file.filename,
-            uploaded_at=file_metadata["uploaded_at"],
-            size=file_metadata["size"]
-        ),
-        _links=generate_file_hateoas_links(lecture_id, category, file.filename)
+        _links={
+            "self": Link(href="/lectures/files/{lecture_id}", type="GET")
+        }
     )
 
 
@@ -144,7 +162,13 @@ async def get_file(
         category: Category,
         file_name: str,
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
+        _=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR, auth_pb2.STUDENT],
+            execute_for=[
+                (auth_pb2.STUDENT, student_enrolled()),
+            ],
+        ))
+):
     file_metadata = db_wrapper.get_database().lectures.find_one(
         {"_id": lecture_id, f"{category.value}-files.file_name": file_name},
         {f"{category.value}-files.$": 1}
@@ -152,7 +176,7 @@ async def get_file(
     if not file_metadata:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File metadata not found in database")
 
-    file_path = os.path.join("../files", category.value, file_name)
+    file_path = os.path.join(f"../files/{lecture_id}", category.value, file_name)
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk")
@@ -177,9 +201,15 @@ async def delete_file(
         category: Category,
         file_name: str,
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))):
+        _=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR],
+            execute_for=[
+                (auth_pb2.PROFESSOR, professor_owner(throw_on_false=False)),
+            ],
+        ))
 
-    file_path = os.path.join("../files", category.value, file_name)
+):
+    file_path = os.path.join(f"../files/{lecture_id}", category.value, file_name)
     if os.path.exists(file_path):
         os.remove(file_path)
 
@@ -197,5 +227,7 @@ async def delete_file(
 
     return DeleteFileResponseSchema(
         message=f"File '{file_name}' deleted successfully",
-        _links=generate_file_hateoas_links(lecture_id, category)
+        _links={
+
+        }
     )

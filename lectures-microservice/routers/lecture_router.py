@@ -3,22 +3,15 @@ from datetime import datetime
 from fastapi import APIRouter, Depends
 from fastapi import HTTPException, status
 
+from config import lectures_ms_host_address
 from database import db_wrapper
 from proto import auth_pb2
 from routers.files_router import validate_id
 from routers.models import *
-from routers.validator import roles_validator, validate_student_enrolled_in_lecture, validate_professor_owner_of_lecture
+from routers.validator import roles_validator, student_enrolled, validate_user, professor_owner
 
 router = APIRouter(tags=["Lecture Router"])
 
-
-def generate_hateoas_links(lecture_id: str) -> Dict[str, Link]:
-    return {
-        "self": Link(href=f"/lectures/{lecture_id}"),
-        "delete": Link(href=f"/lectures/{lecture_id}"),
-        "update_assessments": Link(href=f"/lectures/{lecture_id}/assessments"),
-        "create_course": Link(href=f"/lectures/{lecture_id}")
-    }
 
 @router.put("/lectures", status_code=status.HTTP_201_CREATED, responses={
     status.HTTP_409_CONFLICT: {"description": "Course already exists"},
@@ -30,12 +23,11 @@ def generate_hateoas_links(lecture_id: str) -> Dict[str, Link]:
     status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"}
 }, response_model=CreateCourseResponse)
 async def create_course(
-    request_body: LectureRequestBody,
-    _ = Depends(roles_validator([auth_pb2.PROFESSOR]))):
-
+        request_body: LectureRequestBody,
+        _=Depends(roles_validator([auth_pb2.PROFESSOR]))):
     lecture_id = validate_id(request_body.lecture_id)
 
-    existing_course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id })
+    existing_course = db_wrapper.get_database().lectures.find_one({"_id": lecture_id})
     if existing_course:
         raise HTTPException(status_code=409, detail="Course already exists")
 
@@ -48,13 +40,13 @@ async def create_course(
 
     db_wrapper.get_database().lectures.insert_one(course_data)
 
-    links = generate_hateoas_links(lecture_id)
-
     return CreateCourseResponse(
         message="Course created successfully",
         id=lecture_id,
         created_at=datetime.utcnow().isoformat(),
-        _links=links
+        _links={
+            "self": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}", type="GET"),
+        }
     )
 
 
@@ -68,8 +60,14 @@ async def create_course(
 }, response_model=AssessmentTestResponse)
 async def get_assessments(
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_student_enrolled_in_lecture([auth_pb2.PROFESSOR, auth_pb2.STUDENT]))):
-
+        owner=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR, auth_pb2.STUDENT],
+            execute_for=[
+                (auth_pb2.STUDENT, student_enrolled()),
+                (auth_pb2.PROFESSOR, professor_owner(throw_on_false=False)),
+            ],
+        ))
+):
     lecture = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
 
     if not lecture:
@@ -84,14 +82,21 @@ async def get_assessments(
         for test in assessment_tests
     ]
 
-    links: Dict[str, Link] = {
-        "self": Link(href=f"/lectures/{lecture_id}/assessments")
+    links = {
+        "self": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/assessments", type="GET")
     }
+    if owner:
+        links = {
+            "self": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/assessments", type="GET"),
+            "update": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/assessments", type="POST")
+        }
+
 
     return AssessmentTestResponse(
         _embedded={"assessment_tests": assessment_tests},
         _links=links
     )
+
 
 @router.post("/lectures/{lecture_id}/assessments", responses={
     status.HTTP_404_NOT_FOUND: {"description": "Lecture not found"},
@@ -105,11 +110,13 @@ async def get_assessments(
 async def replace_assessment_tests(
         new_tests: List[AssessmentTest],
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))) -> AssessmentTestResponse:
-
-    lecture = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
-    if not lecture:
-        raise HTTPException(status_code=404, detail="Lecture not found")
+        _=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR],
+            execute_for=[
+                (auth_pb2.PROFESSOR, professor_owner()),
+            ],
+        ))
+) -> AssessmentTestResponse:
 
     total_weight = sum(test.weight for test in new_tests)
     if total_weight != 100:
@@ -122,8 +129,11 @@ async def replace_assessment_tests(
 
     return AssessmentTestResponse(
         _embedded={"assessment_tests": new_tests},
-        _links=generate_hateoas_links(str(lecture_id))
+        _links={
+
+        }
     )
+
 
 @router.delete("/lectures/{lecture_id}", responses={
     status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
@@ -136,9 +146,13 @@ async def replace_assessment_tests(
 }, response_model=DeleteCourseResponse)
 async def delete_course(
         lecture_id: str = Depends(validate_id),
-        _ = Depends(validate_professor_owner_of_lecture([auth_pb2.PROFESSOR]))
+        _=Depends(validate_user(
+            roles=[auth_pb2.PROFESSOR],
+            execute_for=[
+                (auth_pb2.PROFESSOR, professor_owner())
+            ],
+        ))
 ) -> DeleteCourseResponse:
-
     course = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
     if not course:
         raise HTTPException(status_code=404, detail="Course not found")
@@ -148,6 +162,6 @@ async def delete_course(
     return DeleteCourseResponse(
         message=f"Course {lecture_id} deleted successfully",
         _links={
-            "create_course": Link(href=f"/lectures/{lecture_id}")
+            "self": Link(href=f"/lectures/{lecture_id}", type="DELETE")
         }
     )

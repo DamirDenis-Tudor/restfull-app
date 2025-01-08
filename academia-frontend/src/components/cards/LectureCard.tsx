@@ -49,7 +49,7 @@ export const LectureCard: React.FC<LectureCardProps> = ({ lecture, clickable = t
 
     const confirmDelete = () => {
         if (lecture && lecture._links["delete"]) {
-            fetchLink(lecture._links["delete"]).then(() => {
+            fetchLink(lecture._links["delete"], undefined).then(() => {
                 toast.error("Lecture deleted successfully.");
                 setShowConfirmDeleteModal(false);
             }).catch(() => {

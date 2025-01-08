@@ -41,13 +41,18 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                         .withRel("parent"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withSelfRel(),
-                    Link.of("${studyAddress}/api/academia/professors/${entity.id}")
-                        .withType("GET")
-                        .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
                         .withType("GET")
                         .withRel("my-lectures")
-                )
+                ).let {
+                    if (CurrentUserContext.getId().toInt() == entity.id)
+                        it + listOf(
+                            Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                                .withType("GET")
+                                .withRel("profile")
+                        )
+                    else it
+                }
             }
 
             Auth.Role.ADMIN -> {

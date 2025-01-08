@@ -56,69 +56,82 @@ def roles_validator(roles: list[auth_pb2.Role]):
 
     return validator
 
+def professor_owner(throw_on_false = True):
+    async def validator(lecture_id: int, request: Request,):
+        async with httpx.AsyncClient() as client:
+            try:
+                url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/professors/owner"
+                headers = {
+                    "Authorization": request.headers.get("Authorization")
+                }
+                response = await client.get(url = url, headers = headers)
 
-def validate_professor_owner_of_lecture(roles: list[auth_pb2.Role]):
-    async def validator(lecture_id: int, request: Request):
-        _, r = roles_validator(roles)(request)
-        if r is auth_pb2.PROFESSOR:
-            async with httpx.AsyncClient() as client:
-                try:
-                    url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/professors/owner"
-                    headers = {
-                        "Authorization": request.headers.get("Authorization")
-                    }
-                    response = await client.get(url = url, headers = headers)
-
-                    if response.status_code != 200:
-                        raise HTTPException(
-                            status_code=response.status_code,
-                            detail=response.text
-                        )
-
-                    data = response.json()
-
-                    if not bool(data):
-                        raise HTTPException(
-                            status_code=status.HTTP_403_FORBIDDEN,
-                            detail="The professor is not the owner of the lecture"
-                        )
-
-                except httpx.RequestError as e:
+                if response.status_code != 200:
                     raise HTTPException(
-                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        detail=f"Error during request: {str(e)}"
+                        status_code=response.status_code,
+                        detail=response.text
                     )
+
+                if throw_on_false and not bool(response.json()):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="The professor is not the owner of the lecture"
+                    )
+
+                if throw_on_false:
+                    return None
+
+                return bool(response.json())
+
+            except httpx.RequestError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=f"Error during request: {str(e)}"
+                )
     return validator
 
-def validate_student_enrolled_in_lecture(roles: list[auth_pb2.Role]):
+def student_enrolled( throw_on_false = True):
+    async def validator(lecture_id: int, request: Request):
+        async with httpx.AsyncClient() as client:
+            try:
+                url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/students/enrolled"
+                headers = {
+                    "Authorization": request.headers.get("Authorization")
+                }
+                response = await client.get(url = url, headers = headers)
+
+                if response.status_code != 200:
+                    raise HTTPException(
+                        status_code=response.status_code,
+                        detail=response.text
+                    )
+
+                data = response.json()
+
+                if throw_on_false and not bool(data):
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="The student is not enrolled in the lecture"
+                    )
+
+                if throw_on_false:
+                    return None
+
+                return bool(data)
+
+            except httpx.RequestError as e:
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail=f"Error during request: {str(e)}"
+                )
+    return validator
+
+
+def validate_user(roles: list[auth_pb2.Role], execute_for:list[tuple[auth_pb2.Role, callable]]):
     async def validator(lecture_id: int, request: Request):
         _, r = roles_validator(roles)(request)
-        if r is auth_pb2.STUDENT:
-            async with httpx.AsyncClient() as client:
-                try:
-                    url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/students/enrolled"
-                    headers = {
-                        "Authorization": request.headers.get("Authorization")
-                    }
-                    response = await client.get(url = url, headers = headers)
+        for execute in execute_for:
+            if r is execute[0]:
+                return await execute[1](lecture_id, request)
 
-                    if response.status_code != 200:
-                        raise HTTPException(
-                            status_code=response.status_code,
-                            detail=response.text
-                        )
-
-                    data = response.json()
-
-                    if not bool(data):
-                        raise HTTPException(
-                            status_code=status.HTTP_403_FORBIDDEN,
-                            detail="The student is not enrolled in the lecture"
-                        )
-
-                except httpx.RequestError as e:
-                    raise HTTPException(
-                        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-                        detail=f"Error during request: {str(e)}"
-                    )
     return validator

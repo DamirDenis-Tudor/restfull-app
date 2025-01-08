@@ -67,6 +67,19 @@ const LectureModal: React.FC<LectureModalProps> = ({ lecture, link, onClose }) =
             </Modal.Header>
             <Modal.Body>
                 <Form onSubmit={handleSubmit}>
+                    {!lecture && (
+                        <Form.Group controlId="id">
+                            <Form.Label>Lecture Code</Form.Label>
+                            <Form.Control
+                                type="text"
+                                name="id"
+                                value={formData.id}
+                                onChange={handleChange}
+                                placeholder="Enter lecture code"
+                            />
+                        </Form.Group>
+                    )}
+
                     <Form.Group controlId="lectureName">
                         <Form.Label>Lecture Name</Form.Label>
                         <Form.Control

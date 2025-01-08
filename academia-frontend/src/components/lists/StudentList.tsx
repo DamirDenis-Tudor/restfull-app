@@ -17,7 +17,7 @@ export const StudentList: React.FC<StudentListProps> = ({ link }) => {
 
     useEffect(() => {
         if (currentLink) {
-            fetchLink<EmbeddedResponse<Student>>(currentLink)
+            fetchLink<EmbeddedResponse<Student>, undefined>(currentLink, undefined)
                 .then((data) => {
                     setStudentData(data);
                 })
