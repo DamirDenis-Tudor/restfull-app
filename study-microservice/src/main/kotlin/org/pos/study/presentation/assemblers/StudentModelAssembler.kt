@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<Student>> {
-    @Value(value = "\${spring.study.host.address}")
+    @Value(value = "\${spring.study.host.hateoas}")
     lateinit var studyAddress: String
 
     override fun toModel(entity: Student): EntityModel<Student> {
@@ -45,9 +45,6 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                     Link.of("$studyAddress/api/academia/students/${entity.id}")
                         .withType("GET")
                         .withSelfRel(),
-                    Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
-                        .withType("GET")
-                        .withRel("lectures"),
                     Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
                         .withType("GET")
                         .withRel("lectures"),
@@ -97,13 +94,13 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                 )
             }
 
-            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
-                this.add(
-                    Link.of("$studyAddress/api/academia/students")
-                        .withRel("create")
-                        .withType("POST"),
-                )
-            }
+//            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
+//                this.add(
+//                    Link.of("$studyAddress/api/academia/students")
+//                        .withRel("create")
+//                        .withType("POST"),
+//                )
+//            }
         }
     }
 }

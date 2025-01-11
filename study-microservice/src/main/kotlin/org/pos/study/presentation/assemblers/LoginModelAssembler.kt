@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 
 @Component
 class LoginModelAssembler {
-    @Value(value = "\${spring.study.host.address}")
+    @Value(value = "\${spring.study.host.hateoas}")
     lateinit var studyAddress: String
 
     fun toModel(entity: LoginResponse, userId: String?): EntityModel<LoginResponse> {

@@ -118,7 +118,7 @@ async def upload_file(
             ],
         ))
 ):
-    course_dir = os.path.join(f"../files/{lecture_id}", category.value)
+    course_dir = os.path.join(f"files/{lecture_id}", category.value)
     os.makedirs(course_dir, exist_ok=True)
 
     time = random.randint(1000, 9999)
@@ -176,7 +176,7 @@ async def get_file(
     if not file_metadata:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File metadata not found in database")
 
-    file_path = os.path.join(f"../files/{lecture_id}", category.value, file_name)
+    file_path = os.path.join(f"files/{lecture_id}", category.value, file_name)
 
     if not os.path.exists(file_path):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="File not found on disk")
@@ -209,7 +209,7 @@ async def delete_file(
         ))
 
 ):
-    file_path = os.path.join(f"../files/{lecture_id}", category.value, file_name)
+    file_path = os.path.join(f"files/{lecture_id}", category.value, file_name)
     if os.path.exists(file_path):
         os.remove(file_path)
 

@@ -24,6 +24,7 @@ export const AppRoutes = () => {
         return (
             <Routes>
                 <Route path="/profile" element={<ProfilePage/>}/>
+                <Route path="/profile/student/:id" element={<ProfilePage/>}/>
                 <Route path="/profile/:id" element={<ProfilePage/>}/>
                 <Route path="/lecture/:id" element={<LecturePage/>}/>
                 <Route path="/lectures" element={<LecturesPage/>}/>
@@ -33,6 +34,7 @@ export const AppRoutes = () => {
     } else if (loginResponse.role === "STUDENT") {
         return (
             <Routes>
+                <Route path="/profile" element={<ProfilePage/>}/>
                 <Route path="/profile/:id" element={<ProfilePage/>}/>
                 <Route path="/lecture/:id" element={<LecturePage />} />
                 <Route path="*" element={<Navigate to="/profile" replace/>}/>
@@ -41,6 +43,7 @@ export const AppRoutes = () => {
     } else if (loginResponse.role === "ADMIN") {
         return (<Routes>
                 <Route path="/students" element={<StudentsPage/>}/>
+                <Route path="/professors" element={<ProfessorPage/>}/>
                 <Route path="/professors/*" element={<ProfessorPage/>}/>
                 <Route path="*" element={<Navigate to="/students" replace/>}/>
             </Routes>

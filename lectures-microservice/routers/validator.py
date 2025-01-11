@@ -1,3 +1,5 @@
+import socket
+
 import grpc
 import httpx
 from fastapi import HTTPException, Request, status
@@ -5,7 +7,7 @@ from fastapi import HTTPException, Request, status
 from config import auth_ms_host_address, study_ms_host_address
 from proto import auth_pb2_grpc, auth_pb2
 
-channel = grpc.insecure_channel(auth_ms_host_address)
+channel = grpc.insecure_channel(f"{socket.gethostbyname(auth_ms_host_address)}:50051")
 stub = auth_pb2_grpc.AuthServiceStub(channel)
 
 def validate_id(lecture_id: int):

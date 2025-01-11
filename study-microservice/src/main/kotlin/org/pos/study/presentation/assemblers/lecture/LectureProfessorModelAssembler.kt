@@ -16,10 +16,10 @@ import org.springframework.stereotype.Component
 class LectureProfessorModelAssembler(
     val lectureModelAssembler: LectureModelAssembler
 ) : RepresentationModelAssembler<Lecture, EntityModel<Lecture>> {
-    @Value(value = "\${spring.lectures.host.address}")
+    @Value(value = "\${spring.lectures.host.hateoas}")
     lateinit var lecturesAddress: String
 
-    @Value(value = "\${spring.study.host.address}")
+    @Value(value = "\${spring.study.host.hateoas}")
     lateinit var studyAddress: String
 
     override fun toModel(entity: Lecture): EntityModel<Lecture> {

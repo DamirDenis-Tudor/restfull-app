@@ -11,9 +11,9 @@ const ProfessorPage: React.FC = () => {
     return (
         <HomePageProvider>
             {location.state ? (
-                <ProfessorList key="All Students" link={location.state.professors}/>
+                <ProfessorList key="All Professors" link={location.state.professors}/>
             ) : (
-                <ProfessorList key="All Students" link={loginResponse._links["professors"]}/>
+                <ProfessorList key="All Professors" link={loginResponse._links["professors"]}/>
             )}
         </HomePageProvider>
     );

@@ -2,7 +2,7 @@ import os
 
 study_ms_host_address = os.getenv('STUDY_MS_HOST_ADDRESS', "http://0.0.0.0:8080")
 lectures_ms_host_address = os.getenv('LECTURES_MS_HOST_ADDRESS', "http://0.0.0.0:8000")
-auth_ms_host_address = os.getenv('AUTH_MS_HOST_ADDRESS', "0.0.0.0:50051")
+auth_ms_host_address = os.getenv('AUTH_MS_HOSTNAME', "0.0.0.0:50051")
 
 
 

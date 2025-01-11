@@ -2,11 +2,11 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Card, ListGroup } from 'react-bootstrap';
 import { fetchLink, Link, Student } from "../../api/hateoas.ts";
 import { HomePageContext } from "../../contexts/HomePageContext.tsx";
-import { ProfileCard } from "./ProfileCard.tsx";
 import { FaEdit, FaTrashAlt } from 'react-icons/fa';
 import StudentModal from "../modals/StudentModal.tsx";
 import ConfirmationModal from "../modals/ConfirmationModal.tsx";
 import {toast} from "react-toastify";
+import {useNavigate} from "react-router";
 
 interface StudentCardProps {
     link?: Link;
@@ -20,8 +20,8 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     const [isHovered, setIsHovered] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
-
-    const { setSelectedComponent } = useContext(HomePageContext);
+    const navigate = useNavigate();
+    useContext(HomePageContext);
 
     useEffect(() => {
         if (link) {
@@ -37,10 +37,12 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
         setIsClicked(true);
 
         if (student && student._links["profile"]) {
-            setSelectedComponent(
-                <ProfileCard
-                    card={<StudentCard layout="horizontal" link={student._links["profile"]}/>}
-                    lectureLink={student._links["lectures"]} title={'Student Profile'} />
+            navigate("/profile/student" + student.firstName, {
+                    state: {
+                        my_lectures: student._links["lectures"],
+                        me: student._links["profile"]
+                    },
+                }
             );
         }
 

@@ -74,9 +74,9 @@ export const NavBar: React.FC = () => {
                     >Students</Nav.Link>
                     <Nav.Link
                         onClick={() => {
-                            navigate("/students", {
+                            navigate("/professors", {
                                     state: {
-                                        students: loginResponse._links["professors"],
+                                        professors: loginResponse._links["professors"],
                                     },
                                 }
                             );
