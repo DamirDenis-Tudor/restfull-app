@@ -21,15 +21,12 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
         val links = when (CurrentUserContext.getRole()) {
             Auth.Role.STUDENT -> {
                 listOf(
-                    Link.of("${studyAddress}/api/academia/professors&size=3")
-                        .withType("GET")
-                        .withRel("parent"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withType("GET")
                         .withSelfRel(),
-                    Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                    Link.of("$studyAddress/api/academia/professors/${entity.id}")
                         .withType("GET")
-                        .withRel("my-lectures")
+                        .withRel("profile"),
                 )
             }
 
@@ -43,14 +40,15 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
                         .withType("GET")
-                        .withRel("my-lectures")
+                        .withRel("lectures")
                 ).let {
-                    if (CurrentUserContext.getId().toInt() == entity.id)
+                    if (CurrentUserContext.getId().toInt() == entity.id) {
                         it + listOf(
                             Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                                 .withType("GET")
                                 .withRel("profile")
                         )
+                    }
                     else it
                 }
             }
@@ -66,6 +64,12 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withRel("delete")
                         .withType("DELETE"),
+                    Link.of("$studyAddress/api/academia/professors/${entity.id}")
+                        .withType("GET")
+                        .withRel("profile"),
+                    Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
+                        .withType("GET")
+                        .withRel("lectures")
                 )
             }
 

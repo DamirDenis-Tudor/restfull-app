@@ -4,6 +4,7 @@ import LectureCard from "../cards/LectureCard.tsx";
 import { v4 } from "uuid";
 import { PaginationList } from "./PaginationList.tsx";
 import LectureModal from "../modals/LectureModal.tsx";
+import {toast} from "react-toastify";
 
 interface LectureListProps {
     link?: Link;
@@ -22,7 +23,7 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
                     setLecturesData(data);
                 })
                 .catch((error) => {
-                    console.error("Error fetching lectures data:", error);
+                    toast.error(error.message);
                 });
         }
     }, [currentLink, link]);
@@ -36,7 +37,7 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
 
     return (
         <>
-            {currentLink && lecturesData && (
+            {currentLink && lecturesData ? (
                 <PaginationList
                     key={"lectures"}
                     title="List of lectures"
@@ -47,7 +48,7 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
                     )}
                     onAddElement={lecturesData?._links["create"] ? openModal : undefined}
                 />
-            )}
+            ) : ( currentLink && <>Cannot load lectures</>)}
 
             {showModal && modalLink && (
                 <LectureModal

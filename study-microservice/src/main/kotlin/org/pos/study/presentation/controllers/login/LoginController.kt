@@ -31,7 +31,7 @@ import org.springframework.web.server.ResponseStatusException
 
 
 @RestController
-@RequestMapping("/login")
+@RequestMapping
 class LoginController(
     private val professorService: IProfessorService,
     private val studentService: IStudentService,
@@ -66,13 +66,13 @@ class LoginController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
         ]
     )
-    @PostMapping
+    @PostMapping("/login")
     fun login(
         @Valid @RequestBody loginRequest: LoginRequest
     ): ResponseEntity<EntityModel<LoginResponse>> = runBlocking {
@@ -138,14 +138,14 @@ class LoginController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
         ]
     )
 
-    @DeleteMapping
+    @PostMapping("/logout")
     fun logout(): ResponseEntity<EntityModel<LogoutResponse>> = runBlocking {
         val logoutRequest = Auth.TokenRequest
             .newBuilder()

@@ -31,7 +31,6 @@ class LectureStudentController(
     private val lectureProfessorService: ILectureProfessorService,
     private val studentModelAssembler: StudentModelAssembler,
     private val lectureStudentModelAssembler: LectureStudentModelAssembler,
-    private val lectureModelAssembler: LectureModelAssembler
 ) {
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -74,7 +73,7 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Service Unavailable",
                 content = [Content(mediaType = "application/json")]
             ),
@@ -153,7 +152,7 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Service Unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -219,7 +218,7 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Service Unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -284,7 +283,7 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -292,6 +291,23 @@ class LectureStudentController(
     )
     @GetMapping("enrolled")
     fun isStudentEnrolledInLecture(
+        @PathVariable
+        @Min(LectureConstraints.Id.MIN_SIZE)
+        @Max(LectureConstraints.Id.MAX_SIZE)
+        lectureId: Int,
+
+        @InjectId(forRole = Auth.Role.STUDENT)
+        id: String
+    ): ResponseEntity<Boolean> {
+        return ResponseEntity.ok(
+            lectureStudentService
+                .isStudentEnrolledInLecture(id, lectureId.toString())
+                .getOrThrow()
+        )
+    }
+
+    @GetMapping("attending")
+    fun getAttendingStudents(
         @PathVariable
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)

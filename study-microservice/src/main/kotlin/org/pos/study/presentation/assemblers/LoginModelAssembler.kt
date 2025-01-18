@@ -25,8 +25,8 @@ class LoginModelAssembler {
                         .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/logout")
-                        .withType("DELETE")
-                        .withSelfRel(),
+                        .withType("POST")
+                        .withRel("logout"),
                     Link.of("${studyAddress}/api/academia/professors")
                         .withType("GET")
                         .withRel("professors"),
@@ -42,11 +42,11 @@ class LoginModelAssembler {
                         .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/logout")
-                        .withType("DELETE")
-                        .withSelfRel(),
+                        .withType("POST")
+                        .withRel("logout"),
                     Link.of("${studyAddress}/api/academia/students/${userId}/lectures")
                         .withType("GET")
-                        .withRel("lectures"),
+                        .withRel("my-lectures"),
                     Link.of("${studyAddress}/api/academia/students/${userId}")
                         .withType("GET")
                         .withRel("me"),
@@ -59,8 +59,8 @@ class LoginModelAssembler {
                         .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/logout")
-                        .withType("DELETE")
-                        .withSelfRel(),
+                        .withType("POST")
+                        .withRel("logout"),
                     Link.of("${studyAddress}/api/academia/professors/${userId}")
                         .withType("GET")
                         .withRel("me"),

@@ -28,7 +28,7 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
             fetchLink<Student, undefined>(link, undefined)
                 .then((data) => setStudent(data))
                 .catch((error) => {
-                    throw error;
+                    toast.error(error.message);
                 });
         }
     }, [link]);
@@ -37,10 +37,10 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
         setIsClicked(true);
 
         if (student && student._links["profile"]) {
-            navigate("/profile/student" + student.firstName, {
+            navigate("/profile/student/" + student.firstName, {
                     state: {
-                        my_lectures: student._links["lectures"],
-                        me: student._links["profile"]
+                        lectures: student._links["lectures"],
+                        profile: student._links["profile"]
                     },
                 }
             );
@@ -163,15 +163,17 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
 
     return (
         <>
-            <Card
-                className={`student-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
-                style={cardStyle}
-                onClick={handleClick}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                {layout === 'vertical' ? renderVertical() : renderHorizontal()}
-            </Card>
+            { student && (
+                <Card
+                    className={`student-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
+                    style={cardStyle}
+                    onClick={handleClick}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    {layout === 'vertical' ? renderVertical() : renderHorizontal()}
+                </Card>
+            )}
 
             {showModal && student && student._links["update"] && (
                 <StudentModal

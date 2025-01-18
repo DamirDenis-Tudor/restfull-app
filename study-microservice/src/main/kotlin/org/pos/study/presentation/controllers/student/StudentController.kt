@@ -68,7 +68,7 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -129,7 +129,7 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -193,7 +193,7 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -251,7 +251,7 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -308,7 +308,7 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )

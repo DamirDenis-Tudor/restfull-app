@@ -29,7 +29,7 @@ class StudentLectureController(
     private val lectureStudentModelAssembler: LectureStudentModelAssembler
 ) {
 
-    @RequiresRoles(roles = [Auth.Role.STUDENT, Auth.Role.PROFESSOR])
+    @RequiresRoles(roles = [Auth.Role.STUDENT])
     @Operation(
         summary = "Get all lectures for a student",
         description = "Retrieves a paginated list of lectures for the specified student.",
@@ -64,7 +64,7 @@ class StudentLectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
@@ -134,7 +134,7 @@ class StudentLectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )

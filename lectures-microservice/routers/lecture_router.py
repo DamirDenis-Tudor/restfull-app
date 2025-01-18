@@ -21,7 +21,7 @@ router = APIRouter(tags=["Lecture Router"])
     status.HTTP_409_CONFLICT: {"description": "Course already exists"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"},
 }, response_model=CreateCourseResponse)
 async def create_course(
         request_body: LectureRequestBody,
@@ -56,10 +56,9 @@ async def create_course(
     status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
-    status.HTTP_404_NOT_FOUND: {"description": "Lecture or assessments not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"}
 }, response_model=AssessmentTestResponse)
 async def get_assessments(
         lecture_id: str = Depends(validate_id),
@@ -71,19 +70,9 @@ async def get_assessments(
             ],
         ))
 ):
-    lecture = db_wrapper.get_database().lectures.find_one({"_id": str(lecture_id)})
-
-    if not lecture:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Lecture not found")
-
-    assessment_tests = lecture.get("assessment_tests", [])
-    if not assessment_tests:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessments not found for this lecture")
-
-    assessment_tests: List[AssessmentTest] = [
-        AssessmentTest(type=test["type"], weight=float(test["weight"]))
-        for test in assessment_tests
-    ]
+    lecture = db_wrapper.get_database().lectures.find_one(
+        {"_id": str(lecture_id)},
+    )
 
     links = {
         "self": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/assessments", type="GET")
@@ -94,6 +83,20 @@ async def get_assessments(
             "update": Link(href=f"{lectures_ms_host_address}/api/academia/lectures/{lecture_id}/assessments", type="POST")
         }
 
+    if not lecture:
+        return AssessmentTestResponse(
+            _embedded={"assessment_tests": []},
+            _links=links
+        )
+
+    assessment_tests = lecture.get("assessment_tests", [])
+    if not assessment_tests:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Assessments not found for this lecture")
+
+    assessment_tests: List[AssessmentTest] = [
+        AssessmentTest(type=test["type"], weight=float(test["weight"]))
+        for test in assessment_tests
+    ]
 
     return AssessmentTestResponse(
         _embedded={"assessment_tests": assessment_tests},
@@ -109,7 +112,7 @@ async def get_assessments(
     status.HTTP_404_NOT_FOUND: {"description": "Lecture not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"},
 }, response_model=AssessmentTestResponse)
 async def replace_assessment_tests(
         new_tests: List[AssessmentTest],
@@ -124,18 +127,17 @@ async def replace_assessment_tests(
 
     total_weight = sum(test.weight for test in new_tests)
     if total_weight != 100:
-        raise HTTPException(status_code=416, detail="Total weight must be 100%")
+        raise HTTPException(status_code=422, detail="Total weight must be 100%")
 
     db_wrapper.get_database().lectures.update_one(
         {"_id": str(lecture_id)},
-        {"$set": {"assessment_tests": [{"type": test.type, "weight": test.weight.real} for test in new_tests]}}
+        {"$set": {"assessment_tests": [{"type": test.type, "weight": test.weight.real} for test in new_tests]}},
+        upsert=True
     )
 
     return AssessmentTestResponse(
         _embedded={"assessment_tests": new_tests},
-        _links={
-
-        }
+        _links={}
     )
 
 
@@ -147,7 +149,7 @@ async def replace_assessment_tests(
     status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"},
 
 }, response_model=DeleteCourseResponse)
 async def delete_course(

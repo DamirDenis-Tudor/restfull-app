@@ -83,7 +83,7 @@ class LectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Authorization service is unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -145,7 +145,7 @@ class LectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Authorization service is unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -198,7 +198,7 @@ class LectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Authorization service is unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -280,7 +280,7 @@ class LectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Authorization service is unavailable",
                 content = [Content(mediaType = "application/json")]
             )
@@ -345,7 +345,7 @@ class LectureController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
+                responseCode = "502",
                 description = "Authorization service or Disciplines service is unavailable",
                 content = [Content(mediaType = "application/json")]
             )

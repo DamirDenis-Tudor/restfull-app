@@ -45,6 +45,9 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                     Link.of("$studyAddress/api/academia/students/${entity.id}")
                         .withType("GET")
                         .withSelfRel(),
+                    Link.of("$studyAddress/api/academia/students/${entity.id}")
+                        .withType("GET")
+                        .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/students/${entity.id}/lectures")
                         .withType("GET")
                         .withRel("lectures"),
@@ -56,6 +59,9 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
                         .withType("PUT")
                         .withRel("update"),
+                    Link.of("$studyAddress/api/academia/students/${entity.id}")
+                        .withType("GET")
+                        .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
                         .withType("DELETE")
                         .withRel("delete"),
@@ -93,14 +99,6 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                         .withType("POST"),
                 )
             }
-
-//            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
-//                this.add(
-//                    Link.of("$studyAddress/api/academia/students")
-//                        .withRel("create")
-//                        .withType("POST"),
-//                )
-//            }
         }
     }
 }

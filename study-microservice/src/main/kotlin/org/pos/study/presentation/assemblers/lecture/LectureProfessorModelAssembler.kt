@@ -23,7 +23,7 @@ class LectureProfessorModelAssembler(
     lateinit var studyAddress: String
 
     override fun toModel(entity: Lecture): EntityModel<Lecture> {
-       return lectureModelAssembler.toModel(entity)
+        return lectureModelAssembler.toModel(entity)
     }
 
     fun toCollectionModel(
@@ -31,13 +31,15 @@ class LectureProfessorModelAssembler(
     ): CollectionModel<EntityModel<Lecture>> {
         val lectureModels = page.content.map { this.toModel(it) }
 
-        val paginationUri = when(CurrentUserContext.getRole()){
+        val paginationUri = when (CurrentUserContext.getRole()) {
             Auth.Role.STUDENT -> {
                 "${studyAddress}/api/academia/students/${CurrentUserContext.getId()}/lectures"
             }
+
             Auth.Role.PROFESSOR -> {
                 "${studyAddress}/api/academia/professors/${CurrentUserContext.getId()}/lectures"
             }
+
             else -> "${studyAddress}/api/academia/lectures"
         }
 
@@ -50,7 +52,9 @@ class LectureProfessorModelAssembler(
                     .withType("GET"),
             )
 
-            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR) {
+            if (CurrentUserContext.getRole() == Auth.Role.PROFESSOR &&
+                CurrentUserContext.getId().toInt() == (page.content.first().professor?.id ?: -1)
+            ) {
                 this.add(
                     Link.of("${studyAddress}/api/academia/lectures")
                         .withRel("create")

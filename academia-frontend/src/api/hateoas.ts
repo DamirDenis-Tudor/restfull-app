@@ -27,7 +27,7 @@ export interface FileInfo {
 }
 
 export interface Professor {
-    professorId: number;
+    id: number;
     affiliation: string;
     associationType: string;
     email: string;
@@ -83,7 +83,6 @@ export const fetchLink = async <T, B>(link: Link, body: B): Promise<T> => {
         }
 
         if (response.ok) {
-
             if (data) {
                 return JSON.parse(data);
             }
@@ -96,6 +95,4 @@ export const fetchLink = async <T, B>(link: Link, body: B): Promise<T> => {
     }
 
     throw Error()
-};
-
-
+}

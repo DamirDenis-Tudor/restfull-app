@@ -4,15 +4,14 @@ import {createRoot} from 'react-dom/client';
 import {AppRoutes} from "./routing/AppRoutes.tsx";
 import AuthProvider from "./contexts/AuthProvider.tsx";
 import {BrowserRouter} from "react-router";
-import {StrictMode} from "react";
 
 
 createRoot(document.getElementById('root')!).render(
-    <StrictMode>
+    //<StrictMode>
         <AuthProvider>
             <BrowserRouter>
                 <AppRoutes/>
             </BrowserRouter>
         </AuthProvider>
-    </StrictMode>
+    //</StrictMode>
 );

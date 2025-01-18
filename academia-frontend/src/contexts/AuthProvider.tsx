@@ -1,5 +1,7 @@
 import React, {useState} from "react";
 import AuthContext, {LoginRequest, LoginResponse} from "./AuthContext.tsx";
+import {fetchLink} from "../api/hateoas.ts";
+import {toast} from "react-toastify";
 
 const authUrl: string = "http://localhost:8080/api/academia/login";
 
@@ -35,6 +37,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
                 sessionStorage.setItem("token", data.token);
                 sessionStorage.setItem("role", data.role);
                 sessionStorage.setItem("_links", JSON.stringify(data._links));
+            }else {
+                toast.error(response.statusText);
             }
         } catch (error) {
             console.error("Login error:", error);
@@ -46,6 +50,10 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
     };
 
     const logout = (): void => {
+        fetchLink(loginResponse._links.logout, undefined).then(r =>
+            console.log("logout", r)
+        ).catch(e => console.error(e));
+
         sessionStorage.removeItem("token");
         sessionStorage.removeItem("role");
         setLoginResponse(defaultLoginResponse());

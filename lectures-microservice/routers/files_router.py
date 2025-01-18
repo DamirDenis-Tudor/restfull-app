@@ -2,7 +2,6 @@ import os
 import random
 import re
 from datetime import datetime
-from typing import Optional
 
 from fastapi import File, UploadFile, HTTPException, APIRouter, status, Depends
 from fastapi.responses import FileResponse
@@ -24,7 +23,7 @@ router = APIRouter(prefix="/lectures/{lecture_id}", tags=["Files Controller"])
     status.HTTP_404_NOT_FOUND: {"description": "No files found for the given lecture and category"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"}
 }, response_model=FileListResponse)
 async def list_files(
         lecture_id: str = Depends(validate_id),
@@ -108,7 +107,7 @@ async def list_files(
     status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"}
 }, response_model=UploadFileResponseSchema)
 async def upload_file(
         category: Category,
@@ -161,7 +160,7 @@ async def upload_file(
     status.HTTP_404_NOT_FOUND: {"description": "File metadata or file not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"}
 }, response_model=FileResponseSchema)
 async def get_file(
         category: Category,
@@ -202,7 +201,7 @@ async def get_file(
     status.HTTP_404_NOT_FOUND: {"description": "File not found or not found in database"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
     status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
+    status.HTTP_502_BAD_GATEWAY: {"description": "Authorization service unavailable"}
 }, response_model=DeleteFileResponseSchema)
 async def delete_file(
         category: Category,

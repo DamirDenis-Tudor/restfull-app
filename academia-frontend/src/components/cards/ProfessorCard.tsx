@@ -1,7 +1,6 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {Card, ListGroup} from 'react-bootstrap';
 import {fetchLink, Link, Professor} from "../../api/hateoas.ts";
-import {HomePageContext} from "../../contexts/HomePageContext.tsx";
 import {FaEdit, FaTrashAlt} from "react-icons/fa";
 import ProfessorModal from "../modals/ProfessorModal.tsx";
 import ConfirmationModal from "../modals/ConfirmationModal.tsx";
@@ -22,26 +21,24 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
     const [showConfirmDeleteModal, setShowConfirmDeleteModal] = useState(false);
     const navigate = useNavigate();
 
-    useContext(HomePageContext);
-
     useEffect(() => {
         if (link && professor === undefined) {
             fetchLink<Professor, undefined>(link, undefined)
                 .then((data) => setProfessor(data))
                 .catch((error) => {
-                    throw error;
+                    toast.error(error.message);
                 });
         }
-    }, [link, professor]);
+    }, [link ,professor]);
 
     const handleClick = () => {
         setIsClicked(true);
 
         if (professor && professor._links["profile"]) {
-            navigate("/profile/" + professor.firstName, {
+            navigate("/profile/professor/" + professor.firstName, {
                     state: {
-                        my_lectures: professor._links["my-lectures"],
-                        me: professor._links["me"]
+                        lectures: professor._links["lectures"],
+                        profile: professor._links["profile"]
                     },
                 }
             );
@@ -80,7 +77,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
             {professor ? (
                 <ListGroup variant="flush">
                     <ListGroup.Item>
-                        <strong>Id: {professor.professorId}</strong>
+                        <strong>Id: {professor.id}</strong>
                     </ListGroup.Item>
                     <ListGroup.Item>
                         <strong>Name:</strong>
@@ -103,33 +100,7 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
                         <span className="d-block">{professor.graderType}</span>
                     </ListGroup.Item>
                 </ListGroup>
-            ) : (
-                <ListGroup variant="flush">
-                    <ListGroup.Item>
-                        <strong>Id: -</strong>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Name:</strong>
-                        <span className="d-block">-</span>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Email:</strong>
-                        <span className="d-block">-</span>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Department:</strong>
-                        <span className="d-block">-</span>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Association Type:</strong>
-                        <span className="d-block">-</span>
-                    </ListGroup.Item>
-                    <ListGroup.Item>
-                        <strong>Grader Type:</strong>
-                        <span className="d-block">-</span>
-                    </ListGroup.Item>
-                </ListGroup>
-            )}
+            ) : (<></>)}
             {layout === 'vertical' && (
                 <div className="d-flex justify-content-between mt-3">
                     {professor?._links["update"] && (
@@ -193,15 +164,17 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
 
     return (
         <>
-            <Card
-                className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
-                style={cardStyle}
-                onClick={handleClick}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-            >
-                {layout === 'vertical' ? renderVertical() : renderHorizontal()}
-            </Card>
+            {professor ? (
+                <Card
+                    className={`lecture-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
+                    style={cardStyle}
+                    onClick={handleClick}
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
+                >
+                    {layout === 'vertical' ? renderVertical() : renderHorizontal()}
+                </Card>
+            ) : (<>Cannot load Professor Profile</>)}
 
             {showModal && professor && professor._links["update"] && (
                 <ProfessorModal
