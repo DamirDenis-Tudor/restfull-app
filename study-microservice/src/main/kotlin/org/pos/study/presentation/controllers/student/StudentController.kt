@@ -40,6 +40,10 @@ class StudentController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -54,13 +58,13 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected type.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type..",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -96,6 +100,10 @@ class StudentController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized, token invalid or missing",
                 content = [Content(mediaType = "application/json")]
@@ -112,7 +120,12 @@ class StudentController(
             ),
             ApiResponse(
                 responseCode = "422",
-                description = "Invalid ID parameter provided",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -153,7 +166,6 @@ class StudentController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Invalid student data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -164,6 +176,20 @@ class StudentController(
             ApiResponse(
                 responseCode = "403",
                 description = "Forbidden, user does not have necessary permissions",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "409",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -193,12 +219,6 @@ class StudentController(
             ),
             ApiResponse(
                 responseCode = "400",
-                description = "Bad request, invalid data format",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "416",
-                description = "Invalid parameters ranges",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -218,6 +238,16 @@ class StudentController(
             ),
             ApiResponse(
                 responseCode = "409",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -249,6 +279,10 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized, token invalid or missing",
                 content = [Content(mediaType = "application/json")]
@@ -264,13 +298,13 @@ class StudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Invalid parameters ranges",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Invalid parameter data",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(

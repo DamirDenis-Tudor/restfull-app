@@ -39,6 +39,10 @@ class ProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -53,13 +57,13 @@ class ProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type.",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -95,6 +99,10 @@ class ProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -109,13 +117,13 @@ class ProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type.",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -148,6 +156,10 @@ class ProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -162,13 +174,13 @@ class ProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Invalid data provided",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -196,6 +208,10 @@ class ProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -214,13 +230,13 @@ class ProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type.",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -250,7 +266,10 @@ class ProfessorController(
             ApiResponse(
                 responseCode = "204",
                 description = "Professor deleted successfully",
-
+            ),
+            ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
                 responseCode = "401",
@@ -267,13 +286,13 @@ class ProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range.",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type.",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(

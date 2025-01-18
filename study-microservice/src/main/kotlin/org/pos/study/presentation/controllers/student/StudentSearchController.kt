@@ -43,6 +43,10 @@ class StudentSearchController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "404",
                 content = [Content(mediaType = "application/json")]
             ),
@@ -57,13 +61,13 @@ class StudentSearchController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Parameters out of acceptable range",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Parameters out of acceptable types",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(

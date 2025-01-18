@@ -41,6 +41,10 @@ class LectureProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized",
                 content = [Content(mediaType = "application/json")]
@@ -51,13 +55,13 @@ class LectureProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Page range is out of bounds",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -94,6 +98,10 @@ class LectureProfessorController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "404",
                 description = "Lecture or professor not found",
                 content = [Content(mediaType = "application/json")]
@@ -109,17 +117,13 @@ class LectureProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "404",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
-                responseCode = "416",
-                description = "Page range is out of bounds",
-                content = [Content(mediaType = "application/json")]
-            ),
-            ApiResponse(
                 responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -154,6 +158,10 @@ class LectureProfessorController(
                 content = [Content(mediaType = "text/plain")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -168,13 +176,13 @@ class LectureProfessorController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Returned when any parameter does not match the expected range",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Returned when parameter is not expected type.",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(

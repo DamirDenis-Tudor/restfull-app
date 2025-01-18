@@ -46,6 +46,10 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized",
                 content = [Content(mediaType = "application/json")]
@@ -60,13 +64,13 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Page range is out of bounds",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -74,11 +78,6 @@ class LectureStudentController(
                 description = "Service Unavailable",
                 content = [Content(mediaType = "application/json")]
             ),
-            ApiResponse(
-                responseCode = "404",
-                description = "No students found for the given lecture",
-                content = [Content(mediaType = "application/json")]
-            )
         ]
     )
     fun getStudentsByLecture(
@@ -120,6 +119,10 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized",
                 content = [Content(mediaType = "application/json")]
@@ -140,13 +143,13 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Page range is out of bounds",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -188,6 +191,10 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized",
                 content = [Content(mediaType = "application/json")]
@@ -202,13 +209,13 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "416",
-                description = "Page range is out of bounds",
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
@@ -248,6 +255,10 @@ class LectureStudentController(
                 description = "True if the student is enrolled, otherwise false",
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Authorization header missing or invalid",
                 content = [Content(mediaType = "application/json")]
@@ -263,13 +274,22 @@ class LectureStudentController(
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "503",
                 description = "Returned when the authorization service is not available.",
                 content = [Content(mediaType = "application/json")]
             )
         ]
     )
-
     @GetMapping("enrolled")
     fun isStudentEnrolledInLecture(
         @PathVariable

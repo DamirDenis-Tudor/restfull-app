@@ -17,11 +17,13 @@ router = APIRouter(prefix="/lectures/{lecture_id}", tags=["Files Controller"])
 
 
 @router.get("/files", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "No files found for the given lecture and category"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Category must be 'course' or 'lab'"},
+    status.HTTP_200_OK: {"description": "A list with requested resource"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_404_NOT_FOUND: {"description": "No files found for the given lecture and category"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=FileListResponse)
 async def list_files(
@@ -99,12 +101,13 @@ async def list_files(
 
 
 @router.post("/files", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Category must be 'course' or 'lab'"},
     status.HTTP_200_OK: {"description": "File uploaded or updated successfully"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=UploadFileResponseSchema)
 async def upload_file(
@@ -151,11 +154,13 @@ async def upload_file(
 
 
 @router.get("/files/{file_name}", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "File metadata or file not found"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Category must be 'course' or 'lab'"},
+    status.HTTP_200_OK: {"description": "The requested resource"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_404_NOT_FOUND: {"description": "File metadata or file not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=FileResponseSchema)
 async def get_file(
@@ -191,10 +196,12 @@ async def get_file(
 
 @router.delete("/files/{file_name}", responses={
     status.HTTP_200_OK: {"description": "File deleted successfully"},
-    status.HTTP_404_NOT_FOUND: {"description": "File not found or not found in database"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_404_NOT_FOUND: {"description": "File not found or not found in database"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=DeleteFileResponseSchema)
 async def delete_file(
@@ -207,7 +214,6 @@ async def delete_file(
                 (auth_pb2.PROFESSOR, professor_owner(throw_on_false=False)),
             ],
         ))
-
 ):
     file_path = os.path.join(f"files/{lecture_id}", category.value, file_name)
     if os.path.exists(file_path):

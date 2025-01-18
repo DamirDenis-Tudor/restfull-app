@@ -41,6 +41,10 @@ class LectureSearchController(
                 content = [Content(mediaType = "application/hal+json")]
             ),
             ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
                 responseCode = "401",
                 description = "Unauthorized",
                 content = [Content(mediaType = "application/json")]
@@ -56,19 +60,14 @@ class LectureSearchController(
             ),
             ApiResponse(
                 responseCode = "422",
-                description = "Unprocessable entity (invalid parameters)",
+                description = "Returned when parameter request contains invalid data",
                 content = [Content(mediaType = "application/json")]
             ),
             ApiResponse(
-                responseCode = "503",
-                description = "Service Unavailable",
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
                 content = [Content(mediaType = "application/json")]
             ),
-            ApiResponse(
-                responseCode = "404",
-                description = "No lectures found",
-                content = [Content(mediaType = "application/json")]
-            )
         ]
     )
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])

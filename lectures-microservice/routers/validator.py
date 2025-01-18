@@ -12,7 +12,7 @@ stub = auth_pb2_grpc.AuthServiceStub(channel)
 
 def validate_id(lecture_id: int):
     if lecture_id < 1 or lecture_id > 999:
-        raise HTTPException(status_code=status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE,
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             detail="Lecture ID must be between 1 and 999 digits")
     return str(lecture_id)
 

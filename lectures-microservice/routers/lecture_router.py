@@ -14,13 +14,14 @@ router = APIRouter(tags=["Lecture Router"])
 
 
 @router.put("/lectures", status_code=status.HTTP_201_CREATED, responses={
-    status.HTTP_409_CONFLICT: {"description": "Course already exists"},
     status.HTTP_201_CREATED: {"description": "Course created successfully"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_409_CONFLICT: {"description": "Course already exists"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"}
 }, response_model=CreateCourseResponse)
 async def create_course(
         request_body: LectureRequestBody,
@@ -51,11 +52,13 @@ async def create_course(
 
 
 @router.get("/lectures/{lecture_id}/assessments", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "Lecture or assessments not found"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
+    status.HTTP_200_OK: {"description": "Get requested resource"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
+    status.HTTP_404_NOT_FOUND: {"description": "Lecture or assessments not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
     status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"}
 }, response_model=AssessmentTestResponse)
 async def get_assessments(
@@ -99,13 +102,14 @@ async def get_assessments(
 
 
 @router.post("/lectures/{lecture_id}/assessments", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "Lecture not found"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
     status.HTTP_200_OK: {"description": "Assessment tests replaced successfully"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
+    status.HTTP_404_NOT_FOUND: {"description": "Lecture not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
+    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
 }, response_model=AssessmentTestResponse)
 async def replace_assessment_tests(
         new_tests: List[AssessmentTest],
@@ -136,13 +140,15 @@ async def replace_assessment_tests(
 
 
 @router.delete("/lectures/{lecture_id}", responses={
-    status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_200_OK: {"description": "Course deleted successfully"},
+    status.HTTP_400_BAD_REQUEST: {"description": "Invalid content"},
     status.HTTP_401_UNAUTHORIZED: {"description": "Unauthorized, token invalid or missing"},
     status.HTTP_403_FORBIDDEN: {"description": "Forbidden, user does not have the necessary permissions"},
-    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
-    status.HTTP_416_REQUESTED_RANGE_NOT_SATISFIABLE: {"description": "Lecture ID must be between 1 and 999 digits"},
+    status.HTTP_404_NOT_FOUND: {"description": "Course not found"},
     status.HTTP_422_UNPROCESSABLE_ENTITY: {"description": "Invalid data or missing required information"},
+    status.HTTP_500_INTERNAL_SERVER_ERROR: {"description": "An error has occurred"},
+    status.HTTP_503_SERVICE_UNAVAILABLE: {"description": "Authorization service unavailable"},
+
 }, response_model=DeleteCourseResponse)
 async def delete_course(
         lecture_id: str = Depends(validate_id),
