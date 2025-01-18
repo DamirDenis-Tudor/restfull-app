@@ -1,4 +1,4 @@
-package org.pos.study.presentation.assemblers
+package org.pos.study.presentation.assemblers.student
 
 import api.academia.Auth
 import org.pos.study.persistence.entities.Student
@@ -76,12 +76,9 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
         return EntityModel.of(entity).add(links)
     }
 
-    fun toCollectionModel(page: Page<Student>, lectureId: Long? = null): CollectionModel<EntityModel<Student>> {
+    fun toCollectionModel(page: Page<Student>): CollectionModel<EntityModel<Student>> {
         val studentModels = page.content.map { this.toModel(it) }
-        val baseUri = when {
-            lectureId != null -> "$studyAddress/api/academia/lectures/$lectureId/students"
-            else -> "$studyAddress/api/academia/students"
-        }
+        val baseUri = "$studyAddress/api/academia/students"
 
         return CollectionModel.of(studentModels).apply {
             LinkUtils.addPaginationLinks(this, baseUri, page)

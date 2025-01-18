@@ -10,6 +10,7 @@ import org.pos.study.business.exceptions.EntityNotFound
 import org.pos.study.business.exceptions.EntityRangeUnsatisfiable
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import kotlin.runCatching
 
@@ -25,6 +26,20 @@ class LectureStudentService(
         }
         studentRepository.findByLecturesContaining(lecture, PageRequest.of(page, size)).also {
             if(!it.hasContent()) throw EntityNotFound("Lecture with ID $lectureId has no students.")
+        }
+    }
+
+    override fun getNotAttendingStudentsByLecture(
+        lectureId: String,
+        page: Int,
+        size: Int
+    ): Result<Page<Student>> = runCatching {
+        val lecture = lectureRepository.findById(lectureId).orElseThrow {
+            throw EntityNotFound("Lecture with ID $lectureId not found.")
+        }
+
+        studentRepository.findStudentsByLecturesNotContains(lecture, PageRequest.of(page, size)).also {
+            if(it.isEmpty) throw EntityNotFound("No students attending lectureId $lectureId.")
         }
     }
 

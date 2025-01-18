@@ -73,6 +73,9 @@ class LectureModelAssembler : RepresentationModelAssembler<Lecture, EntityModel<
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students")
                                 .withRel("students")
                                 .withType("GET"),
+                            Link.of("${studyAddress}/api/academia/lectures/${entity.id}/students/notEnrolled")
+                                .withRel("studentsNotEnrolled")
+                                .withType("GET"),
                             Link.of("${studyAddress}/api/academia/lectures/${entity.id}")
                                 .withRel("update")
                                 .withType("PUT"),

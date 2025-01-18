@@ -12,6 +12,7 @@ import java.util.Optional
 interface StudentRepository : JpaRepository<Student, Long> {
     fun findStudentByEmail(email: String): Optional<Student>
     fun findByLecturesContaining(student: Lecture, pageable: Pageable): Page<Student>
+    fun findStudentsByLecturesNotContains(lecture: Lecture, pageable: Pageable): Page<Student>
 
     @Query("""
         SELECT s FROM Student s WHERE

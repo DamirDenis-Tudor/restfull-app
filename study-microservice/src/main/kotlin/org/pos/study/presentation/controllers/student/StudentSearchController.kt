@@ -4,7 +4,7 @@ import api.academia.Auth
 import jakarta.validation.constraints.Max
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Size
-import org.pos.study.presentation.assemblers.StudentModelAssembler
+import org.pos.study.presentation.assemblers.student.StudentModelAssembler
 import org.pos.study.persistence.entities.Student
 import org.pos.study.business.dto.constraints.PageConstraints
 import org.pos.study.business.dto.constraints.StudentConstraints

@@ -96,7 +96,7 @@ def student_enrolled( throw_on_false = True):
     async def validator(lecture_id: int, request: Request):
         async with httpx.AsyncClient() as client:
             try:
-                url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/students/enrolled"
+                url = f"{study_ms_host_address}/api/academia/lectures/{lecture_id}/students/isEnrolled"
                 headers = {
                     "Authorization": request.headers.get("Authorization")
                 }

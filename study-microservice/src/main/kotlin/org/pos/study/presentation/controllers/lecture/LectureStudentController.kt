@@ -12,8 +12,7 @@ import org.pos.study.business.interfaces.lecture.ILectureProfessorService
 import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.persistence.entities.Student
 import org.pos.study.presentation.annotations.RequiresRoles
-import org.pos.study.presentation.assemblers.lecture.LectureModelAssembler
-import org.pos.study.presentation.assemblers.StudentModelAssembler
+import org.pos.study.presentation.assemblers.student.StudentModelAssembler
 import org.springframework.hateoas.CollectionModel
 import org.springframework.hateoas.EntityModel
 import org.springframework.http.ResponseEntity
@@ -23,13 +22,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.media.Content
 import org.pos.study.presentation.annotations.InjectId
 import org.pos.study.presentation.assemblers.lecture.LectureStudentModelAssembler
+import org.pos.study.presentation.assemblers.student.StudentLectureModelAssembler
 
 @RestController
 @RequestMapping("/lectures/{lectureId}/students")
 class LectureStudentController(
     private val lectureStudentService: ILectureStudentService,
     private val lectureProfessorService: ILectureProfessorService,
-    private val studentModelAssembler: StudentModelAssembler,
+    private val studentLectureModelAssembler: StudentLectureModelAssembler,
     private val lectureStudentModelAssembler: LectureStudentModelAssembler,
 ) {
 
@@ -103,7 +103,7 @@ class LectureStudentController(
         }
 
         return lectureStudentService.getStudentsByLecture(lectureId.toString(), page, size).getOrThrow()
-            .let { ResponseEntity.ok(studentModelAssembler.toCollectionModel(it, lectureId.toLong())) }
+            .let { ResponseEntity.ok(studentLectureModelAssembler.toCollectionModel(it, lectureId.toLong())) }
     }
 
     @RequiresRoles(roles = [Auth.Role.PROFESSOR])
@@ -289,7 +289,7 @@ class LectureStudentController(
             )
         ]
     )
-    @GetMapping("enrolled")
+    @GetMapping("isEnrolled")
     fun isStudentEnrolledInLecture(
         @PathVariable
         @Min(LectureConstraints.Id.MIN_SIZE)
@@ -306,20 +306,76 @@ class LectureStudentController(
         )
     }
 
-    @GetMapping("attending")
-    fun getAttendingStudents(
+    @RequiresRoles(roles = [Auth.Role.PROFESSOR])
+    @Operation(
+        summary = "Get a list un students that are not enrolled in a lecture",
+        responses = [
+            ApiResponse(
+                responseCode = "200",
+                description = "List of students",
+            ),
+            ApiResponse(
+                responseCode = "400",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "401",
+                description = "Authorization header missing or invalid",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "403",
+                description = "Current user role is not allowed to this endpoint.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "404",
+                description = "Lecture or Student not found.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "422",
+                description = "Returned when parameter request contains invalid data",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "500",
+                description = "Returned when when an internal server error occurred.",
+                content = [Content(mediaType = "application/json")]
+            ),
+            ApiResponse(
+                responseCode = "502",
+                description = "Returned when the authorization service is not available.",
+                content = [Content(mediaType = "application/json")]
+            )
+        ]
+    )
+    @GetMapping("notEnrolled")
+    fun getNotAttendingStudents(
         @PathVariable
         @Min(LectureConstraints.Id.MIN_SIZE)
         @Max(LectureConstraints.Id.MAX_SIZE)
         lectureId: Int,
 
-        @InjectId(forRole = Auth.Role.STUDENT)
+        @Min(PageConstraints.Page.MIN_VALUE)
+        @Max(PageConstraints.Page.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Page.DEFAULT_VALUE}")
+        page: Int = PageConstraints.Page.DEFAULT_VALUE.toInt(),
+
+        @Min(PageConstraints.Size.MIN_VALUE)
+        @Max(PageConstraints.Size.MAX_VALUE)
+        @RequestParam(defaultValue = "${PageConstraints.Size.DEFAULT_VALUE}")
+        size: Int = PageConstraints.Size.DEFAULT_VALUE.toInt(),
+
+        @InjectId(forRole = Auth.Role.PROFESSOR)
         id: String
-    ): ResponseEntity<Boolean> {
-        return ResponseEntity.ok(
-            lectureStudentService
-                .isStudentEnrolledInLecture(id, lectureId.toString())
-                .getOrThrow()
-        )
+
+    ): ResponseEntity<CollectionModel<EntityModel<Student>>> {
+        id.takeIf { it.isNotBlank() }?.let {
+            lectureProfessorService.isProfessorOwnerOfLecture(id, lectureId.toString()).getOrThrow()
+        }
+
+        return lectureStudentService.getNotAttendingStudentsByLecture(lectureId.toString(), page, size).getOrThrow()
+            .let { ResponseEntity.ok(studentLectureModelAssembler.toCollectionModel(it, lectureId.toLong(), "notAttending")) }
     }
 }
