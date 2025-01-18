@@ -74,7 +74,7 @@ class RequiresRolesAspect(
                 else -> ""
             }
 
-            CurrentUserContext.setData(validateResponse.success.role to id)
+            CurrentUserContext.setData(validateResponse.success.role to id to validateRequest.token)
 
             (joinPoint.signature as MethodSignature).method.parameters.withIndex().forEach { (index, parameter) ->
                 parameter.getAnnotation(InjectId::class.java)?.let { injectValue ->

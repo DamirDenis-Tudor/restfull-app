@@ -7,12 +7,15 @@ import jakarta.validation.Valid
 import kotlinx.coroutines.runBlocking
 import org.pos.study.business.dto.login.LoginRequest
 import org.pos.study.business.dto.login.LoginResponse
+import org.pos.study.business.dto.login.LogoutResponse
 import org.pos.study.business.interfaces.lecture.ILectureStudentService
 import org.pos.study.business.interfaces.professor.IProfessorService
 import org.pos.study.business.interfaces.student.IStudentService
 import org.pos.study.persistence.entities.Professor
+import org.pos.study.presentation.aspects.CurrentUserContext
 import org.pos.study.presentation.assemblers.LoginModelAssembler
 import org.springframework.hateoas.EntityModel
+import org.springframework.hateoas.Link
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
@@ -62,5 +65,23 @@ class LoginController(
             }
 
         return@runBlocking ResponseEntity.ok(loginModelAssembler.toModel(loginResponse, userId = userId?.toString()))
+    }
+
+    @PostMapping
+    fun logout(): ResponseEntity<EntityModel<LogoutResponse>> = runBlocking {
+        val logoutRequest = Auth.TokenRequest
+            .newBuilder()
+            .setToken(CurrentUserContext.getToken())
+            .build()
+
+        val response = runCatching { authGrpcStub.invalidateToken(logoutRequest) }.getOrElse {
+            throw ResponseStatusException(HttpStatus.BAD_GATEWAY, "Authentication Service is not available.")
+        }
+
+        if (response.hasError()) {
+            throw ResponseStatusException(HttpStatus.UNAUTHORIZED, response.error.message)
+        }
+
+        return@runBlocking ResponseEntity.ok(EntityModel.of(LogoutResponse(message = response.success)))
     }
 }

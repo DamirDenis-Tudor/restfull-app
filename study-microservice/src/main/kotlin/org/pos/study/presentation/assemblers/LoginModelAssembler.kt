@@ -22,7 +22,10 @@ class LoginModelAssembler {
             Auth.Role.ADMIN -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
-                        .withType("GET")
+                        .withType("POST")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/logout")
+                        .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors")
                         .withType("GET")
@@ -36,7 +39,10 @@ class LoginModelAssembler {
             Auth.Role.STUDENT -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
-                        .withType("GET")
+                        .withType("POST")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/logout")
+                        .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/students/${userId}/lectures")
                         .withType("GET")
@@ -50,7 +56,10 @@ class LoginModelAssembler {
             Auth.Role.PROFESSOR -> {
                 listOf(
                     Link.of("${studyAddress}/api/academia/login")
-                        .withType("GET")
+                        .withType("POST")
+                        .withSelfRel(),
+                    Link.of("${studyAddress}/api/academia/logout")
+                        .withType("POST")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${userId}")
                         .withType("GET")

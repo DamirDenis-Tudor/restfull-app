@@ -24,7 +24,6 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                     Link.of("${studyAddress}/api/academia/professors&size=3")
                         .withType("GET")
                         .withRel("parent"),
-
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withType("GET")
                         .withSelfRel(),
@@ -40,6 +39,7 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                         .withType("GET")
                         .withRel("parent"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
+                        .withType("GET")
                         .withSelfRel(),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
                         .withType("GET")
