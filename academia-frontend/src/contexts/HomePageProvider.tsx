@@ -30,7 +30,7 @@ export const HomePageProvider: React.FC<{ children: React.ReactNode }> = ({child
         <HomePageContext.Provider value={{componentWithLink, setSelectedComponent}}>
             <ToastContainer/>
             <NavBar/>
-            <div className="h-screen flex items-center justify-center bg-white-200">
+            <div className="h-screen flex items-center justify-center bg-white-200" style={{transform: 'scale(0.88)', transformOrigin: 'top'}}>
                 <Container
                     fluid
                     className="w-75 min-h-[90%]  h-auto flex flex-col items-center justify-center

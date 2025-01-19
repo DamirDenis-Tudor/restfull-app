@@ -20,7 +20,7 @@ const LoginPage: React.FC = () => {
     };
 
     return (
-        <div className="h-screen flex items-center justify-center bg-white-200">
+        <div className="h-screen flex items-center justify-center bg-white-200" style={{transform: 'scale(0.9)', transformOrigin: 'top'}}>
             <Container className="w-25 flex flex-col items-center justify-center tw-bg-gray-500 bg-opacity-80 p-6 rounded-lg shadow-lg max-w-sm mx-auto">
                 <p className="text-3xl font-bold mb-6 flex items-center text-black">
                     <img

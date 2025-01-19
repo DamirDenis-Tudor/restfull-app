@@ -33,7 +33,7 @@ export const FileUploadModal: React.FC<FileUploadModalProps> = ({ show, onHide, 
     };
 
     return (
-        <Modal show={show} onHide={onHide}>
+        <Modal show={show} onHide={onHide} style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
             <Modal.Header closeButton>
                 <Modal.Title>Upload File</Modal.Title>
             </Modal.Header>

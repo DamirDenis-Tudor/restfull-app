@@ -1,20 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { EmbeddedResponse, fetchLink, Link, Student } from "../../api/hateoas.ts";
 import { v4 } from "uuid";
-import { PaginationListHorizontalWithAdd } from "./PaginationListHorizontalWithAdd.tsx";
 import StudentCard from "../cards/StudentCard.tsx";
-import StudentModal from "../modals/StudentModal.tsx";
+import {PaginationListVerticalClickable} from "./PaginationListVerticalClickable.tsx";
+
 
 interface StudentListProps {
     link?: Link;
-    onClickOverride?: (id:number, active:boolean) => void;
 }
 
-export const StudentList: React.FC<StudentListProps> = ({ link, onClickOverride }) => {
+export const StudentListSelectable: React.FC<StudentListProps> = ({ link }) => {
     const [studentData, setStudentData] = useState<EmbeddedResponse<Student>>();
     const [currentLink, setCurrentLink] = useState<Link | undefined>(link);
-    const [showModal, setShowModal] = useState<boolean>(false);
-    const [modalLink, setModalLink] = useState<Link | undefined>(undefined);
 
     useEffect(() => {
         if (currentLink) {
@@ -28,33 +25,17 @@ export const StudentList: React.FC<StudentListProps> = ({ link, onClickOverride 
         }
     }, [currentLink, link]);
 
-    const openModal = () => {
-        if (studentData?._links["create"]) {
-            setModalLink(studentData._links["create"]);
-            setShowModal(true);
-        }
-    };
-
     return (
         <>
             {currentLink && studentData && (
-                <PaginationListHorizontalWithAdd
+                <PaginationListVerticalClickable
                     key={"students"}
                     title="List of students"
                     data={studentData}
                     setCurrentLink={setCurrentLink}
                     renderItem={(student: Student | undefined) => {
-                        return <StudentCard layout={'vertical'} key={v4()} stud={student} onClickOverride={onClickOverride} />;
+                        return <StudentCard layout={'horizontal'} key={v4()} stud={student} onClickOverride = {() =>  console.log("Tessstttt") } />;
                     }}
-                    onAddElement={studentData?._links["create"] ? openModal : undefined}
-                />
-            )}
-
-            {showModal && modalLink && (
-                <StudentModal
-                    link={modalLink}
-                    student={undefined}
-                    onClose={() => setShowModal(false)}
                 />
             )}
         </>

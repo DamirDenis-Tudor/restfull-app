@@ -1,10 +1,10 @@
-
 services:
-  academia-fe:
-    build:
-      context: academia-frontend
-    ports:
-      - "5173:5173"
+#  academia-fe:
+#    build:
+#      context: academia-frontend
+#    ports:
+#      - "5174:5173"
+#    restart: on-failure
 
   auth-ms:
     build:
@@ -19,6 +19,7 @@ services:
     networks:
       - academia
       - auth
+    restart: on-failure
 
   auth-db:
     build:
@@ -29,6 +30,7 @@ services:
       - mysql_data_auth:/data/db
     networks:
       - auth
+    restart: on-failure
 
   study-ms:
     build:
@@ -44,6 +46,7 @@ services:
     networks:
       - academia
       - study
+    restart: on-failure
 
   study-db:
     build:
@@ -54,6 +57,7 @@ services:
       - mysql_data_study:/data/db
     networks:
       - study
+    restart: on-failure
 
   lecture-ms:
     build:
@@ -69,6 +73,7 @@ services:
     networks:
       - academia
       - lecture
+    restart: on-failure
 
   lectures-db:
     build:
@@ -79,6 +84,7 @@ services:
       - mongo_data_lectures:/data/db1
     networks:
       - lecture
+    restart: on-failure
 
 volumes:
   mongo_data_lectures:

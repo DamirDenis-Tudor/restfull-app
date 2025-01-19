@@ -62,7 +62,7 @@ const StudentModal: React.FC<StudentModalProps> = ({ student, link, onClose }) =
     };
 
     return (
-        <Modal show={true} onHide={onClose}>
+        <Modal show={true} onHide={onClose} style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
             <Modal.Header closeButton>
                 <Modal.Title>{student ? 'Edit Student' : 'Add New Student'}</Modal.Title>
             </Modal.Header>

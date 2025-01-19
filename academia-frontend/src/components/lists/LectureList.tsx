@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { EmbeddedResponse, fetchLink, Lecture, Link } from "../../api/hateoas.ts";
 import LectureCard from "../cards/LectureCard.tsx";
 import { v4 } from "uuid";
-import { PaginationList } from "./PaginationList.tsx";
+import { PaginationListHorizontalWithAdd } from "./PaginationListHorizontalWithAdd.tsx";
 import LectureModal from "../modals/LectureModal.tsx";
 import {toast} from "react-toastify";
 
@@ -38,7 +38,7 @@ export const LectureList: React.FC<LectureListProps> = ({ link }) => {
     return (
         <>
             {currentLink && lecturesData ? (
-                <PaginationList
+                <PaginationListHorizontalWithAdd
                     key={"lectures"}
                     title="List of lectures"
                     data={lecturesData}

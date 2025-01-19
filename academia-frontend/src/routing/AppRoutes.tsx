@@ -38,7 +38,7 @@ export const AppRoutes = () => {
                 <Route path="/profile/student" element={<StudentProfilePage isCurrentUser={true}/>}/>
                 <Route path="/profile/student/:id" element={<StudentProfilePage isCurrentUser={false}/>}/>
                 <Route path="/profile/professor/:id" element={<ProfessorProfilePage isCurrentUser={false}/>}/>
-                <Route path="/lecture/:id" element={<LecturePage />} />
+                <Route path="/lecture/:id" element={<LecturePage/>}/>
                 <Route path="*" element={<Navigate to="/profile/student" replace/>}/>
             </Routes>
         );

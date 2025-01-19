@@ -63,7 +63,7 @@ const ProfessorModal: React.FC<ProfessorModalProps> = ({ professor, link, onClos
     };
 
     return (
-        <Modal show={true} onHide={onClose}>
+        <Modal show={true} onHide={onClose} style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
             <Modal.Header closeButton>
                 <Modal.Title>{professor ? 'Edit Professor' : 'Add New Professor'}</Modal.Title>
             </Modal.Header>

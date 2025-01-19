@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {EmbeddedResponse, fetchLink, Link, Professor} from "../../api/hateoas.ts";
 import {v4} from "uuid";
-import {PaginationList} from "./PaginationList.tsx";
+import {PaginationListHorizontalWithAdd} from "./PaginationListHorizontalWithAdd.tsx";
 import ProfessorCard from "../cards/ProfessorCard.tsx"; // Assuming you have a ProfessorCard component
 import ProfessorModal from "../modals/ProfessorModal.tsx";
 
@@ -37,7 +37,7 @@ export const ProfessorList: React.FC<ProfessorListProps> = ({link}) => {
     return (
         <>
             {currentLink && professorData && (
-                <PaginationList
+                <PaginationListHorizontalWithAdd
                     key="professors"
                     title="List of Professors"
                     data={professorData}

@@ -12,9 +12,10 @@ interface StudentCardProps {
     link?: Link;
     stud?: Student;
     layout: 'vertical' | 'horizontal';
+    onClickOverride?: (id: number, isActive: boolean) => void | undefined
 }
 
-const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical' }) => {
+const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertical', onClickOverride = undefined}) => {
     const [student, setStudent] = useState<Student | undefined>(stud);
     const [isClicked, setIsClicked] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
@@ -154,11 +155,12 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
     );
 
     const cardStyle = {
-        width: layout === 'horizontal' ? '100%' : '20rem',
+        width:  '100%',
+        alignItems: 'center',
         cursor: 'pointer',
         transition: 'transform 0.3s ease, border-color 0.3s ease',
         borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)',
+        transform: isHovered ? 'scale(1.00)' : 'scale(0.9)',
     };
 
     return (
@@ -167,7 +169,10 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
                 <Card
                     className={`student-card ${isClicked ? 'clicked' : ''} shadow-sm mb-10`}
                     style={cardStyle}
-                    onClick={handleClick}
+                    onClick={onClickOverride ? () => {
+                        setIsClicked(!isClicked);
+                        onClickOverride(student.id, isClicked)
+                    } : handleClick }
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                 >

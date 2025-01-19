@@ -61,7 +61,7 @@ const LectureModal: React.FC<LectureModalProps> = ({ lecture, link, onClose }) =
     };
 
     return (
-        <Modal show={true} onHide={onClose}>
+        <Modal show={true} onHide={onClose} style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
             <Modal.Header closeButton>
                 <Modal.Title>{lecture ? 'Update Lecture' : 'Add New Lecture'}</Modal.Title>
             </Modal.Header>

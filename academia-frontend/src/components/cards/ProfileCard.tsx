@@ -14,7 +14,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({card, lectureLink, titl
     return (
         <>
             <h4>{title}</h4>
-            <Row className="justify-content-center">
+            <Row className="justify-content-center" >
                 {card}
             </Row>
             <LectureList key={v4()} link={lectureLink}/>

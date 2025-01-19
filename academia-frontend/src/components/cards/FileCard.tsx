@@ -11,8 +11,8 @@ interface FileCardProps {
 
 const FileCard: React.FC<FileCardProps> = ({ file, onDelete }) => {
     return (
-        <div className="d-flex justify-content-between w-100 border p-3">
-            <div className="text-truncate" style={{ maxWidth: 'calc(100% - 30px)' }}>
+        <div className="d-flex justify-content-between w-100 border p-3" style={{transform: 'scale(0.90)'}}>
+            <div className="text-truncate" style={{ maxWidth: 'calc(100% - 30px)'}}>
                 {file.file_name}
                 <br />
                 <small>Uploaded on: {new Date(file.uploaded_at).toLocaleString()}</small>

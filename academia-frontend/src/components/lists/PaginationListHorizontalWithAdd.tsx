@@ -12,7 +12,7 @@ interface PaginationProps<T> {
     onAddElement?: () => void;
 }
 
-export const PaginationList = <T, >(
+export const PaginationListHorizontalWithAdd = <T, >(
     {
         title,
         data,

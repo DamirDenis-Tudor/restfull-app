@@ -92,7 +92,7 @@ export const NavBar: React.FC = () => {
 
 
     return (
-        <Navbar style={{zIndex: 1}} expand="lg" bg="light" className="border-black position-fixed w-100 top-0 start-0">
+        <Navbar style={{zIndex: 1, transform: 'scale(0.895)', transformOrigin: 'top'}} expand="lg" bg="light" className="border-black position-fixed w-100 top-0 start-0">
             <Container>
                 <Navbar.Brand href="/" className="fw-bold flex items-center">
                     <img

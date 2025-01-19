@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {Spinner, Col, Button, Modal, Form} from 'react-bootstrap';
+import {Spinner, Col, Button} from 'react-bootstrap';
 import {
     Lecture,
     Link,
@@ -15,6 +15,7 @@ import ProfessorCard from "./cards/ProfessorCard.tsx";
 import {StudentList} from "./lists/StudentList.tsx";
 import {ItemsList} from "./lists/ItemsList.tsx";
 import {toast} from "react-toastify";
+import {EnrollUnenrollModal} from "./modals/EnrollUnenrollModal.tsx";
 
 interface FullLectureCardProps {
     lectureLink: Link;
@@ -28,9 +29,8 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
         lectureLink,
         assessmentLink,
         professorLink,
-        filesLink
+        filesLink,
     }) => {
-
     const [lectureInfo, setLectureInfo] = useState<Lecture>();
     const [assessments, setAssessments] = useState<EmbeddedResponse<AssessmentTest>>();
     const [files, setFiles] = useState<EmbeddedResponse<FileInfo>>();
@@ -40,63 +40,39 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
 
     useEffect(() => {
         fetchLink<Lecture, undefined>(lectureLink, undefined)
-            .then((data) => {
-                setLectureInfo(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching lectureLink data:", error);
-            });
+            .then(setLectureInfo)
+            .catch((error) => console.error("Error fetching lectureLink data:", error));
 
         fetchLink<EmbeddedResponse<AssessmentTest>, undefined>(assessmentLink, undefined)
-            .then((data) => {
-                setAssessments(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching assessmentLink data:", error);
-            });
+            .then(setAssessments)
+            .catch((error) => console.error("Error fetching assessmentLink data:", error));
 
         fetchLink<EmbeddedResponse<FileInfo>, undefined>(filesLink, undefined)
-            .then((data) => {
-                setFiles(data);
-            })
-            .catch((error) => {
-                console.error("Error fetching filesLink data:", error);
-            });
+            .then(setFiles)
+            .catch((error) => console.error("Error fetching filesLink data:", error));
     }, [lectureLink, assessmentLink, filesLink]);
 
     const handleEnrollUnenroll = () => {
         const studentIdsArray = studentIds.split(',')
-            .map(id => id.trim())
-            .filter(id => !isNaN(Number(id)))
-            .map(id => Number(id));
+            .map((id) => id.trim())
+            .filter((id) => !isNaN(Number(id)))
+            .map(Number);
 
         if (studentIdsArray.length === 0) {
             toast.error("Please provide valid student IDs.");
             return;
         }
 
-        if (isEnrolling) {
-            if (lectureInfo?._links.enroll) {
-                fetchLink(lectureInfo._links.enroll, studentIdsArray)
-                    .then(() => {
-                        toast.success("Successfully enrolled students");
-                        setShowModal(false);
-                    })
-                    .catch((error) => {
-                        toast.error(error.message || "An error occurred while enrolling students.");
-                    });
-            }
-        } else {
-            if (lectureInfo?._links.unenroll) {
-                fetchLink(lectureInfo._links.unenroll, studentIdsArray)
-                    .then(() => {
-                        toast.success("Successfully unenrolled students");
-                        setShowModal(false);
-                    })
-                    .catch((error) => {
-                        toast.error(error.message || "An error occurred while unenrolling students.");
-                    });
-            }
+        const link = isEnrolling ? lectureInfo?._links.enroll : lectureInfo?._links.unenroll;
+        if (link) {
+            fetchLink(link, studentIdsArray)
+                .then(() => {
+                    toast.success(`Successfully ${isEnrolling ? 'enrolled' : 'unenrolled'} students`);
+                    setShowModal(false);
+                })
+                .catch((error) => {
+                    toast.error(error.message || `An error occurred while ${isEnrolling ? 'enrolling' : 'unenrolling'} students.`);
+                });
         }
     };
 
@@ -115,7 +91,7 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
     }
 
     return (
-        <>
+        <div className="justify-content-center">
             <Col md={12} lg={11}>
                 <ItemsList
                     items={[
@@ -144,32 +120,15 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
                 <StudentList link={lectureInfo?._links.students}/>
             </Col>
 
-            <Modal show={showModal} onHide={handleCloseModal}>
-                <Modal.Header closeButton>
-                    <Modal.Title>{isEnrolling ? 'Enroll Students' : 'Unenroll Students'}</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>
-                    <Form>
-                        <Form.Group controlId="studentIds">
-                            <Form.Label>Enter Student IDs (comma separated)</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={studentIds}
-                                onChange={(e) => setStudentIds(e.target.value)}
-                                placeholder="e.g., 1, 2, 3"
-                            />
-                        </Form.Group>
-                    </Form>
-                </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={handleCloseModal}>
-                        Close
-                    </Button>
-                    <Button variant="primary" onClick={handleEnrollUnenroll}>
-                        {isEnrolling ? 'Enroll' : 'Unenroll'}
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </>
+            <EnrollUnenrollModal
+                show={showModal}
+                isEnrolling={isEnrolling}
+                studentIds={studentIds}
+                studentLink={isEnrolling ? lectureInfo?._links.studentsNotEnrolled : lectureInfo?._links.students}
+                onStudentIdsChange={setStudentIds}
+                handleClose={handleCloseModal}
+                handleAction={handleEnrollUnenroll}
+            />
+        </div>
     );
 };

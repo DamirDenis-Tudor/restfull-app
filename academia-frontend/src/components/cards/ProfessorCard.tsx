@@ -155,11 +155,11 @@ const ProfessorCard: React.FC<ProfessorCardProps> = ({link, prof, layout = 'vert
     );
 
     const cardStyle = {
-        width: layout === 'horizontal' ? '100%' : '20rem',
+        width: '100%',
         cursor: 'pointer',
         transition: 'transform 0.3s ease, border-color 0.3s ease',
         borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
-        transform: isHovered ? 'scale(1.05)' : 'scale(1)'
+        transform: isHovered ? 'scale(1.00)' : 'scale(0.9)',
     };
 
     return (
