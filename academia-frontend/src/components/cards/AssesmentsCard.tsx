@@ -59,7 +59,7 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
             <Card
                 className={`shadow-sm ${isClicked ? 'clicked' : ''}`}
                 style={ {
-                    width: '20rem',
+                    width: '100%',
                     cursor: 'pointer',
                     transition: 'transform 0.3s ease, border-color 0.3s ease',
                     borderColor: isClicked ? '#0056b3' : isHovered ? '#007bff' : '',
@@ -94,7 +94,7 @@ const AssessmentsSection: React.FC<AssessmentsSectionProps> = ({ assessments }) 
                 </Card.Body>
             </Card>
 
-            <Modal show={showModal} onHide={handleModalClose} centered>
+            <Modal show={showModal} onHide={handleModalClose} centered style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
                 <Modal.Header closeButton>
                     <Modal.Title>Edit Assessments</Modal.Title>
                 </Modal.Header>

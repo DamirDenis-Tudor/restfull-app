@@ -376,6 +376,6 @@ class LectureStudentController(
         }
 
         return lectureStudentService.getNotAttendingStudentsByLecture(lectureId.toString(), page, size).getOrThrow()
-            .let { ResponseEntity.ok(studentLectureModelAssembler.toCollectionModel(it, lectureId.toLong(), "notAttending")) }
+            .let { ResponseEntity.ok(studentLectureModelAssembler.toCollectionModel(it, lectureId.toLong(), "notEnrolled")) }
     }
 }

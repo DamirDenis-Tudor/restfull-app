@@ -53,9 +53,9 @@ export const LectureInfo: React.FC<FullLectureCardProps> = (
     }, [lectureLink, assessmentLink, filesLink]);
 
     const handleEnrollUnenroll = () => {
-        const studentIdsArray = studentIds.split(',')
-            .map((id) => id.trim())
-            .filter((id) => !isNaN(Number(id)))
+        const studentIdsArray = studentIds.split(' ')
+            .map((id) => id.trim() )
+            .filter((id) => !isNaN(Number(id)) && Number(id) != 0)
             .map(Number);
 
         if (studentIdsArray.length === 0) {

@@ -171,7 +171,8 @@ const StudentCard: React.FC<StudentCardProps> = ({ link, stud, layout = 'vertica
                     style={cardStyle}
                     onClick={onClickOverride ? () => {
                         setIsClicked(!isClicked);
-                        onClickOverride(student.id, isClicked)
+                        onClickOverride(student.id, !isClicked)
+
                     } : handleClick }
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}

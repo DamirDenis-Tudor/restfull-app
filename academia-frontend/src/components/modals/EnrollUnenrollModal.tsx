@@ -24,7 +24,10 @@ export const EnrollUnenrollModal: React.FC<EnrollUnenrollModalProps> = (
         handleAction,
     }) => {
     const onClickOverride = (studentId: number, isActive: boolean) => {
-        const idList = studentIds.split(',').map(id => id.trim());
+        console.log(studentId);
+        console.log(isActive);
+
+        const idList = studentIds.split(' ').map(id => id.trim());
         const studentIdStr = studentId.toString();
 
         if (isActive && !idList.includes(studentIdStr)) {
@@ -34,11 +37,12 @@ export const EnrollUnenrollModal: React.FC<EnrollUnenrollModalProps> = (
             if (index > -1) idList.splice(index, 1);
         }
 
-        onStudentIdsChange(idList.join(', '));
+        onStudentIdsChange(idList.join(' '));
     };
 
     return (
-        <Modal show={show} onHide={handleClose} centered size={"xl"} style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
+        <Modal show={show} onHide={handleClose} centered size={"xl"}
+               style={{transform: 'scale(0.8)', transformOrigin: 'top'}}>
             <Modal.Header closeButton>
                 <Modal.Title>{isEnrolling ? 'Enroll Students' : 'Unenroll Students'}</Modal.Title>
             </Modal.Header>
@@ -50,12 +54,11 @@ export const EnrollUnenrollModal: React.FC<EnrollUnenrollModalProps> = (
                             type="text"
                             value={studentIds}
                             readOnly
-                            placeholder="e.g., 1, 2, 3"
                         />
-                            <StudentList
-                                link={studentLink}
-                                onClickOverride={onClickOverride}
-                            />
+                        <StudentList
+                            link={studentLink}
+                            onClickOverride={onClickOverride}
+                        />
                     </Form.Group>
                 </Form>
             </Modal.Body>
