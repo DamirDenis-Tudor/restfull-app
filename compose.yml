@@ -1,10 +1,10 @@
 services:
-#  academia-fe:
-#    build:
-#      context: academia-frontend
-#    ports:
-#      - "5174:5173"
-#    restart: on-failure
+  academia-fe:
+    build:
+      context: academia-frontend
+    ports:
+      - "5173:5173"
+    restart: on-failure
 
   auth-ms:
     build:

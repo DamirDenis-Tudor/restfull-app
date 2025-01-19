@@ -38,7 +38,8 @@ const AuthProvider: React.FC<{ children: React.ReactNode }> = ({children}) => {
                 sessionStorage.setItem("role", data.role);
                 sessionStorage.setItem("_links", JSON.stringify(data._links));
             }else {
-                toast.error(response.statusText);
+                const data = await response.json();
+                toast.error(data.message);
             }
         } catch (error) {
             console.error("Login error:", error);

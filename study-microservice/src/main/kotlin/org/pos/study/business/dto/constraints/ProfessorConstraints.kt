@@ -21,7 +21,7 @@ sealed class ProfessorConstraints {
     data object Email {
         const val MIN_SIZE = 3
         const val MIN_SIZE_SEARCH = 1
-        const val MAX_SIZE = 10
+        const val MAX_SIZE = 40
     }
 
     data object Affiliation {

@@ -8,7 +8,7 @@ sealed class LectureConstraints {
 
     data object LectureName {
         const val MIN_SIZE = 3
-        const val MAX_SIZE = 10
+        const val MAX_SIZE = 30
     }
 
     data object StudyYear {

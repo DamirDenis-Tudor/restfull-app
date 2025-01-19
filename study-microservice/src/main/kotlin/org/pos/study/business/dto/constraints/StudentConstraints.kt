@@ -18,7 +18,7 @@ sealed class StudentConstraints {
 
     data object Email {
         const val MIN_SIZE = 3
-        const val MAX_SIZE = 15
+        const val MAX_SIZE = 40
     }
 
     data object StudyYear {

@@ -7,4 +7,4 @@ ENV MYSQL_DATABASE=study-database \
 
 COPY .scripts/1-grant.sql /docker-entrypoint-initdb.d/
 COPY .scripts/2-create.sql /docker-entrypoint-initdb.d/
-# COPY ./.scripts/3-insert.sql /docker-entrypoint-initdb.d/
+COPY .scripts/3-insert.sql /docker-entrypoint-initdb.d/

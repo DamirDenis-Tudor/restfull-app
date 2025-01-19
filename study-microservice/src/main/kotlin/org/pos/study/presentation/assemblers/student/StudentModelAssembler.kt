@@ -59,9 +59,6 @@ class StudentModelAssembler : RepresentationModelAssembler<Student, EntityModel<
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
                         .withType("PUT")
                         .withRel("update"),
-                    Link.of("$studyAddress/api/academia/students/${entity.id}")
-                        .withType("GET")
-                        .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/students/${entity.id}")
                         .withType("DELETE")
                         .withRel("delete"),

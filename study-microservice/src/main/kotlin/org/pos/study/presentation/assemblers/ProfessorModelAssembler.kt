@@ -64,9 +64,6 @@ class ProfessorModelAssembler : RepresentationModelAssembler<Professor, EntityMo
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}")
                         .withRel("delete")
                         .withType("DELETE"),
-                    Link.of("$studyAddress/api/academia/professors/${entity.id}")
-                        .withType("GET")
-                        .withRel("profile"),
                     Link.of("${studyAddress}/api/academia/professors/${entity.id}/lectures")
                         .withType("GET")
                         .withRel("lectures")
